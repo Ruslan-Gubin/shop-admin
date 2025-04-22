@@ -1,0 +1,65 @@
+.root {
+  background-color: white;
+  border-radius: 10px;
+  width: 100%;
+  min-width: 850px;
+}
+
+.tableHeader {
+  display: grid;
+  grid-template-columns:
+    64px
+    repeat(5, 1fr)
+    60px
+    60px;
+  border-bottom: 1px solid #e1e1e1;
+}
+
+.tableHeaderLabel {
+  font-weight: 500;
+  font-size: 14px;
+  height: 55px;
+  display: flex;
+  align-items: center;
+  padding-inline: 16px;
+  color: #626667;
+}
+
+.tableHeaderActive {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 55px;
+}
+
+.table {
+  padding: 0;
+  margin: 0;
+}
+
+.tableRow {
+  display: grid;
+  grid-template-columns:
+    64px
+    repeat(5, 1fr)
+    60px
+    60px;
+  border-bottom: 1px solid #e1e1e1;
+}
+
+.tableRowGreen {
+  background-color: #ebf8f7;
+}
+
+.tableRowItem {
+  height: 55px;
+  padding-inline: 16px 5px;
+  display: flex;
+  align-items: center;
+  font-weight: 500;
+  font-style: 14px;
+}
+
+.tableRowItemDelete {
+  cursor: pointer;
+}

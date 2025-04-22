@@ -1,0 +1,70 @@
+.menuToggleSvg {
+  position: relative;
+  transition: all 0.2s linear;
+  transform: rotate(0deg);
+}
+
+.menuToggleSvgHidden {
+  top: -1px;
+  transform: rotate(180deg);
+}
+
+.navList {
+  height: max-content;
+}
+
+.navListHidden {
+  height: 0;
+
+  & .navItem {
+    visibility: hidden;
+  }
+}
+
+.navItem {
+  height: 48px;
+  display: flex;
+  column-gap: 12px;
+  align-items: center;
+  padding-inline: 16px;
+  padding-block: 12px;
+  background-color: transparent;
+  border-radius: 16px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 500;
+  color: #222222;
+}
+
+.menuClose {
+  .navItem {
+    position: relative;
+    animation: closeNavsAnimation 0.4s linear 0s 1 normal forwards;
+  }
+
+  .navsListToggle {
+    visibility: hidden;
+    display: none;
+  }
+}
+
+.navItemActive {
+  background-color: white;
+}
+
+.navsListToggle {
+  justify-content: space-between;
+  color: #a3a3a3;
+}
+
+@keyframes closeNavsAnimation {
+  0% {
+    position: relative;
+    left: 0;
+    max-width: max-content;
+  }
+  100% {
+    left: 235px;
+    max-width: 60px;
+  }
+}

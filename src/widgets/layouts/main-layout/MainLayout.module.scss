@@ -1,0 +1,23 @@
+.root {
+  min-height: 100dvh;
+  height: 100%;
+  width: 100%;
+  position: relative;
+  display: flex;
+  overflow: hidden;
+}
+
+.content {
+  overflow: hidden;
+  width: 100%;
+  padding-left: 340px;
+  transition: padding-left 0.4s linear;
+
+  @media (max-width: 1100px) {
+    padding-left: 0px;
+  }
+}
+
+.contentOpen {
+  padding-left: 70px;
+}

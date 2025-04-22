@@ -1,0 +1,101 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 10010;
+  row-gap: 10px;
+
+  .root {
+    font-size: 14px;
+    border-radius: 12px;
+    max-width: 300px;
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    background-color: #28a746f3;
+    box-shadow: 1px 1px 5px 1px rgba(0, 0, 0, 0.424);
+    position: relative;
+    animation: commigCard 1s 0s 1;
+
+    &:hover {
+      background-color: #28a746;
+      cursor: pointer;
+    }
+
+    .notificationText {
+      color: white;
+      font-weight: 600;
+      line-height: 20px;
+    }
+
+    .successContainer {
+      padding-right: 50px;
+      width: 40px;
+      height: 40px;
+      position: relative;
+
+      &::before {
+        position: absolute;
+        content: "";
+        width: 15px;
+        height: 5px;
+        top: 20px;
+        left: 0px;
+        background-color: white;
+        rotate: (45deg);
+        border-radius: 20px;
+      }
+
+      &::after {
+        position: absolute;
+        content: "";
+        width: 25px;
+        height: 5px;
+        top: 15px;
+        left: 7px;
+        background-color: white;
+        rotate: (-45deg);
+        border-radius: 20px;
+      }
+    }
+
+    .errorContainer {
+      padding-right: 50px;
+      width: 40px;
+      height: 40px;
+      position: relative;
+
+      &::before {
+        position: absolute;
+        content: "!";
+        width: 15px;
+        height: 5px;
+        left: 10px;
+        color: white;
+        font-weight: 600;
+        font-size: 2.7rem;
+
+        border-radius: 20px;
+      }
+    }
+  }
+
+  .error {
+    background-color: #dc3546d9;
+
+    &:hover {
+      background-color: #dc3546;
+    }
+  }
+}
+
+@keyframes commigCard {
+  0% {
+    right: -600px;
+  }
+  100% {
+    right: 0px;
+  }
+}

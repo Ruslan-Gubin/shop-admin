@@ -1,0 +1,28 @@
+@forward "common/libs";
+@forward "common/function";
+
+// :root {
+//   --main: #333;
+//   --main-rgb: 51,51,51;
+//   color-scheme: light;
+// }
+
+body {
+  font-weight: 400;
+  font-family: var(--Roboto);
+
+  &::-webkit-scrollbar {
+    height: 8px;
+    width: 8px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background-color: #c4c4c4;
+    border-radius: 10px;
+  }
+}
+
+// .dark {
+//   --main: #fff;
+//   --main-rgb: 255,255,255;
+//   color-scheme: dark;
+// }

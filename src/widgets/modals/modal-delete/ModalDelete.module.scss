@@ -1,0 +1,78 @@
+.modalContent {
+  width: 520px;
+  padding-top: 24px;
+  background-color: #F5F7F6;
+  border-radius: 12px;
+
+  @media (max-width: 530px) {
+    max-width: 95vw;
+  }
+}
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-inline: 24px;
+}
+
+.titleWrapper {
+  display: flex;
+  align-items: center;
+  column-gap: 16px;
+}
+
+.headerImg {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  min-height: 36px;
+
+  @media (max-width: 530px) {
+   display: none;
+  }
+}
+.headerTitle {
+font-weight: 500;
+font-size: 22px;
+
+  @media (max-width: 530px) {
+    max-width: 80%;
+    line-height: normal;
+  }
+}
+.content {
+  padding-block: 24px 32px;
+  padding-inline: 24px;
+  font-size: 14px;
+  font-weight: 500;
+}
+.contentText {
+color: #0B0C0C;
+padding-bottom: 8px;
+}
+.contentTextRed {
+  width: 380px;
+  color: #F32D2D;
+  line-height: 20px;
+  text-wrap: balance;
+}
+
+.footer {
+  padding-inline: 24px;
+  padding-block: 16px;
+  background-color: #E7EBE8;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  column-gap: 24px;
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
+}
+
+.cancelButton {
+  width: 99px;
+}
+.submitButton {
+  width: 99px;
+  background-color: #F32D2D;
+}
