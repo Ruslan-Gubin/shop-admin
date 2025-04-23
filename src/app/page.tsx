@@ -7,25 +7,43 @@ import { redirect } from "next/navigation";
 import { CONFIG_APP } from "@/shared/config/config";
 
 const fetchProducts = async (page?: number) => {
+  const url = `${CONFIG_APP.BACKEND_URL}product/products?page=${page ? page : 1}&limit=10`;
   try {
-    const url = `${CONFIG_APP.BACKEND_URL}product/products?page=${page ? page : 1}&limit=10`;
     const response = await fetch(url, {
       next: {
         tags: ["products"],
       },
     });
+
+    if (!response.ok) {
+      return {
+        message: "Не удалось получить данные",
+        data: {
+          products: null,
+          totalCount: 0,
+          paginationNumbers: 0,
+        },
+        status: "error",
+      };
+    }
+
     return await response.json();
   } catch {
-    throw new Error("Не удалось получить данные продукта");
+    return {
+      message: "Не удалось получить данные",
+      data: {
+        products: null,
+        totalCount: 0,
+        paginationNumbers: 0,
+      },
+      status: "error",
+    };
   }
 };
 
 const HomePage = async (req: { searchParams: Promise<{ page: string }> }) => {
   const { page } = await req.searchParams;
-
-  const {
-    data: { products, totalCount, paginationPage },
-  } = await fetchProducts(parseInt(page));
+  const productsData = await fetchProducts(parseInt(page));
 
   const onDeleteProduct = async (
     id: number,
@@ -53,14 +71,19 @@ const HomePage = async (req: { searchParams: Promise<{ page: string }> }) => {
 
   return (
     <div className={styles.root}>
-      <HorizontalScrollWrapper>
-        <ProductsTable products={products} onDeleteProduct={onDeleteProduct} />
-      </HorizontalScrollWrapper>
-      {totalCount > 10 && (
+      {productsData.data.products && productsData.data.products.length && (
+        <HorizontalScrollWrapper>
+          <ProductsTable
+            products={productsData.data.products}
+            onDeleteProduct={onDeleteProduct}
+          />
+        </HorizontalScrollWrapper>
+      )}
+      {productsData.data.totalCount > 10 && (
         <PaginationSection
-          page={Number(paginationPage)}
+          page={Number(productsData.data.paginationPage)}
           limit={10}
-          total={totalCount}
+          total={productsData.data.totalCount}
           onChangePage={onChangePageServer}
         />
       )}

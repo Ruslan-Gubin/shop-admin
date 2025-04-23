@@ -15,9 +15,14 @@ const fetchConnect = async () => {
   try {
     const url = `${CONFIG_APP.BACKEND_URL}connect`;
     const response = await fetch(url);
+
+    if (!response.ok) {
+      return { message: "Не удалось востановить соединение" };
+    }
+
     return await response.json();
   } catch {
-    throw new Error("Не удалось получить данные продукта");
+    return { message: "Не удалось востановить соединение" };
   }
 };
 
@@ -27,7 +32,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const connect = await fetchConnect();
-  console.log(connect);
+
   return (
     <html lang="en">
       <head>
