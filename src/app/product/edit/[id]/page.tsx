@@ -1,6 +1,6 @@
 import { AddProductForm } from "@/widgets/products/add-product-form/AddProductForm";
-import { CONFIG_APP } from "@/shared/constants/config";
 import styles from "../../../styles/pages/Home.module.scss";
+import { CONFIG_APP } from "@/shared/config/config";
 
 const fetchData = async (id: string) => {
   try {

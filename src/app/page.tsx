@@ -1,10 +1,10 @@
 import { HorizontalScrollWrapper } from "@/shared/ui/horizontal-scroll-wrapper/HorizontalScrollWrapper";
 import styles from "./styles/pages/Home.module.scss";
-import { CONFIG_APP } from "@/shared/constants/config";
 import { PaginationSection } from "@/shared/ui/pagination-section/PaginationSection";
 import { ProductsTable } from "@/widgets/products/products-table/ProductsTable";
 import { revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
+import { CONFIG_APP } from "@/shared/config/config";
 
 const fetchProducts = async (page?: number) => {
   try {

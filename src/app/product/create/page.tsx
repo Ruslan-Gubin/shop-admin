@@ -1,6 +1,6 @@
 import { AddProductForm } from "@/widgets/products/add-product-form/AddProductForm";
 import styles from "../../styles/pages/Home.module.scss";
-import { CONFIG_APP } from "@/shared/constants/config";
+import { CONFIG_APP } from "@/shared/config/config";
 
 const CreateProductPage = () => {
   const submitForm = async (payload: {
