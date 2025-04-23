@@ -6,8 +6,8 @@ import { NotificationList } from "@/widgets/notification/notifications-resul/Not
 
 export const generateMetadata = async () =>
   getMetadata({
-    title: "Layout title",
-    description: "Generate by create next app",
+    title: "Панель управления",
+    description: "Административная панель",
   });
 
 export default function RootLayout({

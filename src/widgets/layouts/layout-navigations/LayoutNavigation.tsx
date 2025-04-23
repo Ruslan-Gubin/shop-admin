@@ -1,10 +1,6 @@
 import { useRouter, usePathname } from "next/navigation";
 import { LayoutNavsGroup } from "../layout-navs-group/LayoutNavsGroup";
-import {
-  personalAccountNavs,
-  // workspaceNavs,
-} from "../../../shared/constants/side-menu";
-// import { ServicesSvg } from "../../../shared/svg/side-menu/ServicesSvg";
+import { personalAccountNavs } from "../../../shared/constants/side-menu";
 import styles from "./LayoutNavigation.module.scss";
 import { MainImage } from "@/shared/ui/image-main/ImageMain";
 
@@ -31,7 +27,13 @@ const LayoutNavigation = ({ isOpen, onToggleMenu }: Props) => {
             classImg={styles.menuButtonImage}
           />
         </button>
-        <header className={styles.menuHeader}></header>
+        <header className={styles.menuHeader}>
+          <MainImage
+            src={"/assets/logo.png"}
+            alt="Logo image"
+            classContainer={styles.logoImage}
+          />
+        </header>
 
         <LayoutNavsGroup
           menuIsOpen={isOpen}
