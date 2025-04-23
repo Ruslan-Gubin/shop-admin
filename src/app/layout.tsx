@@ -29,7 +29,7 @@ export default async function RootLayout({
   const connect = await fetchConnect();
   console.log(connect);
   return (
-    <html lang="en" className={Roboto.variable}>
+    <html lang="en">
       <head>
         <link
           rel="icon"
@@ -46,7 +46,7 @@ export default async function RootLayout({
         />
         <link rel="manifest" href="/favicon/site.webmanifest" />
       </head>
-      <body>
+      <body className={Roboto.variable}>
         <NotificationList />
         <MainLayout isConnect={connect.status === "success"}>
           {children}
