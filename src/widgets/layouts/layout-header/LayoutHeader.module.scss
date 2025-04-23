@@ -39,26 +39,19 @@
   align-items: center;
 }
 
+.connectTitle {
+  font-weight: 600;
+  color: lightcoral;
+}
+
+.connectTitleGreen {
+  color: lightgreen;
+}
+
 .layoutHeaderSvgContainer {
   width: 40px;
   aspect-ratio: 1/1;
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-.verticalLine {
-  width: 1px;
-  height: 40px;
-  background-color: #d4d9e4;
-}
-
-.layoutHeaderUser {
-  background-color: #ffd5fb;
-  border-radius: 8px;
-  height: 32px;
-  padding: 6px 12px;
-  color: #9600ae;
-  display: flex;
-  align-items: center;
 }

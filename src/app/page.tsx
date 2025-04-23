@@ -12,9 +12,7 @@ const fetchProducts = async (page?: number) => {
     const response = await fetch(url, {
       next: {
         tags: ["products"],
-        // revalidate: 60,
       },
-      // cache: "default",
     });
     return await response.json();
   } catch {

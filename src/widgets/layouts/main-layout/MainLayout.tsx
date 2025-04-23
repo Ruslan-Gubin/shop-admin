@@ -8,9 +8,10 @@ import styles from "./MainLayout.module.scss";
 
 type Props = {
   children: ReactNode;
+  isConnect: boolean;
 };
 
-const MainLayout = ({ children }: Props) => {
+const MainLayout = ({ children, isConnect }: Props) => {
   const [isOpen, setIsOpen] = useState<boolean>(true);
   const pathname = usePathname();
 
@@ -30,7 +31,7 @@ const MainLayout = ({ children }: Props) => {
           !isOpen ? `${styles.content} ${styles.contentOpen}` : styles.content
         }
       >
-        <LayoutHeader title={titleMap[pathname]} />
+        <LayoutHeader title={titleMap[pathname]} isConnect={isConnect} />
         {children}
       </div>
     </main>

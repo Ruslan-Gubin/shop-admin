@@ -3,6 +3,7 @@
   border-radius: 10px;
   width: 100%;
   min-width: 850px;
+  border: 1px solid #e1e1e1;
 }
 
 .tableHeader {
@@ -45,6 +46,10 @@
     60px
     60px;
   border-bottom: 1px solid #e1e1e1;
+
+  &:nth-last-child(1) {
+    border-bottom-color: transparent;
+  }
 }
 
 .tableRowGreen {

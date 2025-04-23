@@ -3,6 +3,7 @@ import "./styles/globals.scss";
 import { getMetadata } from "@/shared/utils/get-metadata";
 import { MainLayout } from "@/widgets/layouts/main-layout/MainLayout";
 import { NotificationList } from "@/widgets/notification/notifications-resul/NotificationsResult";
+import { CONFIG_APP } from "@/shared/config/config";
 
 export const generateMetadata = async () =>
   getMetadata({
@@ -10,11 +11,23 @@ export const generateMetadata = async () =>
     description: "Административная панель",
   });
 
-export default function RootLayout({
+const fetchConnect = async () => {
+  try {
+    const url = `${CONFIG_APP.BACKEND_URL}connect`;
+    const response = await fetch(url);
+    return await response.json();
+  } catch {
+    throw new Error("Не удалось получить данные продукта");
+  }
+};
+
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const connect = await fetchConnect();
+  console.log(connect);
   return (
     <html lang="en" className={Roboto.variable}>
       <head>
@@ -35,7 +48,9 @@ export default function RootLayout({
       </head>
       <body>
         <NotificationList />
-        <MainLayout>{children}</MainLayout>
+        <MainLayout isConnect={connect.status === "success"}>
+          {children}
+        </MainLayout>
       </body>
     </html>
   );

@@ -1,5 +1,4 @@
-// import { CalendarSvg } from "../svg/side-menu/CalendarSvg";
-// import { PaymentsSvg } from "../svg/side-menu/PaymentsSvg";
+import { CreateProductSvg } from "../svg/side-menu/CreateProductSvg";
 import { RegisterSvg } from "../svg/side-menu/RegisterSvg";
 import { StarsMenuSvg } from "../svg/side-menu/StarsMenuSvg";
 import type { ComponentType, SVGProps } from "react";
@@ -26,7 +25,7 @@ export const personalAccountNavs: NavsMenuItemType[] = [
     id: 2,
     title: "Добавить товар",
     href: "product/create",
-    svg: RegisterSvg,
+    svg: CreateProductSvg,
     active: ["/product/create"],
   },
   // {
