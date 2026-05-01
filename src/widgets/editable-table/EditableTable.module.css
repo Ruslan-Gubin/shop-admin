@@ -1,0 +1,214 @@
+.table {
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+  z-index: 0;
+  max-height: 1000px;
+  border: 1px solid lightgray;
+  border-radius: 4px;
+  max-width: 100%;
+}
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.headerLine {
+  display: grid;
+  min-height: 50px;
+  background-color: #f5f7f6;
+}
+
+.headerCell {
+  display: flex;
+  align-items: center;
+  padding-inline: 16px 5px;
+  padding-block: 5px;
+  background-color: #f5f7f6;
+  color: #333333;
+  font-size: 14px;
+  font-weight: 500;
+  border-right: 1px solid lightgray;
+
+  &:nth-last-child(1) {
+    border-right: none;
+  }
+}
+
+.textOverflowLine {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dataCell {
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  padding-inline: 16px 5px;
+  padding-block: 5px;
+  color: #333333;
+  font-size: 14px;
+  text-wrap: balance;
+  background-color: white;
+  border-right: 1px solid lightgray;
+  border-bottom: 1px solid lightgray;
+
+  &:nth-last-child(1) {
+    border-right: none;
+  }
+}
+
+.dataCellAction {
+  display: flex;
+  column-gap: 6px;
+  padding-inline: 6px;
+}
+
+.dataRow {
+  display: grid;
+  min-height: 50px;
+
+  &:nth-last-child(1) {
+    .dataCell {
+      border-bottom: none;
+    }
+  }
+}
+
+.stickyFirstColumn {
+  & .headerCell:nth-child(1) {
+    position: sticky;
+    left: 0px;
+  }
+
+  & .header:has(.hasAction) {
+    .headerCell:nth-child(1) {
+      border-right: none;
+    }
+
+    & .headerCell:nth-child(2) {
+      position: sticky;
+      left: var(--first-col-width);
+    }
+  }
+
+  & .dataCell:nth-child(1) {
+    position: sticky;
+    left: 0px;
+  }
+
+  & .dataRow:has(.dataCellAction) {
+    & .dataCell:nth-child(1) {
+      border-right: none;
+    }
+
+    & .dataCell:nth-child(2) {
+      position: sticky;
+      left: var(--first-col-width);
+      border-left: none;
+
+      & button {
+        opacity: 0;
+      }
+
+      &:hover {
+        & button {
+          opacity: 1;
+        }
+      }
+    }
+
+    & .dataCell:nth-child(1):hover ~ .dataCell:nth-child(2) {
+      & button {
+        opacity: 1;
+      }
+    }
+  }
+}
+
+.stickyTwoFirstColumn {
+  & .headerCell:nth-child(1) {
+    position: sticky;
+    left: 0px;
+    border-right: none;
+  }
+
+  & .headerCell:nth-child(2) {
+    position: sticky;
+    left: var(--first-col-width);
+  }
+
+  & .dataCell:nth-child(1) {
+    position: sticky;
+    left: 0px;
+    border-right: none;
+  }
+
+  & .dataCell:nth-child(2) {
+    position: sticky;
+    left: var(--first-col-width);
+  }
+
+  & .header:has(.hasAction) {
+    .headerCell:nth-child(2) {
+      border-right: none;
+    }
+
+    & .headerCell:nth-child(3) {
+      position: sticky;
+      left: calc(var(--first-col-width) + var(--second-col-width));
+      border-left: none;
+    }
+  }
+
+  & .dataRow:has(.dataCellAction) {
+    & .dataCell:nth-child(2) {
+      border-right: none;
+    }
+
+    & .dataCell:nth-child(3) {
+      position: sticky;
+      left: calc(var(--first-col-width) + var(--second-col-width));
+
+      & button {
+        opacity: 0;
+      }
+
+      &:hover {
+        & button {
+          opacity: 1;
+        }
+      }
+    }
+
+    & .dataCell:nth-child(1):hover ~ .dataCell:nth-child(3),
+    & .dataCell:nth-child(2):hover ~ .dataCell:nth-child(3) {
+      & button {
+        opacity: 1;
+      }
+    }
+  }
+}
+
+.dataCellInput {
+  padding-inline: 16px;
+}
+
+.cellInput {
+  background-color: transparent;
+  border-radius: 4px;
+  max-width: 100%;
+  padding-inline: 4px;
+  cursor: pointer;
+  padding-block: 4px;
+
+  &:focus {
+    cursor: default;
+    border: 1px solid lightgray;
+  }
+}

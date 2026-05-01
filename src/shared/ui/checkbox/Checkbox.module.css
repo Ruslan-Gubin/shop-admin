@@ -1,0 +1,35 @@
+.checkboxLabel {
+  display: flex;
+  align-items: center;
+  user-select: none;
+  gap: 12px;
+  max-width: max-content;
+  cursor: pointer;
+}
+.checkbox {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  background-color: transparent;
+  border: 1px solid lightgray;
+  border-radius: 4px;
+  transition: outline 0.1s;
+  z-index: 1;
+}
+
+.checkbox:checked {
+  border: 1px solid #38a169;
+  position: relative;
+}
+
+.checkbox:checked::after {
+  content: "";
+  position: absolute;
+  background-color: #38a169;
+  border-radius: 2px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 70%;
+  height: 70%;
+}

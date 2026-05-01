@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { z } from "zod";
+import type { Schema } from "zod";
+
 
 const getEmptyErrorsObj = <T>(obj: T): T => {
   const result: Record<string, string> = {};
@@ -11,9 +12,10 @@ const getEmptyErrorsObj = <T>(obj: T): T => {
 
 interface FormValuesProps<T> {
   initValues: T;
-  payloadSchema?: z.Schema;
+  payloadSchema?: Schema;
 }
 
+//TODO REMOVE
 const useFormValues = <T extends object>({
   initValues,
   payloadSchema,

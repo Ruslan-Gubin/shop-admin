@@ -1,0 +1,11 @@
+.loginWrapper {
+  border: 1px solid black;
+  border-radius: 12px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-block: 120px;
+  padding-inline: 260px;
+}
+

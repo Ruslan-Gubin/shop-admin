@@ -1,0 +1,164 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.card {
+  border: 1px solid lightgray;
+  border-radius: 4px;
+  background-color: white;
+  overflow: hidden;
+  padding: 16px 12px;
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 40px;
+  min-height: 40px;
+  position: relative;
+}
+
+.cardHeaderLeftSide {
+  display: flex;
+  column-gap: 8px;
+}
+
+.cartHeaderList {
+  display: flex;
+  align-items: center;
+  column-gap: 8px;
+  flex-wrap: wrap;
+  max-height: 40px;
+  overflow: hidden;
+}
+
+.headerListItem {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  row-gap: 4px;
+  min-height: 40px;
+  padding-block: 4px;
+}
+
+.headerListLabel {
+  font-size: 12px;
+  color: #333333;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.headerListValue {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #333333;
+  font-size: 12px;
+}
+
+.cardActions {
+  display: flex;
+  align-items: center;
+  column-gap: 8px;
+  position: sticky;
+  height: 100%;
+  top: 0;
+  right: 0;
+}
+
+.cardActions button {
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cardBody {
+  padding-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 12px;
+}
+
+.cellRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 30px;
+}
+
+.cellLabel {
+  color: #666;
+  flex-shrink: 0;
+  margin-right: 10px;
+}
+
+.cellValue {
+  text-align: right;
+  color: #333;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  min-height: 40px;
+  overflow: hidden;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.card[open] {
+  .headerListItem {
+    display: none;
+  }
+  .cardBody {
+    /* height: max-content; */
+    /* animation: openContent 0.2s ease 1 forwards; */
+    grid-template-rows: 1fr;
+  }
+}
+
+@keyframes openContent {
+  0% {
+    height: 0px;
+  }
+
+  100% {
+    height: min-content;
+  }
+}
+
+.birdContainer {
+  width: 18px;
+  min-width: 18px;
+}
+
+.navigateMenuItemSvg {
+  transform: rotate(90deg);
+}
+
+.navigateMenuItemSvgActive {
+  will-change: transform;
+  transform: rotate(90deg);
+  animation: rotateBird 0.2s ease 1 forwards;
+}
+
+@keyframes rotateBird {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(90deg);
+  }
+}

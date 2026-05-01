@@ -1,0 +1,27 @@
+.navigateLogoContainer {
+  min-height: 120px;
+  width: 100%;
+  border-bottom: 1px solid lightgray;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  @media (max-width: 880px) {
+    display: none;
+  }
+}
+
+.logoImage {
+  width: 120px;
+  height: 90px;
+  position: relative;
+  margin: 0 auto;
+}
+
+.navigateMenuNav {
+  padding: var(--padding-content-block);
+  padding-right: calc(var(--padding-content-block) - 11px);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}

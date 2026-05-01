@@ -1,0 +1,10 @@
+.mobileMenuButton {
+  border-radius: 50%;
+  height: 30px;
+  width: 30px;
+  color: inherit;
+  background-color: gainsboro;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

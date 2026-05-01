@@ -1,12 +1,7 @@
-const CancelSvg = () => {
+export const CancelSvg = () => {
   return (
-    <svg
-      width="11"
-      height="12"
-      viewBox="0 0 11 12"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg width="11" height="12" viewBox="0 0 11 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <title>Сбросить</title>
       <path
         d="M1.09033 1.75708L9.57633 10.2431M9.57633 1.75708L1.09033 10.2431"
         stroke="#A3A3A3"
@@ -17,5 +12,3 @@ const CancelSvg = () => {
     </svg>
   );
 };
-
-export { CancelSvg };

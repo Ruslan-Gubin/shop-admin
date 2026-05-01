@@ -1,0 +1,298 @@
+.wrapper {
+  display: flex;
+  align-items: center;
+  position: relative;
+  border-bottom-color: blue;
+}
+
+.inputWrapper {
+  flex: 1 1 auto;
+  height: 100%;
+  position: relative;
+  padding-inline: 8px;
+
+  @media (max-width: 500px) {
+    padding-inline: 6px;
+  }
+}
+
+.error {
+  position: absolute;
+  left: 0;
+  padding-inline: 8px;
+  transform: translateY(-50%);
+  top: 0;
+  cursor: default;
+  color: #d32f2f;
+  font-size: 0.75em;
+  max-width: 95%;
+  text-overflow: ellipsis;
+  text-wrap: nowrap;
+  overflow: hidden;
+
+  @media (max-width: 500px) {
+    padding-inline: 6px;
+    max-width: 90%;
+  }
+}
+
+.input {
+  width: 100%;
+  height: 100%;
+  background-color: transparent;
+  color: var(--text-color-main);
+}
+
+.input::placeholder {
+  color: #75787a;
+}
+
+.label {
+  position: absolute;
+  padding-inline: 8px;
+  transform: translateY(-50%);
+  max-width: 95%;
+  text-overflow: ellipsis;
+  text-wrap: nowrap;
+  overflow: hidden;
+  left: 0;
+
+  @media (max-width: 500px) {
+    padding-inline: 6px;
+    max-width: 90%;
+  }
+}
+
+.wrapper:has(.input:placeholder-shown) {
+  .buttonClear {
+    display: none;
+  }
+}
+
+.wrapper:has(.input:not(:placeholder-shown)) {
+  .buttonClear {
+    display: flex;
+    align-items: center;
+  }
+}
+
+.inputWrapper:has(.input:placeholder-shown) {
+  .label {
+    top: 50%;
+    color: #75787a;
+    cursor: text;
+  }
+}
+
+.inputWrapper:has(.input:not(:placeholder-shown)) {
+  .label {
+    top: 0%;
+    color: #171717;
+    font-size: 0.75em;
+    background-color: white;
+    cursor: default;
+  }
+}
+
+.standard {
+  border-bottom: 1px solid #cecece;
+
+  &:focus-within {
+    border-color: #757575;
+
+    .inputWrapper:has(.input:placeholder-shown) {
+      & .label {
+        animation: label-animate-filled ease-out 0.2s 1 forwards;
+      }
+    }
+    .inputWrapper:has(.input:not(:placeholder-shown)) {
+      & .label {
+        animation: label-animate-filled ease-out 0s 1 forwards;
+      }
+    }
+  }
+
+  & .label {
+    background-color: transparent;
+  }
+}
+
+.outlined {
+  border-radius: 4px;
+  padding-inline: 8px;
+  border: 1px solid #cecece;
+
+  &:focus-within {
+    border-color: #757575;
+
+    .inputWrapper:has(.input:placeholder-shown) {
+      & .label {
+        animation: label-animate linear 0.2s 1 forwards;
+      }
+    }
+    .inputWrapper:has(.input:not(:placeholder-shown)) {
+      & .label {
+        animation: label-animate linear 0s 1 forwards;
+      }
+    }
+  }
+
+  & .label {
+    background-color: white;
+  }
+
+  & .error {
+    background-color: white;
+  }
+}
+
+@keyframes label-animate {
+  0% {
+    top: 50%;
+    color: #cecece;
+  }
+
+  100% {
+    top: 0%;
+    color: #171717;
+    font-size: 0.75em;
+    background-color: white;
+    cursor: default;
+  }
+}
+
+.filled {
+  background-color: #fafafa;
+  padding-inline: 8px;
+  border-bottom: 1px solid #cecece;
+
+  & .input {
+    background-color: #fafafa;
+  }
+
+  &:focus-within {
+    border-color: #757575;
+
+    .inputWrapper:has(.input:placeholder-shown) {
+      & .label {
+        animation: label-animate-filled linear 0.2s 1 forwards;
+      }
+    }
+    .inputWrapper:has(.input:not(:placeholder-shown)) {
+      & .label {
+        animation: label-animate-filled linear 0s 1 forwards;
+      }
+    }
+  }
+
+  & .label {
+    background-color: transparent;
+  }
+
+  @media (max-width: 500px) {
+    padding-inline: 6px;
+  }
+}
+
+@keyframes label-animate-filled {
+  0% {
+    top: 50%;
+    color: #cecece;
+  }
+
+  100% {
+    top: 0;
+    color: #171717;
+    font-size: 0.75em;
+    background-color: transparent;
+    cursor: default;
+  }
+}
+
+.xs {
+  height: 24px;
+  padding-inline: 4px;
+
+  svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  font-size: 12px;
+}
+
+.sm {
+  height: 32px;
+  font-size: 14px;
+  padding-inline: 6px;
+
+  @media (max-width: 880px) {
+    font-size: 12px;
+    height: 28px;
+
+    svg {
+      width: 18px;
+      height: 18px;
+    }
+  }
+
+  @media (max-width: 500px) {
+    padding-inline: 4px;
+
+    svg {
+      width: 16px;
+      height: 16px;
+    }
+  }
+}
+
+.md {
+  height: 40px;
+  font-size: 16px;
+
+  @media (max-width: 880px) {
+    font-size: 14px;
+    height: 36px;
+
+    svg {
+      width: 20px;
+      height: 20px;
+    }
+  }
+
+  @media (max-width: 500px) {
+    padding-inline: 6px;
+    font-size: 12px;
+    height: 32px;
+
+    svg {
+      width: 18px;
+      height: 18px;
+    }
+  }
+}
+
+.lg {
+  font-size: 18px;
+  height: 55px;
+
+  @media (max-width: 880px) {
+    font-size: 16px;
+    height: 36px;
+
+    svg {
+      width: 22px;
+      height: 22px;
+    }
+  }
+
+  @media (max-width: 500px) {
+    font-size: 14px;
+    height: 32px;
+
+    svg {
+      width: 20px;
+      height: 20px;
+    }
+  }
+}

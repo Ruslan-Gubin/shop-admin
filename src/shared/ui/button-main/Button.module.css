@@ -1,0 +1,389 @@
+.button {
+  border-radius: 4px;
+  text-wrap: nowrap;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  column-gap: 8px;
+  font-weight: 500;
+  width: max-content;
+  border: 1px solid transparent;
+}
+
+.xs {
+  font-size: 12px;
+  padding-inline: 8px;
+  height: 24px;
+
+  svg {
+    width: 12px;
+    height: 12px;
+  }
+}
+
+.sm {
+  font-size: 14px;
+  padding-inline: 12px;
+  height: 32px;
+
+  svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  @media (max-width: 880px) {
+    font-size: 12px;
+    padding-inline: 10px;
+    height: 28px;
+
+    svg {
+      width: 12px;
+      height: 12px;
+    }
+  }
+}
+
+.md {
+  font-size: 16px;
+  padding-inline: 16px;
+  height: 40px;
+
+  svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  @media (max-width: 880px) {
+    font-size: 14px;
+    padding-inline: 14px;
+    height: 36px;
+
+    svg {
+      width: 14px;
+      height: 14px;
+    }
+  }
+
+  @media (max-width: 500px) {
+    font-size: 12px;
+    padding-inline: 12px;
+    height: 32px;
+
+    svg {
+      width: 12px;
+      height: 12px;
+    }
+  }
+}
+
+.lg {
+  font-size: 18px;
+  padding-inline: 24px;
+  height: 55px;
+
+  svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  @media (max-width: 880px) {
+    font-size: 16px;
+    padding-inline: 20px;
+    height: 50px;
+
+    svg {
+      width: 16px;
+      height: 16px;
+    }
+  }
+
+  @media (max-width: 500px) {
+    font-size: 14px;
+    padding-inline: 16px;
+    height: 45px;
+
+    svg {
+      width: 14px;
+      height: 14px;
+    }
+  }
+}
+
+.fullWidth {
+  width: 100%;
+}
+
+.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.button:focus-visible {
+  box-shadow: 1px 1px 5px 1px lightslategray;
+}
+
+.link {
+  padding: 0;
+  height: max-content;
+}
+
+.defaultVariantColor {
+  color: dimgrey;
+  border: 1px solid dimgrey;
+
+  &:hover {
+    color: dimgrey;
+    border: 1px solid dimgrey;
+  }
+
+  &.outline {
+    background-color: transparent;
+    border: 1px solid dimgrey;
+    color: dimgrey;
+
+    &:hover {
+      border: 1px solid dimgrey;
+      color: dimgrey;
+    }
+  }
+
+  &.ghost {
+    border: 1px solid transparent;
+
+    &:hover {
+      background-color: #69696910;
+    }
+  }
+
+  &.link {
+    border: 1px solid transparent;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+.green {
+  background-color: #38a169;
+  color: white;
+
+  &:hover {
+    background-color: rgb(47, 133, 90);
+  }
+
+  &:hover:disabled {
+    background-color: #38a169;
+  }
+
+  &.outline {
+    background-color: transparent;
+    border: 1px solid #38a169;
+    color: #38a169;
+
+    &:hover {
+      border: 1px solid #38a169;
+      color: #38a169;
+    }
+  }
+
+  &.ghost {
+    border: 1px solid transparent;
+    background-color: transparent;
+    color: #38a169;
+
+    &:hover {
+      background-color: #38a16910;
+      color: #38a169;
+    }
+  }
+
+  &.link {
+    background-color: transparent;
+    color: #38a169;
+
+    &:hover {
+      text-decoration: underline;
+      color: #38a169;
+    }
+  }
+}
+
+.pink {
+  background-color: #d53f8c;
+  color: white;
+
+  &:hover {
+    background-color: #be377d;
+  }
+
+  &:hover:disabled {
+    background-color: #d53f8c;
+  }
+
+  &.outline {
+    background-color: transparent;
+    border: 1px solid #d53f8c;
+    color: #d53f8c;
+
+    &:hover {
+      border: 1px solid #be377d;
+      color: #be377d;
+    }
+  }
+
+  &.ghost {
+    border: 1px solid transparent;
+    background-color: transparent;
+    color: #d53f8c;
+
+    &:hover {
+      background-color: #d53f8c10;
+      color: #be377d;
+    }
+  }
+
+  &.link {
+    background-color: transparent;
+    color: #d53f8c;
+
+    &:hover {
+      text-decoration: underline;
+      color: #be377d;
+    }
+  }
+}
+
+.error {
+  background-color: indianred;
+  color: white;
+
+  &:hover {
+    background-color: #b04545;
+  }
+
+  &:hover:disabled {
+    background-color: indianred;
+  }
+
+  &.outline {
+    background-color: transparent;
+    border: 1px solid indianred;
+    color: indianred;
+
+    &:hover {
+      border: 1px solid #b04545;
+      color: #b04545;
+    }
+  }
+
+  &.ghost {
+    border: 1px solid transparent;
+    background-color: transparent;
+    color: indianred;
+
+    &:hover {
+      background-color: #cd5c5c10;
+      color: #dc2504;
+    }
+  }
+
+  &.link {
+    background-color: transparent;
+    color: indianred;
+
+    &:hover {
+      text-decoration: underline;
+      color: #dc2504;
+    }
+  }
+}
+
+.teal {
+  background-color: lightseagreen;
+  color: white;
+
+  &:hover {
+    background-color: teal;
+  }
+
+  &:hover:disabled {
+    background-color: lightseagreen;
+  }
+
+  &.outline {
+    background-color: transparent;
+    border: 1px solid lightseagreen;
+    color: lightseagreen;
+
+    &:hover {
+      border: 1px solid lightseagreen;
+      color: lightseagreen;
+    }
+  }
+
+  &.ghost {
+    background-color: transparent;
+    color: lightseagreen;
+
+    &:hover {
+      color: lightseagreen;
+      background-color: #20b2aa10;
+    }
+  }
+
+  &.link {
+    background-color: transparent;
+    color: lightseagreen;
+
+    &:hover {
+      text-decoration: underline;
+      color: lightseagreen;
+    }
+  }
+}
+
+.blue {
+  background-color: #0075f2;
+  color: white;
+
+  &:hover {
+    background-color: #056fe1;
+  }
+
+  &:hover:disabled {
+    background-color: #0075f2;
+  }
+
+  &.outline {
+    background-color: transparent;
+    border: 1px solid #0075f2;
+    color: #0075f2;
+
+    &:hover {
+      border: 1px solid #056fe1;
+      color: #056fe1;
+    }
+  }
+
+  &.ghost {
+    background-color: transparent;
+    color: #0075f2;
+
+    &:hover {
+      color: #056fe1;
+      background-color: #f2f7fd;
+    }
+  }
+
+  &.link {
+    background-color: transparent;
+    color: #0075f2;
+
+    &:hover {
+      text-decoration: underline;
+      color: #056fe1;
+    }
+  }
+}

@@ -1,11 +1,12 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  cacheComponents: true,
+  compiler: {
+    reactRemoveProperties: true,
+  },
   images: {
-    remotePatterns: [
-      { protocol: "https", hostname: "**", pathname: "**" },
-      //{ protocol: 'http', hostname: 'test.en.feejoy.com:35333', pathname: '**' },
-    ],
+    remotePatterns: [{ protocol: "https", hostname: "**", pathname: "**" }],
   },
 };
 

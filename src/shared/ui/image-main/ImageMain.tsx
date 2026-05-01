@@ -17,7 +17,7 @@ const MainImage = ({ priority, classContainer, classImg, alt, src }: Props) => {
         alt={alt}
         className={classImg}
         fill
-        sizes="100%"
+        // sizes="100%"
       />
     </div>
   );

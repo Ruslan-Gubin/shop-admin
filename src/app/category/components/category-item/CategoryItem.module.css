@@ -1,0 +1,164 @@
+.categoryList {
+  color: black;
+  margin-left: 10px;
+  padding-left: 6px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+}
+
+.categoryListItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: white;
+  height: 30px;
+  z-index: 1;
+  position: relative;
+
+  border: 1px solid white;
+
+  &:hover {
+    background-color: #f3f4f8;
+  }
+}
+
+.hoverDragHeaderLine {
+  &::before {
+    content: "";
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 2px;
+    width: 100%;
+    background-color: #c1d5f6;
+    z-index: -1;
+  }
+}
+
+.hoverDragFooterLine {
+  &::before {
+    content: "";
+    display: block;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 2px;
+    width: 100%;
+    background-color: #c1d5f6;
+    z-index: 1;
+  }
+}
+
+.hoverDragCenter {
+  /* border: 1px solid #c1d5f6; */
+  background-color: #e3ebf8;
+}
+
+.categoryName {
+  text-wrap: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: black;
+}
+
+.categoryNameSearch {
+  background-color: orange;
+}
+
+.categoryNameDrag {
+  display: none;
+}
+
+.dragButton {
+  cursor: grab;
+  display: flex;
+  align-items: center;
+  overflow: visible;
+  position: relative;
+}
+
+.dragSvgContainer {
+  min-width: 20px;
+  display: flex;
+  align-items: center;
+}
+
+.selected {
+  .categoryNameDrag {
+    position: absolute;
+    left: 40px;
+    display: block;
+    overflow: visible;
+    text-wrap: nowrap;
+    opacity: 0;
+    padding-right: 12px;
+    color: black;
+  }
+}
+
+.borderLeft {
+  width: 50%;
+  height: 100%;
+  position: absolute;
+  top: 0px;
+  left: 0;
+  border-left: 1px solid lightgray;
+  z-index: 0;
+}
+
+.actionContainer {
+  display: flex;
+  align-items: center;
+  column-gap: 8px;
+  padding-right: 4px;
+}
+
+.categoryListButton {
+  color: black;
+  max-width: max-content;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 4px;
+}
+
+.leftSide {
+  display: flex;
+  align-items: center;
+}
+
+.leftSideCategory {
+  display: flex;
+  align-items: center;
+  color: black;
+  column-gap: 2px;
+}
+
+.arrowContainer {
+  width: 18px;
+  height: 18px;
+}
+
+.navigateMenuItemSvg {
+  transform: rotate(0deg);
+}
+
+.navigateMenuItemSvgActive {
+  will-change: transform;
+  transform: rotate(90deg);
+  animation: rotateBird 0.2s ease 1 forwards;
+}
+
+@keyframes rotateBird {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(90deg);
+  }
+}

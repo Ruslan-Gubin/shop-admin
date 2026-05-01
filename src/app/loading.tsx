@@ -1,12 +1,12 @@
-import { LoadigSvg } from "@/shared/svg/LoadigSvg";
-import styles from "./styles/pages/Loading.module.scss";
+import { LoadingSvg } from "@/shared/svg/LoadingSvg";
+import styles from "./styles/Loading.module.css";
 
 export default function Loading() {
   return (
     <div className={styles.loadingWrapper}>
       <div className={styles.centerContent}>
         <div className={styles.loadingSvgContainer}>
-          <LoadigSvg />
+          <LoadingSvg />
         </div>
         <p className={styles.loadingText}>Загрузка</p>
       </div>

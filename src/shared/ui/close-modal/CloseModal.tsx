@@ -1,6 +1,6 @@
 import { MainImage } from "../image-main/ImageMain";
 
-import styles from "./CloseModal.module.scss";
+import styles from "./CloseModal.module.css";
 
 type Props = {
   onClose?: () => void;

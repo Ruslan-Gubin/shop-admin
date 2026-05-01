@@ -1,67 +1,39 @@
-"use client";
-import type { FC } from "react";
+import Link from "next/link";
+import { getUpdateQueryPageString } from "@/shared/helpers/getUpdateQueryPageString";
 import { paginationNumbers } from "./helper";
-import { PaginationProps } from "./types";
+import styles from "./Pagination.module.css";
 
-import styles from "./Pagination.module.scss";
+type Props = {
+  total: number;
+  limit: number;
+  page: number;
+  className?: string;
+  patch: string;
+  searchParams: { [key: string]: string | string[] | undefined };
+};
 
-const Pagination: FC<PaginationProps> = ({
-  countPerPage,
-  totalCount,
-  currentPage,
-  clickNumber,
-  className,
-}) => {
-  const lastPage = Math.ceil(totalCount / countPerPage);
-  const numbers: number[] = [...paginationNumbers(currentPage, lastPage)];
-
-  const getPageNumber = (page: number) => {
-    return page < 10 ? `0${page}` : page;
-  };
+export const Pagination = (props: Props) => {
+  const lastPage = Math.ceil(props.total / props.limit);
+  const numbers: number[] = [...paginationNumbers(props.page, lastPage)];
 
   return (
-    <section
-      className={
-        className ? `${styles.pagination} ${className}` : styles.pagination
-      }
-    >
-      {/* <button
-        onClick={currentPage > 1 ? prevPage : () => false}
-        className={
-          currentPage > 1
-            ? styles.paginationButton
-            : `${styles.paginationButton} ${styles.paginationButtonOpasit}`
-        }
-      >
-      </button> */}
-
-      {numbers.map((page, index) => (
-        <div
-          key={index}
-          onClick={() =>
-            page === currentPage || !page ? false : clickNumber(page)
-          }
-          className={
-            page === currentPage
-              ? `${styles.paginationPage} ${styles.paginationPageWhite} `
-              : styles.paginationPage
-          }
-        >
-          {page === 0 ? <div>...</div> : getPageNumber(page)}
-        </div>
-      ))}
-
-      {/* <button
-        onClick={currentPage < lastPage ? nextPage : () => false}
-        className={
-          currentPage < lastPage
-            ? styles.paginationButton
-            : `${styles.paginationButton} ${styles.paginationButtonOpasit}`
-        }
-      >
-      </button> */}
+    <section className={styles.root}>
+      <ul className={`${styles.pagination} ${props.className ?? ""}`}>
+        {numbers.map((currentPage, index) => (
+          <li key={index}>
+            <Link
+              href={getUpdateQueryPageString(props.patch, props.searchParams, currentPage)}
+              className={
+                currentPage === props.page
+                  ? `${styles.paginationPage} ${styles.paginationPageWhite} `
+                  : styles.paginationPage
+              }
+            >
+              {currentPage ? (currentPage < 10 ? `0${currentPage}` : currentPage) : "..."}
+            </Link>
+          </li>
+        ))}
+      </ul>
     </section>
   );
 };
-
-export { Pagination };

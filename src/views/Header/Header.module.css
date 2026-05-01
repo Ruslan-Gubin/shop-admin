@@ -1,0 +1,13 @@
+.headerWrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 100%;
+  padding-inline: var(--padding-main);
+}
+
+.headerLeftSide {
+  display: flex;
+  column-gap: 12px;
+  align-items: center;
+}

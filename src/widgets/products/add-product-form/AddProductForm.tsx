@@ -1,20 +1,18 @@
 "use client";
-import { InputLabelInside } from "@/shared/ui/input-main/InputLabelInside";
-import { ButtonBlack } from "@/shared/ui/button-black/Buttonblack";
-import { notificationService } from "@/shared/services/notification";
-import { FormEventHandler, useTransition } from "react";
-import { CreateProductSchema } from "@/entity/product/create-product";
-import { useFormValues } from "@/shared/hooks/useFormValues";
-import styles from "./AddProductForm.module.scss";
+import { useActionState, useLayoutEffect } from "react";
+import type { CreateProductFormFields } from "@/app/product/create/action";
+import type { UpdateProductFormFields } from "@/app/product/edit/[id]/action";
+import { CancelSvg } from "@/shared/svg/CancelSvg";
+import { Button } from "@/shared/ui/button-main/Button";
+import { Input } from "@/shared/ui/input-main/Input";
+import { notificationAdapter } from "@/stores/notification/adapter";
+import styles from "./AddProductForm.module.css";
 
 type Props = {
-  submitForm: (values: {
-    name: string;
-    count: string;
-    price: string;
-    code: string;
-    id?: string;
-  }) => Promise<{ status: "error" | "success"; message: string }>;
+  submitFormAction: (
+    prevState: CreateProductFormFields | UpdateProductFormFields,
+    formData: FormData,
+  ) => Promise<CreateProductFormFields | UpdateProductFormFields>;
   initValue?: {
     name: string;
     count: string;
@@ -24,96 +22,100 @@ type Props = {
   };
 };
 
-const AddProductForm = ({ initValue, submitForm }: Props) => {
-  const [submitLoading, transition] = useTransition();
-  const {
-    resetInput,
-    changeInputs,
-    errors,
-    validateValues,
-    values,
-    changeInputNumber,
-  } = useFormValues({
-    initValues: {
-      name: initValue?.name ? initValue.name : "",
-      count: initValue?.count ? initValue.count : "",
-      price: initValue?.price ? initValue.price : "",
-      code: initValue?.code ? initValue.code : "",
+export const AddProductForm = (props: Props) => {
+  const [state, formAction, pending] = useActionState(props.submitFormAction, {
+    name: {
+      value: props?.initValue?.name ? props.initValue.name : "",
+      error: "",
     },
-    payloadSchema: CreateProductSchema,
+    count: {
+      value: props?.initValue?.count ? props.initValue.count : "",
+      error: "",
+    },
+    price: {
+      value: props?.initValue?.price ? props.initValue.price : "",
+      error: "",
+    },
+    code: {
+      value: props?.initValue?.code ? props.initValue.code : "",
+      error: "",
+    },
+    id: props?.initValue?.id ? props.initValue.id : "",
+    message: "",
+    status: "",
   });
 
-  const handleSubmit: FormEventHandler<HTMLFormElement> = (e) => {
-    e.preventDefault();
-
-    const payload = validateValues();
-    if (!payload || submitLoading) return;
-
-    if (initValue && initValue.id) {
-      Object.assign(payload, { id: initValue.id });
+  useLayoutEffect(() => {
+    if (state.message && (state.status === "success" || state.status === "error")) {
+      notificationAdapter.add(state.message, state.status);
     }
-
-    transition(() => {
-      submitForm(payload).then((res) => {
-        notificationService.activeNotification({
-          status: res.status,
-          message: res.message,
-        });
-        if (!initValue) {
-          resetInput();
-        }
-      });
-    });
-  };
+  }, [state]);
 
   return (
-    <form onSubmit={handleSubmit} className={styles.addForm}>
-      <InputLabelInside
-        error={errors.name}
-        value={values.name}
-        onChange={(value) => changeInputs(value, "name")}
+    <form action={formAction} className={styles.addForm}>
+      <Input
+        error={state.name.error}
+        defaultValue={state.name.value}
         name="name"
+        id="name"
+        variant="outlined"
+        variantSize="sm"
+        placeholder="Название"
         label="Название"
-        placeholder="Введите текст здесь..."
+        rightIcon={<CancelSvg />}
       />
+
       <div className={styles.inputsLine}>
-        <InputLabelInside
-          error={errors.count}
-          onChange={(value) => changeInputNumber(value, "count")}
-          value={values.count}
-          name="count"
-          label="Количество"
-          placeholder="Введите количество"
-        />
-        <InputLabelInside
-          error={errors.price}
-          value={values.price}
-          onChange={(value) => changeInputNumber(value, "price")}
-          name="price"
-          label="Цена"
-          placeholder="Введите цену"
-        />
+        <div>
+          <Input
+            error={state.count.error}
+            defaultValue={state.count.value}
+            name="count"
+            id="count"
+            type="number"
+            variant="outlined"
+            variantSize="sm"
+            placeholder="Количество"
+            label="Количество"
+            rightIcon={<CancelSvg />}
+          />
+        </div>
+
+        <div>
+          <Input
+            error={state.price.error}
+            defaultValue={state.price.value}
+            name="price"
+            id="price"
+            type="number"
+            variant="outlined"
+            variantSize="sm"
+            placeholder="Стоимость"
+            label="Стоимость"
+            rightIcon={<CancelSvg />}
+          />
+        </div>
       </div>
 
       <div className={styles.inputsLine}>
-        <InputLabelInside
-          error={errors.code}
-          value={values.code}
-          onChange={(value) => changeInputs(value, "code")}
-          name="code"
-          label="Штриховой код"
-          placeholder="90123456789"
-        />
+        <div>
+          <Input
+            error={state.code.error}
+            defaultValue={state.code.value}
+            name="code"
+            id="code"
+            type="number"
+            variant="outlined"
+            variantSize="sm"
+            placeholder="Штрих-код"
+            label="Штрих-код"
+            rightIcon={<CancelSvg />}
+          />
+        </div>
       </div>
-      <div className={styles.buttonContainer}>
-        <ButtonBlack
-          disabled={submitLoading}
-          type="submit"
-          text={initValue ? "Редактировать" : "Сохранить"}
-        />
-      </div>
+      <Button variant="solid" variantColor="green" type="submit" disabled={pending}>
+        {props.initValue ? "Редактировать" : "Сохранить"}
+      </Button>
     </form>
   );
 };
-
-export { AddProductForm };

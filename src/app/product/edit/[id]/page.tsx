@@ -1,62 +1,27 @@
+import { ErrorAlert } from "@/shared/ui/error-alert/ErrorAlert";
+import { UpdateToken } from "@/views/UpdateToken/UpdateToken";
 import { AddProductForm } from "@/widgets/products/add-product-form/AddProductForm";
-import styles from "../../../styles/pages/Home.module.scss";
-import { CONFIG_APP } from "@/shared/config/config";
+import { fetchProduct, updateProductAction } from "./action";
+import styles from "./EditProduct.module.css";
 
-const fetchData = async (id: string) => {
-  try {
-    const url = `${CONFIG_APP.BACKEND_URL}product/${id}`;
-    const response = await fetch(url);
-    return response.json();
-  } catch {
-    throw new Error("Не удалось получить данные продукта");
-  }
-};
-
-const ProductEditPage = async ({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) => {
+export default async function ProductEditPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const product = await fetchData(id);
-
-  const submitForm = async (payload: {
-    name: string;
-    count: string;
-    price: string;
-    code: string;
-    id?: string;
-  }): Promise<{ status: "error" | "success"; message: string }> => {
-    "use server";
-    const { id, ...rest } = payload;
-
-    return new Promise((resolve) => {
-      const url = `${CONFIG_APP.BACKEND_URL}product/${id}`;
-
-      fetch(url, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-        method: "PATCH",
-        body: JSON.stringify(rest),
-      })
-        .then((res) => res.json())
-        .then((res) => resolve({ status: res.status, message: res.message }))
-        .catch((error) => resolve({ status: "error", message: error.message }));
-    });
-  };
+  const product = await fetchProduct(id);
 
   return (
     <div>
+      {product?.tokens && <UpdateToken tokens={product.tokens} />}
+      {product.status === "error" && product.message && <ErrorAlert message={product.message} />}
       <div className={styles.root}>
-        {product && (
+        {product?.data && (
           <AddProductForm
-            submitForm={submitForm}
+            //@ts-ignore
+            submitFormAction={updateProductAction}
             initValue={{
-              name: product.name,
-              code: String(product.code),
-              count: String(product.count),
-              price: String(product.price),
+              name: product.data.name,
+              code: product.data.code,
+              count: String(product.data.count),
+              price: String(product.data.price),
               id,
             }}
           />
@@ -64,6 +29,4 @@ const ProductEditPage = async ({
       </div>
     </div>
   );
-};
-
-export default ProductEditPage;
+}

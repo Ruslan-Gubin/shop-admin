@@ -1,0 +1,21 @@
+.badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 8px;
+  border-radius: 4px;
+  background-color: lightgray;
+  color: black;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.active {
+  background-color: #e6f4ea;
+  color: #1e7e34;
+}
+
+.error {
+  background-color: #fce8e6;
+  color: #c5221f;
+}

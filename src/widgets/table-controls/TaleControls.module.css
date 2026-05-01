@@ -1,0 +1,8 @@
+.root {
+  display: flex;
+  column-gap: 24px;
+  align-items: center;
+}
+.searchInputContainer {
+  width: 100%;
+}
