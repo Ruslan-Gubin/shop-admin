@@ -1,5 +1,7 @@
 "use server";
 import { redirect } from "next/navigation";
+import { getIsLoadMoreDisabled } from "@/shared/helpers/getIsLoadMoreDisabled";
+import { getUpdateQueryPageString } from "@/shared/helpers/getUpdateQueryPageString";
 import { ErrorAlert } from "@/shared/ui/error-alert/ErrorAlert";
 import { Pagination } from "@/shared/ui/pagination/Pagination";
 import { UpdateToken } from "@/views/UpdateToken/UpdateToken";
@@ -16,6 +18,8 @@ export default async function PromotionsPage(req: {
 }) {
   const searchParams = await req.searchParams;
   const tableData = await fetchPromotions(searchParams.name, searchParams.page);
+  const patch = "/promotions";
+  const limit = 10;
 
   const redirectPageAfterDelete = async () => {
     "use server";
@@ -24,9 +28,15 @@ export default async function PromotionsPage(req: {
       Number(searchParams.page) > 1 &&
       tableData?.data?.promotions.length === 1
     ) {
-      redirect(`/promotions/?page=${Number(searchParams.page) - 1}`);
+      redirect(getUpdateQueryPageString("/promotions", searchParams, Number(searchParams.page) - 1));
     }
   };
+
+  const isLoadMoreDisabled = getIsLoadMoreDisabled(
+    tableData.data?.paginationPage,
+    tableData.data?.totalCount,
+    limit,
+  );
 
   return (
     <section className="page-wrapper">
@@ -38,11 +48,14 @@ export default async function PromotionsPage(req: {
       <section className="table-container">
         <PromotionsTableWrapper
           data={tableData?.data?.promotions || []}
-          name={searchParams.name}
+          name={searchParams.name || ""}
           onDeleteItemAction={deletePromotionAction}
           redirectPageAfterDeleteAction={redirectPageAfterDelete}
           createPromotionAction={createPromotionAction}
           updatePromotionAction={updatePromotionAction}
+          isLoadMoreDisabled={isLoadMoreDisabled}
+          patch={patch}
+          searchParams={searchParams}
         />
         {typeof tableData?.data?.totalCount === "number" && tableData?.data?.totalCount > 10 && (
           <Pagination

@@ -23,7 +23,7 @@ export default async function HomePage(req: {
       Number(searchParams.page) > 1 &&
       tableData?.data?.products.length === 1
     ) {
-      redirect(getUpdateQueryPageString("/", searchParams, Number(searchParams.page) - 1));
+      redirect(getUpdateQueryPageString(patch, searchParams, Number(searchParams.page) - 1));
     }
   };
 

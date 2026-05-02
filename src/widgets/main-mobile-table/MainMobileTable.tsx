@@ -4,7 +4,6 @@ import { DeleteSvg } from "@/app/category/components/category-item/svg/DeleteSvg
 import { EditSvg } from "@/app/category/components/category-item/svg/EditSvg";
 import { getIsValidCurrentPage } from "@/shared/helpers/getIsValidCurrentPage";
 import { getUpdateQueryPageString } from "@/shared/helpers/getUpdateQueryPageString";
-import { Badge } from "@/shared/ui/badge/Badge";
 import { Details } from "@/shared/ui/details/Details";
 import { LoadMoreObserver } from "@/shared/ui/load-more-observer/LoadMoreObserver";
 import type { RenderTableOptions } from "@/widgets/main-table/MainTable";
@@ -81,7 +80,10 @@ export const MainMobileTable = <T extends { id: number }>(props: Props<T>) => {
               {props.tableOptions.map((cell, index) => (
                 <li key={String(cell.key)}>
                   <div
-                    style={{ minWidth: props.headerRowWidth[index] }}
+                    style={{
+                      minWidth: props.headerRowWidth[index],
+                      maxWidth: props.headerRowWidth[index],
+                    }}
                     className={styles.headerListItem}
                   >
                     {cell.type !== "avatar" && (
@@ -123,11 +125,13 @@ export const MainMobileTable = <T extends { id: number }>(props: Props<T>) => {
                         typeof item[cell.key] === "boolean" &&
                         cell.typeConfig &&
                         Array.isArray(cell.typeConfig.booleanLabels) && (
-                          <Badge variant={item[cell.key] ? "active" : "error"}>
+                          <p
+                            className={`${item[cell.key] ? styles.booleanValueActive : styles.booleanValueError}`}
+                          >
                             {item[cell.key]
                               ? cell.typeConfig.booleanLabels[0]
                               : cell.typeConfig.booleanLabels[1]}
-                          </Badge>
+                          </p>
                         )}
 
                       {cell.type === "avatar" && typeof item[cell.key] === "string" && (
@@ -181,11 +185,13 @@ export const MainMobileTable = <T extends { id: number }>(props: Props<T>) => {
                       typeof item[cell.key] === "boolean" &&
                       cell.typeConfig &&
                       Array.isArray(cell.typeConfig.booleanLabels) && (
-                        <Badge variant={item[cell.key] ? "active" : "error"}>
+                        <p
+                          className={`${item[cell.key] ? styles.booleanValueActive : styles.booleanValueError}`}
+                        >
                           {item[cell.key]
                             ? cell.typeConfig.booleanLabels[0]
                             : cell.typeConfig.booleanLabels[1]}
-                        </Badge>
+                        </p>
                       )}
 
                     {cell.type === "avatar" && typeof item[cell.key] === "string" && (

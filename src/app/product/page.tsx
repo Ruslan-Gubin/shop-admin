@@ -13,6 +13,7 @@ export default async function ProductsPage(req: {
 }) {
   const searchParams = await req.searchParams;
   const tableData = await fetchProducts(searchParams.page, searchParams.name);
+  const patch = "/product";
   const limit = 10;
 
   const redirectPageAfterDelete = async () => {
@@ -22,7 +23,7 @@ export default async function ProductsPage(req: {
       Number(searchParams.page) > 1 &&
       tableData?.data?.products.length === 1
     ) {
-      redirect(getUpdateQueryPageString("/product", searchParams, Number(searchParams.page) - 1));
+      redirect(getUpdateQueryPageString(patch, searchParams, Number(searchParams.page) - 1));
     }
   };
 
@@ -46,7 +47,7 @@ export default async function ProductsPage(req: {
           redirectPageAfterDeleteAction={redirectPageAfterDelete}
           name={searchParams.name || ""}
           isLoadMoreDisabled={isLoadMoreDisabled}
-          patch="/"
+          patch={patch}
           searchParams={searchParams}
         />
         {tableData?.data &&
@@ -56,7 +57,7 @@ export default async function ProductsPage(req: {
               page={Number(tableData?.data?.paginationPage || 1)}
               limit={limit}
               total={tableData?.data?.totalCount || 0}
-              patch="/"
+              patch={patch}
               searchParams={searchParams}
             />
           )}

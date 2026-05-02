@@ -100,7 +100,7 @@ export const UsersTableWrapper = (props: Props) => {
         />
         {props.users && props.users.length > 0 && (
           <>
-            <div className={styles.desktopTable}>
+            <div className="desktop-table">
               <MainTable
                 data={props.users}
                 onEditAction={handleEditRouter}
@@ -111,7 +111,7 @@ export const UsersTableWrapper = (props: Props) => {
                 tableOptions={tableOptions}
               />
             </div>
-            <div className={styles.mobileTable}>
+            <div className="mobile-table">
               <MainMobileTable
                 titleKey="name"
                 data={props.users}

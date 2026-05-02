@@ -8,7 +8,6 @@ export default function Loading() {
         <div className={styles.loadingSvgContainer}>
           <LoadingSvg />
         </div>
-        <p className={styles.loadingText}>Загрузка</p>
       </div>
     </div>
   );

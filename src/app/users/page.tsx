@@ -19,7 +19,7 @@ export default async function UsersPage(req: {
   const redirectPageAfterDelete = async () => {
     "use server";
     if (searchParams.page && Number(searchParams.page) > 1 && tableData?.data?.users.length === 1) {
-      redirect(getUpdateQueryPageString("/users", searchParams, Number(searchParams.page) - 1));
+      redirect(getUpdateQueryPageString(patch, searchParams, Number(searchParams.page) - 1));
     }
   };
 

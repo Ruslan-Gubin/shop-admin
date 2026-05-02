@@ -7,7 +7,6 @@ import { MainMobileTable } from "@/widgets/main-mobile-table/MainMobileTable";
 import { MainTable, type RenderTableOptions } from "@/widgets/main-table/MainTable";
 import { ModalDelete } from "@/widgets/modals/modal-delete/ModalDelete";
 import { TableControls } from "@/widgets/table-controls/TableControls";
-import styles from "./ProductsTableWrapper.module.css";
 
 type Props = {
   products: ProductModel[];
@@ -107,7 +106,7 @@ export const ProductsTableWrapper = (props: Props) => {
         />
         {props.products && props.products.length > 0 && (
           <>
-            <div className={styles.desktopTable}>
+            <div className="desktop-table">
               <MainTable
                 data={props.products}
                 onEditAction={handleEditRouter}
@@ -119,7 +118,7 @@ export const ProductsTableWrapper = (props: Props) => {
                 tableOptions={tableOptions}
               />
             </div>
-            <div className={styles.mobileTable}>
+            <div className="mobile-table">
               <MainMobileTable
                 titleKey="name"
                 data={props.products}

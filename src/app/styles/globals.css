@@ -40,11 +40,27 @@
   }
 }
 
+.desktop-table {
+  display: block;
+}
+
+.mobile-table {
+  display: none;
+}
+
 @media (max-width: 880px) {
   :root {
     --border-radius-main: 6px;
     --padding-content-block: 20px;
     --padding-main: 20px;
+  }
+
+  .desktop-table {
+    display: none;
+  }
+
+  .mobile-table {
+    display: block;
   }
 }
 
