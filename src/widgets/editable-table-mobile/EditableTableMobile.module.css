@@ -1,0 +1,78 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  column-gap: 8px;
+  flex-wrap: wrap;
+  max-height: 40px;
+  overflow: hidden;
+}
+
+.cardHeaderLabel {
+  font-size: 14px;
+  color: #333333;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  text-wrap: nowrap;
+  overflow: hidden;
+}
+
+.cardBody {
+  padding-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 12px;
+}
+
+.inputRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  min-height: 30px;
+  border-bottom: 1px solid lightgray;
+}
+
+.inputRow:nth-last-child(1) {
+  border-bottom: none;
+}
+
+.inputLabel {
+  color: #666666;
+  font-weight: 500;
+  text-wrap: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+.inputValue {
+  text-align: right;
+  color: #333333;
+  padding-left: 4px;
+  text-wrap: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+.inputValue p {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.cellInput {
+  background-color: transparent;
+  border-radius: 4px;
+  max-width: 100%;
+  padding-inline: 4px;
+  padding-block: 4px;
+  border: 1px solid transparent;
+  text-align: right;
+  width: 100%;
+  cursor: pointer;
+}

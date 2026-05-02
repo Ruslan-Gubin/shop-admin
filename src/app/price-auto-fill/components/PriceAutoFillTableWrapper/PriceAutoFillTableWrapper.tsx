@@ -3,6 +3,7 @@ import { useState, useTransition } from "react";
 import type { PriceTypeModel } from "@/app/price-types/action";
 import { notificationAdapter } from "@/stores/notification/adapter";
 import { EditableTable, type EditableTableDataItem } from "@/widgets/editable-table/EditableTable";
+import { EditableTableMobile } from "@/widgets/editable-table-mobile/EditableTableMobile";
 import { ModalDelete } from "@/widgets/modals/modal-delete/ModalDelete";
 import { TableControls } from "@/widgets/table-controls/TableControls";
 import type { CreateRangeFormFields, PriceFillModel, RangeModel } from "../../action";
@@ -231,15 +232,28 @@ export const PriceAutoFillTableWrapper = (props: Props) => {
           queryKey="range"
         />
         {props.ranges && props.ranges.length > 0 && (
-          <EditableTable
-            data={tableData}
-            onBlurInputAction={onBlurInputAction}
-            onEditAction={handleOpenEditModal}
-            onDeleteAction={handleOpenDeleteModal}
-            headerRowLabels={headerRowLabels}
-            variant="stickyFirstColumn"
-            gridTemplateColumns={gridTemplateColumns}
-          />
+          <>
+            <div className="desktop-table">
+              <EditableTable
+                data={tableData}
+                onBlurInputAction={onBlurInputAction}
+                onEditAction={handleOpenEditModal}
+                onDeleteAction={handleOpenDeleteModal}
+                headerRowLabels={headerRowLabels}
+                variant="stickyFirstColumn"
+                gridTemplateColumns={gridTemplateColumns}
+              />
+            </div>
+            <div className="mobile-table">
+              <EditableTableMobile
+                data={tableData}
+                onBlurInputAction={onBlurInputAction}
+                onEditAction={handleOpenEditModal}
+                onDeleteAction={handleOpenDeleteModal}
+                headerRowLabels={headerRowLabels}
+              />
+            </div>
+          </>
         )}
       </div>
     </>
