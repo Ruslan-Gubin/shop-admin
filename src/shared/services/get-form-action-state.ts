@@ -1,5 +1,5 @@
-import { getIsPayloadFieldObject } from "./get-is-payload-field-object";
 import type { Schema } from "zod";
+import { getIsPayloadFieldObject } from "./get-is-payload-field-object";
 
 const getErrorsMap = (
   payload: Record<string, FormDataEntryValue | string | number | boolean>,
@@ -67,7 +67,7 @@ export const getFormActionState = <T>(formData: FormData, prevState: T, validate
   const isValid = errorMap.size === 0;
 
   for (const key of keys) {
-    newState[key] = {
+    (newState as any)[key] = {
       value: payload[key] ? payload[key] : "",
       error: !isValid && errorMap.has(key as string) ? String(errorMap.get(key as string)) : "",
     };

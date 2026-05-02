@@ -1,13 +1,13 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
-import { useWindowSize } from "@/shared/hooks/useWindowSize";
 import { notificationAdapter } from "@/stores/notification/adapter";
 import { MainMobileTable } from "@/widgets/main-mobile-table/MainMobileTable";
 import { MainTable, type RenderTableOptions } from "@/widgets/main-table/MainTable";
 import { ModalDelete } from "@/widgets/modals/modal-delete/ModalDelete";
 import { TableControls } from "@/widgets/table-controls/TableControls";
 import type { UserModel } from "../../action";
+import styles from "./UsersTableWrapper.module.css";
 
 type Props = {
   users: UserModel[];
@@ -21,7 +21,6 @@ type Props = {
 
 export const UsersTableWrapper = (props: Props) => {
   const router = useRouter();
-  const { isMobile } = useWindowSize();
   const [submitLoading, transition] = useTransition();
   const [optionFormModal, setOptionFormModal] = useState<{
     id: number | null;
@@ -99,31 +98,34 @@ export const UsersTableWrapper = (props: Props) => {
           name={props.name}
           queryKey="name"
         />
-        {props.users && props.users.length > 0 && !isMobile && (
-          <MainTable
-            data={props.users}
-            onEditAction={handleEditRouter}
-            onDeleteAction={handleOpenDeleteModal}
-            headerRowLabels={headerRowLabels}
-            stickyActionColumn
-            gridTemplateColumns="65px minmax(120px, 192px) minmax(120px, 192px) 192px minmax(100px, 160px) minmax(160px, 1fr) 58px"
-            tableOptions={tableOptions}
-          />
-        )}
-
-        {props.users && props.users.length > 0 && isMobile && (
-          <MainMobileTable
-            titleKey="name"
-            data={props.users}
-            onEditAction={handleEditRouter}
-            onDeleteAction={handleOpenDeleteModal}
-            tableOptions={tableOptions}
-            headerRowLabels={headerRowLabels}
-            headerRowWidth={["38px", "100px", "100px", "80px", "100px", "120px"]}
-            searchParams={props.searchParams}
-            isLoadMoreDisabled={props.isLoadMoreDisabled}
-            patch={props.patch}
-          />
+        {props.users && props.users.length > 0 && (
+          <>
+            <div className={styles.desktopTable}>
+              <MainTable
+                data={props.users}
+                onEditAction={handleEditRouter}
+                onDeleteAction={handleOpenDeleteModal}
+                headerRowLabels={headerRowLabels}
+                stickyActionColumn
+                gridTemplateColumns="65px minmax(120px, 192px) minmax(120px, 192px) 192px minmax(100px, 160px) minmax(160px, 1fr) 58px"
+                tableOptions={tableOptions}
+              />
+            </div>
+            <div className={styles.mobileTable}>
+              <MainMobileTable
+                titleKey="name"
+                data={props.users}
+                onEditAction={handleEditRouter}
+                onDeleteAction={handleOpenDeleteModal}
+                tableOptions={tableOptions}
+                headerRowLabels={headerRowLabels}
+                headerRowWidth={["38px", "100px", "100px", "80px", "100px", "120px"]}
+                searchParams={props.searchParams}
+                isLoadMoreDisabled={props.isLoadMoreDisabled}
+                patch={props.patch}
+              />
+            </div>
+          </>
         )}
       </div>
     </>

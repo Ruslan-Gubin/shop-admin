@@ -16,7 +16,7 @@ interface Props<T> {
   onDeleteAction?: (id: number) => void;
   tableOptions: RenderTableOptions<T>[];
   headerRowLabels: string[];
-  titleKey: string;
+  titleKey: keyof T;
   headerRowWidth: string[];
   isLoadMoreDisabled: boolean;
   patch: string;
@@ -75,11 +75,11 @@ export const MainMobileTable = <T extends { id: number }>(props: Props<T>) => {
       {data.map((item) => (
         <Details
           key={item.id}
-          titleAfterOpen={item[props.titleKey]}
+          titleAfterOpen={String(item[props.titleKey])}
           headerContent={
             <ul className={styles.cartHeaderList}>
               {props.tableOptions.map((cell, index) => (
-                <li key={cell.key}>
+                <li key={String(cell.key)}>
                   <div
                     style={{ minWidth: props.headerRowWidth[index] }}
                     className={styles.headerListItem}

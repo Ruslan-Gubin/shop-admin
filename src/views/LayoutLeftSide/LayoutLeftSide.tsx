@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { Suspense } from "react";
 import { MainImage } from "@/shared/ui/image-main/ImageMain";
 import styles from "./LayoutLeftSide.module.css";
 import { NavigateMenu } from "./NavigateMenu/NavigateMenu";
@@ -85,7 +86,9 @@ export const LayoutLeftSide = () => {
         <MainImage src={"/assets/logo.png"} alt="Logo image" classContainer={styles.logoImage} />
       </div>
       <nav className={styles.navigateMenuNav}>
-        <NavigateMenu navigateList={navigateList} />
+        <Suspense fallback={<div>Loading...</div>}>
+          <NavigateMenu navigateList={navigateList} />
+        </Suspense>
       </nav>
     </>
   );

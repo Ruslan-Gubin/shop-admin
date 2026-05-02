@@ -1,0 +1,17 @@
+.desktopTable {
+  display: block;
+}
+
+.mobileTable {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .desktopTable {
+    display: none;
+  }
+
+  .mobileTable {
+    display: block;
+  }
+}

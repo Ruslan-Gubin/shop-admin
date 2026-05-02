@@ -2,12 +2,12 @@
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import type { ProductModel } from "@/app/action";
-import { useWindowSize } from "@/shared/hooks/useWindowSize";
 import { notificationAdapter } from "@/stores/notification/adapter";
 import { MainMobileTable } from "@/widgets/main-mobile-table/MainMobileTable";
 import { MainTable, type RenderTableOptions } from "@/widgets/main-table/MainTable";
 import { ModalDelete } from "@/widgets/modals/modal-delete/ModalDelete";
 import { TableControls } from "@/widgets/table-controls/TableControls";
+import styles from "./ProductsTableWrapper.module.css";
 
 type Props = {
   products: ProductModel[];
@@ -21,7 +21,6 @@ type Props = {
 
 export const ProductsTableWrapper = (props: Props) => {
   const router = useRouter();
-  const { isMobile } = useWindowSize();
   const [submitLoading, transition] = useTransition();
   const [optionFormModal, setOptionFormModal] = useState<{
     id: number | null;
@@ -106,32 +105,35 @@ export const ProductsTableWrapper = (props: Props) => {
           name={props.name}
           queryKey="name"
         />
-        {props.products && props.products.length > 0 && !isMobile && (
-          <MainTable
-            data={props.products}
-            onEditAction={handleEditRouter}
-            onDeleteAction={handleOpenDeleteModal}
-            headerRowLabels={headerRowLabels}
-            stickyActionColumn
-            stickyFirstColumn
-            gridTemplateColumns="65px minmax(150px, 1fr) minmax(110px, 150px) minmax(110px, 150px) minmax(130px, 150px) 160px 58px"
-            tableOptions={tableOptions}
-          />
-        )}
-
-        {props.products && props.products.length > 0 && isMobile && (
-          <MainMobileTable
-            titleKey="name"
-            data={props.products}
-            onEditAction={handleEditRouter}
-            onDeleteAction={handleOpenDeleteModal}
-            tableOptions={tableOptions}
-            headerRowLabels={headerRowLabels}
-            headerRowWidth={["38px", "140px", "100px", "80px", "100px", "120px"]}
-            searchParams={props.searchParams}
-            isLoadMoreDisabled={props.isLoadMoreDisabled}
-            patch={props.patch}
-          />
+        {props.products && props.products.length > 0 && (
+          <>
+            <div className={styles.desktopTable}>
+              <MainTable
+                data={props.products}
+                onEditAction={handleEditRouter}
+                onDeleteAction={handleOpenDeleteModal}
+                headerRowLabels={headerRowLabels}
+                stickyActionColumn
+                stickyFirstColumn
+                gridTemplateColumns="65px minmax(150px, 1fr) minmax(110px, 150px) minmax(110px, 150px) minmax(130px, 150px) 160px 58px"
+                tableOptions={tableOptions}
+              />
+            </div>
+            <div className={styles.mobileTable}>
+              <MainMobileTable
+                titleKey="name"
+                data={props.products}
+                onEditAction={handleEditRouter}
+                onDeleteAction={handleOpenDeleteModal}
+                tableOptions={tableOptions}
+                headerRowLabels={headerRowLabels}
+                headerRowWidth={["38px", "140px", "100px", "80px", "100px", "120px"]}
+                searchParams={props.searchParams}
+                isLoadMoreDisabled={props.isLoadMoreDisabled}
+                patch={props.patch}
+              />
+            </div>
+          </>
         )}
       </div>
     </>
