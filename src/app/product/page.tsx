@@ -1,6 +1,7 @@
 "use server";
 import { redirect } from "next/navigation";
 import { deleteProductAction, fetchProducts } from "@/app/action";
+import { getIsLoadMoreDisabled } from "@/shared/helpers/getIsLoadMoreDisabled";
 import { getUpdateQueryPageString } from "@/shared/helpers/getUpdateQueryPageString";
 import { ErrorAlert } from "@/shared/ui/error-alert/ErrorAlert";
 import { Pagination } from "@/shared/ui/pagination/Pagination";
@@ -12,6 +13,7 @@ export default async function ProductsPage(req: {
 }) {
   const searchParams = await req.searchParams;
   const tableData = await fetchProducts(searchParams.page, searchParams.name);
+  const limit = 10;
 
   const redirectPageAfterDelete = async () => {
     "use server";
@@ -24,30 +26,40 @@ export default async function ProductsPage(req: {
     }
   };
 
+  const isLoadMoreDisabled = getIsLoadMoreDisabled(
+    tableData.data?.paginationPage,
+    tableData.data?.totalCount,
+    limit,
+  );
+
   return (
     <section className="page-wrapper">
       {tableData?.tokens && <UpdateToken tokens={tableData.tokens} />}
+      <h2>Справочник товаров.</h2>
       {tableData.status === "error" && tableData.message && (
         <ErrorAlert message={tableData.message} />
       )}
-      <h2>Справочник товаров.</h2>
-
       <section className="table-container">
         <ProductsTableWrapper
           products={tableData?.data?.products || []}
           onDeleteItemAction={deleteProductAction}
           redirectPageAfterDeleteAction={redirectPageAfterDelete}
           name={searchParams.name || ""}
+          isLoadMoreDisabled={isLoadMoreDisabled}
+          patch="/"
+          searchParams={searchParams}
         />
-        {typeof tableData?.data?.totalCount === "number" && tableData?.data?.totalCount > 10 && (
-          <Pagination
-            page={Number(tableData?.data?.paginationPage || 0)}
-            limit={10}
-            total={tableData?.data?.totalCount || 0}
-            patch="/product"
-            searchParams={searchParams}
-          />
-        )}
+        {tableData?.data &&
+          typeof tableData?.data?.totalCount === "number" &&
+          tableData?.data?.totalCount > limit && (
+            <Pagination
+              page={Number(tableData?.data?.paginationPage || 1)}
+              limit={limit}
+              total={tableData?.data?.totalCount || 0}
+              patch="/"
+              searchParams={searchParams}
+            />
+          )}
       </section>
     </section>
   );

@@ -4,7 +4,7 @@ import type { PriceTypeModel } from "@/app/price-types/action";
 import { notificationAdapter } from "@/stores/notification/adapter";
 import { EditableTable, type EditableTableDataItem } from "@/widgets/editable-table/EditableTable";
 import { ModalDelete } from "@/widgets/modals/modal-delete/ModalDelete";
-import { TaleControls } from "@/widgets/table-controls/TaleControls";
+import { TableControls } from "@/widgets/table-controls/TableControls";
 import type { CreateRangeFormFields, PriceFillModel, RangeModel } from "../../action";
 import { ModalRangeForm } from "../modal-range-form/ModalRangeForm";
 
@@ -222,7 +222,7 @@ export const PriceAutoFillTableWrapper = (props: Props) => {
       />
 
       <div className="table-container">
-        <TaleControls
+        <TableControls
           addAction={{
             text: "Добавить диапазон",
             onClick: handleOpenMainModal,

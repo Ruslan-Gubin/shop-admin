@@ -11,4 +11,3 @@ export const debounce = <T extends (...args: unknown[]) => void>(
     }, timeout);
   };
 };
-

@@ -1,9 +1,12 @@
-"use client";
-import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useEffectEvent, useLayoutEffect, useState } from "react";
 import { DeleteSvg } from "@/app/category/components/category-item/svg/DeleteSvg";
 import { EditSvg } from "@/app/category/components/category-item/svg/EditSvg";
+import { getIsValidCurrentPage } from "@/shared/helpers/getIsValidCurrentPage";
+import { getUpdateQueryPageString } from "@/shared/helpers/getUpdateQueryPageString";
 import { Badge } from "@/shared/ui/badge/Badge";
-import { BirdSelectIcon } from "@/views/LayoutLeftSide/NavigateMenu/svg/BirdSelectIcon";
+import { Details } from "@/shared/ui/details/Details";
+import { LoadMoreObserver } from "@/shared/ui/load-more-observer/LoadMoreObserver";
 import type { RenderTableOptions } from "@/widgets/main-table/MainTable";
 import styles from "./MainMobileTable.module.css";
 
@@ -13,6 +16,11 @@ interface Props<T> {
   onDeleteAction?: (id: number) => void;
   tableOptions: RenderTableOptions<T>[];
   headerRowLabels: string[];
+  titleKey: string;
+  headerRowWidth: string[];
+  isLoadMoreDisabled: boolean;
+  patch: string;
+  searchParams: { [key: string]: string | string[] | undefined };
 }
 
 const shortDateFormat = new Intl.DateTimeFormat("ru-RU", {
@@ -22,111 +30,174 @@ const shortDateFormat = new Intl.DateTimeFormat("ru-RU", {
 });
 
 export const MainMobileTable = <T extends { id: number }>(props: Props<T>) => {
-  const [data, setData] = useState<T[]>(props.data);
-  const headerRowWidth = ["40px", "150px", "100px", "80px", "100px", "120px"];
-  // const [loading, setLoading] = useState(false); const loaderRef = useRef<HTMLDivElement | null>(null); const prevSearchRef = useRef(searchParams.get("name") || ""); Сброс стейта при изменении поиска (как обсуждали) useEffect(() => { const currentSearch = searchParams.get("name") || ""; if (prevSearchRef.current !== currentSearch) { prevSearchRef.current = currentSearch;
-  //     // Сбрасываем на первую страницу
-  //     setProducts(props.data);
-  //     setCurrentPage(1);
-  //     setHasMore(props.hasMorePages);
-  //   }
-  // }, [searchParams, props.data, props.hasMorePages]);
+  const currentPage: number = Number(props.searchParams.page || "1");
+  const [data, setData] = useState<T[]>([]);
+  const [pages, setPages] = useState<number[]>([]);
+  const router = useRouter();
 
-  // const loadMore = useCallback(async () => {
-  //   if (loading || !hasMore) return;
-  //   setLoading(true);
-  //   const nextPage = currentPage + 1;
-  //
-  //   try {
-  //     const search = searchParams.get("name") || undefined;
-  //     const newData = await props.fetchPageAction(nextPage, search);
-  //
-  //     if (newData.length === 0) {
-  //       setHasMore(false);
-  //     } else {
-  //       setProducts((prev) => [...prev, ...newData]);
-  //       setCurrentPage(nextPage);
-  //     }
-  //   } catch (error) {
-  //     console.error("Failed to load more products", error);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // }, [loading, hasMore, currentPage, props.fetchPageAction, searchParams]);
+  const getUpdateDataEvent = useEffectEvent(() => {
+    const updatePages = structuredClone(pages);
+    const updateData: T[] = [];
 
-  // Intersection Observer
-  // useEffect(() => {
-  //   const observer = new IntersectionObserver(
-  //     (entries) => {
-  //       if (entries[0].isIntersecting && hasMore && !loading) {
-  //         startTransition(() => {
-  //           loadMore();
-  //         });
-  //       }
-  //     },
-  //     { threshold: 1.0 },
-  //   );
-  //
-  //   if (loaderRef.current) observer.observe(loaderRef.current);
-  //   return () => observer.disconnect();
-  // }, [loadMore, hasMore, loading]);
+    updatePages.push(currentPage);
 
-  const renderCellContent = (item: T, cell: RenderTableOptions<T>) => {
-    const value = item[cell.key as keyof T];
+    const isValidPage = getIsValidCurrentPage(updatePages, currentPage);
 
-    if (cell.type === "date" && typeof value === "string") {
-      return <span>{value ? new Date(value as string).toLocaleString() : "---"}</span>;
-    }
-    if (cell.type === "shortDate" && typeof value === "string") {
-      return <span>{value ? shortDateFormat.format(new Date(value as string)) : "---"}</span>;
-    }
-    if (cell.type === "boolean" && typeof value === "boolean" && cell.typeConfig) {
-      return (
-        <Badge variant={value ? "active" : "error"}>
-          {value ? cell.typeConfig.booleanLabels?.[0] : cell.typeConfig.booleanLabels?.[1]}
-        </Badge>
-      );
-    }
-    if (cell.type === "avatar" && typeof value === "string") {
-      return <img className={styles.avatar} src={value as string} alt="Avatar" />;
+    if (!isValidPage) {
+      updatePages.length = 0;
+
+      if (currentPage === 1) {
+        updatePages.push(1);
+        for (let i = 0; i < props.data.length; i++) {
+          updateData.push(props.data[i]);
+        }
+      }
+      router.push(getUpdateQueryPageString(props.patch, props.searchParams, 1));
+    } else {
+      if (currentPage > 0 && data.length > 0) {
+        updateData.push(...data);
+      }
+      for (let i = 0; i < props.data.length; i++) {
+        updateData.push(props.data[i]);
+      }
     }
 
-    return <span>{String(value || "---")}</span>;
-  };
+    setPages(updatePages);
+    setData(updateData);
+  });
+
+  useLayoutEffect(() => {
+    getUpdateDataEvent();
+  }, [currentPage]);
 
   return (
     <div className={styles.container}>
       {data.map((item) => (
-        <details key={item.id} className={styles.card}>
-          <summary className={styles.cardHeader}>
-            <div className={styles.cardHeaderLeftSide}>
-              <div className={styles.birdContainer}>
-                <BirdSelectIcon className={styles.navigateMenuItemSvg} />
-              </div>
-
-              <ul className={styles.cartHeaderList}>
-                {props.tableOptions.map((cell, index) => (
-                  <li key={cell.key}>
-                    <div
-                      style={{ minWidth: headerRowWidth[index] }}
-                      className={styles.headerListItem}
-                    >
+        <Details
+          key={item.id}
+          titleAfterOpen={item[props.titleKey]}
+          headerContent={
+            <ul className={styles.cartHeaderList}>
+              {props.tableOptions.map((cell, index) => (
+                <li key={cell.key}>
+                  <div
+                    style={{ minWidth: props.headerRowWidth[index] }}
+                    className={styles.headerListItem}
+                  >
+                    {cell.type !== "avatar" && (
                       <p className={styles.headerListLabel}>
                         {typeof props.headerRowLabels[index] === "string"
                           ? props.headerRowLabels[index]
                           : "-/-"}
                       </p>
+                    )}
 
-                      <p className={styles.headerListValue}>
-                        {(item[cell.key] as string) || "---"}
-                      </p>
+                    <div className={styles.headerListValue}>
+                      {!cell.type && typeof cell.key === "string" && (
+                        <p>{(item[cell.key] as string) || "---"}</p>
+                      )}
+
+                      {cell.type === "translate" &&
+                        cell.typeConfig?.translateMap &&
+                        typeof item[cell.key] === "string" && (
+                          <p>{cell.typeConfig.translateMap[item[cell.key] as string] || "---"}</p>
+                        )}
+
+                      {cell.type === "date" && typeof item[cell.key] === "string" && (
+                        <p>
+                          {item[cell.key]
+                            ? new Date(item[cell.key] as string).toLocaleString()
+                            : "---"}
+                        </p>
+                      )}
+
+                      {cell.type === "shortDate" && typeof item[cell.key] === "string" && (
+                        <p>
+                          {item[cell.key]
+                            ? shortDateFormat.format(new Date(item[cell.key] as string))
+                            : "---"}
+                        </p>
+                      )}
+
+                      {cell.type === "boolean" &&
+                        typeof item[cell.key] === "boolean" &&
+                        cell.typeConfig &&
+                        Array.isArray(cell.typeConfig.booleanLabels) && (
+                          <Badge variant={item[cell.key] ? "active" : "error"}>
+                            {item[cell.key]
+                              ? cell.typeConfig.booleanLabels[0]
+                              : cell.typeConfig.booleanLabels[1]}
+                          </Badge>
+                        )}
+
+                      {cell.type === "avatar" && typeof item[cell.key] === "string" && (
+                        <img
+                          className={styles.avatar}
+                          src={item[cell.key] as string}
+                          alt="Avatar"
+                        />
+                      )}
                     </div>
-                  </li>
-                ))}
-              </ul>
-            </div>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          }
+          content={
+            <ul className={styles.cardBody}>
+              {props.tableOptions.map((cell) => (
+                <li key={String(cell.key)} className={styles.cellRow}>
+                  <span className={styles.cellLabel}>
+                    {props.headerRowLabels[props.tableOptions.indexOf(cell)]}
+                  </span>
+                  <div className={styles.cellValue}>
+                    {!cell.type && typeof cell.key === "string" && (
+                      <p>{(item[cell.key] as string) || "---"}</p>
+                    )}
 
-            <div className={styles.cardActions}>
+                    {cell.type === "translate" &&
+                      cell.typeConfig?.translateMap &&
+                      typeof item[cell.key] === "string" && (
+                        <p>{cell.typeConfig.translateMap[item[cell.key] as string] || "---"}</p>
+                      )}
+
+                    {cell.type === "date" && typeof item[cell.key] === "string" && (
+                      <p>
+                        {item[cell.key]
+                          ? new Date(item[cell.key] as string).toLocaleString()
+                          : "---"}
+                      </p>
+                    )}
+
+                    {cell.type === "shortDate" && typeof item[cell.key] === "string" && (
+                      <p>
+                        {item[cell.key]
+                          ? shortDateFormat.format(new Date(item[cell.key] as string))
+                          : "---"}
+                      </p>
+                    )}
+
+                    {cell.type === "boolean" &&
+                      typeof item[cell.key] === "boolean" &&
+                      cell.typeConfig &&
+                      Array.isArray(cell.typeConfig.booleanLabels) && (
+                        <Badge variant={item[cell.key] ? "active" : "error"}>
+                          {item[cell.key]
+                            ? cell.typeConfig.booleanLabels[0]
+                            : cell.typeConfig.booleanLabels[1]}
+                        </Badge>
+                      )}
+
+                    {cell.type === "avatar" && typeof item[cell.key] === "string" && (
+                      <img className={styles.avatar} src={item[cell.key] as string} alt="Avatar" />
+                    )}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          }
+          actions={
+            <>
               <button
                 type="button"
                 onClick={() => props.onEditAction?.(item)}
@@ -141,23 +212,17 @@ export const MainMobileTable = <T extends { id: number }>(props: Props<T>) => {
               >
                 <DeleteSvg />
               </button>
-            </div>
-          </summary>
-
-          <div className={styles.cardBody}>
-            <div className={styles.cardBodyInner}>
-              {props.tableOptions.map((cell) => (
-                <div key={String(cell.key)} className={styles.cellRow}>
-                  <span className={styles.cellLabel}>
-                    {props.headerRowLabels[props.tableOptions.indexOf(cell)]}
-                  </span>
-                  <div className={styles.cellValue}>{renderCellContent(item, cell)}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </details>
+            </>
+          }
+        />
       ))}
+      <LoadMoreObserver
+        isLoadMoreDisabled={props.isLoadMoreDisabled}
+        patch={props.patch}
+        searchParams={props.searchParams}
+        pages={pages}
+        currentPage={currentPage}
+      />
     </div>
   );
 };

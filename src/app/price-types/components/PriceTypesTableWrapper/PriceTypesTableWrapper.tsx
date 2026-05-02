@@ -3,7 +3,7 @@ import { useState, useTransition } from "react";
 import { notificationAdapter } from "@/stores/notification/adapter";
 import { MainTable, type RenderTableOptions } from "@/widgets/main-table/MainTable";
 import { ModalDelete } from "@/widgets/modals/modal-delete/ModalDelete";
-import { TaleControls } from "@/widgets/table-controls/TaleControls";
+import { TableControls } from "@/widgets/table-controls/TableControls";
 import type { CreatePriceTypeFormFields, PriceTypeModel } from "../../action";
 import { ModalPriceTypeForm } from "../modal-price-type-form/ModalPriceTypeForm";
 
@@ -143,7 +143,7 @@ export const PriceTypesTableWrapper = (props: Props) => {
         showSubTitle={true}
       />
       <div className="table-container">
-        <TaleControls
+        <TableControls
           addAction={{
             text: "Добавить тип цены",
             onClick: handleOpenMainModal,

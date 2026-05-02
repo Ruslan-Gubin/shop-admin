@@ -2,7 +2,7 @@ import Link from "next/link";
 import { AddSvg } from "@/app/category/components/category-item/svg/AddSvg";
 import { Button } from "@/shared/ui/button-main/Button";
 import { SearchInputQuery } from "@/shared/ui/search-input-query/SearchInputQuery";
-import styles from "./TaleControls.module.css";
+import styles from "./TableControls.module.css";
 
 type Props = {
   name?: string;
@@ -17,7 +17,7 @@ type Props = {
   customSearchInput?: React.ReactNode;
 };
 
-export const TaleControls = (props: Props) => {
+export const TableControls = (props: Props) => {
   return (
     <section className={styles.root}>
       <div className={styles.searchInputContainer}>

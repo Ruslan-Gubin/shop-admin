@@ -1,22 +1,27 @@
 "use client";
 import { useRouter } from "next/navigation";
-import { Activity, useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 import type { ProductModel } from "@/app/action";
+import { useWindowSize } from "@/shared/hooks/useWindowSize";
 import { notificationAdapter } from "@/stores/notification/adapter";
 import { MainMobileTable } from "@/widgets/main-mobile-table/MainMobileTable";
 import { MainTable, type RenderTableOptions } from "@/widgets/main-table/MainTable";
 import { ModalDelete } from "@/widgets/modals/modal-delete/ModalDelete";
-import { TaleControls } from "@/widgets/table-controls/TaleControls";
+import { TableControls } from "@/widgets/table-controls/TableControls";
 
 type Props = {
   products: ProductModel[];
   onDeleteItemAction: (id: number) => Promise<{ status: "error" | "success"; message: string }>;
   redirectPageAfterDeleteAction: () => void;
   name: string;
+  isLoadMoreDisabled: boolean;
+  patch: string;
+  searchParams: { [key: string]: string | string[] | undefined };
 };
 
 export const ProductsTableWrapper = (props: Props) => {
   const router = useRouter();
+  const { isMobile } = useWindowSize();
   const [submitLoading, transition] = useTransition();
   const [optionFormModal, setOptionFormModal] = useState<{
     id: number | null;
@@ -93,7 +98,7 @@ export const ProductsTableWrapper = (props: Props) => {
         showSubTitle={true}
       />
       <div className="table-container">
-        <TaleControls
+        <TableControls
           addAction={{
             href: "/product/create",
             text: "Добавить товар",
@@ -101,30 +106,32 @@ export const ProductsTableWrapper = (props: Props) => {
           name={props.name}
           queryKey="name"
         />
-        {props.products && props.products.length > 0 && (
-          <>
-            <Activity mode="hidden">
-              <MainTable
-                data={props.products}
-                onEditAction={handleEditRouter}
-                onDeleteAction={handleOpenDeleteModal}
-                headerRowLabels={headerRowLabels}
-                stickyActionColumn
-                stickyFirstColumn
-                gridTemplateColumns="65px minmax(150px, 1fr) minmax(110px, 150px) minmax(110px, 150px) minmax(130px, 150px) 160px 58px"
-                tableOptions={tableOptions}
-              />
-            </Activity>
-            <Activity mode="visible">
-              <MainMobileTable
-                data={props.products}
-                onEditAction={handleEditRouter}
-                onDeleteAction={handleOpenDeleteModal}
-                tableOptions={tableOptions}
-                headerRowLabels={headerRowLabels}
-              />
-            </Activity>
-          </>
+        {props.products && props.products.length > 0 && !isMobile && (
+          <MainTable
+            data={props.products}
+            onEditAction={handleEditRouter}
+            onDeleteAction={handleOpenDeleteModal}
+            headerRowLabels={headerRowLabels}
+            stickyActionColumn
+            stickyFirstColumn
+            gridTemplateColumns="65px minmax(150px, 1fr) minmax(110px, 150px) minmax(110px, 150px) minmax(130px, 150px) 160px 58px"
+            tableOptions={tableOptions}
+          />
+        )}
+
+        {props.products && props.products.length > 0 && isMobile && (
+          <MainMobileTable
+            titleKey="name"
+            data={props.products}
+            onEditAction={handleEditRouter}
+            onDeleteAction={handleOpenDeleteModal}
+            tableOptions={tableOptions}
+            headerRowLabels={headerRowLabels}
+            headerRowWidth={["38px", "140px", "100px", "80px", "100px", "120px"]}
+            searchParams={props.searchParams}
+            isLoadMoreDisabled={props.isLoadMoreDisabled}
+            patch={props.patch}
+          />
         )}
       </div>
     </>

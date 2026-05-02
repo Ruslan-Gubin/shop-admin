@@ -4,28 +4,6 @@
   gap: 8px;
 }
 
-.card {
-  border: 1px solid lightgray;
-  border-radius: 4px;
-  background-color: white;
-  overflow: hidden;
-  padding: 16px 12px;
-}
-
-.cardHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  height: 40px;
-  min-height: 40px;
-  position: relative;
-}
-
-.cardHeaderLeftSide {
-  display: flex;
-  column-gap: 8px;
-}
-
 .cartHeaderList {
   display: flex;
   align-items: center;
@@ -61,23 +39,6 @@
   font-size: 12px;
 }
 
-.cardActions {
-  display: flex;
-  align-items: center;
-  column-gap: 8px;
-  position: sticky;
-  height: 100%;
-  top: 0;
-  right: 0;
-}
-
-.cardActions button {
-  padding: 4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
 .cardBody {
   padding-top: 16px;
   display: flex;
@@ -87,24 +48,32 @@
 }
 
 .cellRow {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   align-items: center;
   min-height: 30px;
+  border-bottom: 1px solid lightgray;
+}
+
+.cellRow:nth-last-child(1) {
+  border-bottom: none;
 }
 
 .cellLabel {
-  color: #666;
-  flex-shrink: 0;
-  margin-right: 10px;
+  color: #666666;
+  font-weight: 500;
+  text-wrap: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
 }
 
 .cellValue {
   text-align: right;
-  color: #333;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
+  color: #333333;
+  padding-left: 4px;
+  text-wrap: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
 }
 
 .avatar {
@@ -115,27 +84,6 @@
   overflow: hidden;
   border-radius: 50%;
   object-fit: cover;
-}
-
-.card[open] {
-  .headerListItem {
-    display: none;
-  }
-  .cardBody {
-    /* height: max-content; */
-    /* animation: openContent 0.2s ease 1 forwards; */
-    grid-template-rows: 1fr;
-  }
-}
-
-@keyframes openContent {
-  0% {
-    height: 0px;
-  }
-
-  100% {
-    height: min-content;
-  }
 }
 
 .birdContainer {

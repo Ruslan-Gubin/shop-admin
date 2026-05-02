@@ -1,0 +1,91 @@
+.root {
+  border: 1px solid lightgray;
+  border-radius: 4px;
+  padding: 16px 12px;
+}
+
+.details {
+  overflow: hidden;
+}
+
+.summary {
+  display: flex;
+  justify-content: space-between;
+  cursor: pointer;
+  min-height: 40px;
+}
+
+.summary::-webkit-details-marker {
+  display: none;
+}
+
+.summaryLeftSide {
+  display: grid;
+  grid-template-columns: 18px 1fr;
+  column-gap: 8px;
+}
+
+.header {
+  overflow: hidden;
+  width: auto;
+  min-width: 0;
+}
+
+.birdContainer {
+  width: 18px;
+  min-width: 18px;
+  height: 18px;
+  max-height: 18px;
+  transform: rotate(90deg);
+  transition: transform 0.3s ease-out;
+  cursor: pointer;
+}
+
+.titleAfterOpen {
+  font-size: 14px;
+  font-weight: 500;
+  display: none;
+  text-overflow: ellipsis;
+  text-wrap: nowrap;
+  overflow: hidden;
+  max-width: 100%;
+}
+
+.cardActions {
+  display: flex;
+  align-items: center;
+  column-gap: 8px;
+  height: 100%;
+}
+
+.cardActions button {
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.content {
+  height: 0;
+  overflow: hidden;
+  transition: height 0.3s linear;
+}
+
+.details[open] + .content {
+  height: auto;
+  border-color: #888;
+  animation: contentOpen 0.3s linear 0s 1 forwards;
+}
+
+.details[open] .birdContainer {
+  transform: rotate(-90deg);
+  transition: transform 0.3s ease-out;
+}
+
+.details[open] .headerContent {
+  display: none;
+}
+
+.details[open] .titleAfterOpen {
+  display: block;
+}

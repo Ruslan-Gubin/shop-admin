@@ -6,7 +6,7 @@ import { FindSvg } from "@/shared/svg/FindSvg";
 import { Input } from "@/shared/ui/input-main/Input";
 import { notificationAdapter } from "@/stores/notification/adapter";
 import { ModalDelete } from "@/widgets/modals/modal-delete/ModalDelete";
-import { TaleControls } from "@/widgets/table-controls/TaleControls";
+import { TableControls } from "@/widgets/table-controls/TableControls";
 import type { CategoryModel, CreateCategoryFormFields } from "../../action";
 import { CategoryItem } from "../category-item/CategoryItem";
 import { ModalCategoryForm } from "../modal-category-form/ModalCategoryForm";
@@ -202,7 +202,7 @@ export const CategoryList = (props: Props) => {
       )}
 
       <div className="table-container">
-        <TaleControls
+        <TableControls
           addAction={{
             text: "Добавить раздел",
             onClick: handleOpenMainModal,
