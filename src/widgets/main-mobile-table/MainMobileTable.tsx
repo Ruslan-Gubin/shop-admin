@@ -4,6 +4,7 @@ import { DeleteSvg } from "@/app/category/components/category-item/svg/DeleteSvg
 import { EditSvg } from "@/app/category/components/category-item/svg/EditSvg";
 import { getIsValidCurrentPage } from "@/shared/helpers/getIsValidCurrentPage";
 import { getUpdateQueryPageString } from "@/shared/helpers/getUpdateQueryPageString";
+import type { ResponseData } from "@/shared/types/response";
 import { Details } from "@/shared/ui/details/Details";
 import { LoadMoreObserver } from "@/shared/ui/load-more-observer/LoadMoreObserver";
 import type { RenderTableOptions } from "@/widgets/main-table/MainTable";
@@ -20,6 +21,7 @@ interface Props<T> {
   isLoadMoreDisabled: boolean;
   patch: string;
   searchParams: { [key: string]: string | string[] | undefined };
+  fetchTableElementAction: (id: string) => Promise<ResponseData<T>>;
 }
 
 const shortDateFormat = new Intl.DateTimeFormat("ru-RU", {
@@ -68,6 +70,43 @@ export const MainMobileTable = <T extends { id: number }>(props: Props<T>) => {
   useLayoutEffect(() => {
     getUpdateDataEvent(currentPage);
   }, [currentPage]);
+
+  const updateAfterActionDataEvent = useEffectEvent(() => {
+    if (typeof window !== "undefined") {
+      const getCookie = (name: string): string | undefined => {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop()?.split(";").shift();
+      };
+
+      const deleteCookie = (key: string) => {
+        document.cookie = `${key}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+      };
+
+      const deleteId = getCookie("delete");
+      const updateId = getCookie("update");
+
+      if (deleteId) {
+        setData((prev) => prev.filter((el) => el.id !== Number(deleteId)));
+        deleteCookie("delete");
+      }
+
+      if (updateId) {
+        props.fetchTableElementAction(updateId).then((response) => {
+          if (response.status === "success" && response.data) {
+            setData((prev) =>
+              prev.map((el) => (el.id === Number(updateId) && response.data ? response.data : el)),
+            );
+            deleteCookie("update");
+          }
+        });
+      }
+    }
+  });
+
+  useLayoutEffect(() => {
+    updateAfterActionDataEvent();
+  }, [props.data]);
 
   return (
     <div className={styles.container}>

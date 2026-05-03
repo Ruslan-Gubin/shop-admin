@@ -8,6 +8,7 @@ import { UpdateToken } from "@/views/UpdateToken/UpdateToken";
 import {
   createPriceTypeAction,
   deletePriceTypeAction,
+  fetchPriceType,
   fetchPriceTypes,
   updatePriceTypeAction,
 } from "./action";
@@ -20,6 +21,13 @@ export default async function PriceTypesPage(req: {
   const tableData = await fetchPriceTypes(searchParams.name, "10", searchParams.page);
   const patch = "/price-types";
   const limit = 10;
+
+  const data = tableData.data?.priceTypes;
+  const element = data ? data[0] : null;
+
+  if (element) {
+    console.log(element.name);
+  }
 
   const redirectPageAfterDelete = async () => {
     "use server";
@@ -52,6 +60,7 @@ export default async function PriceTypesPage(req: {
           onDeleteItemAction={deletePriceTypeAction}
           createPriceTypeAction={createPriceTypeAction}
           updatePriceTypeAction={updatePriceTypeAction}
+          fetchTableElementAction={fetchPriceType}
           redirectPageAfterDeleteAction={redirectPageAfterDelete}
           isLoadMoreDisabled={isLoadMoreDisabled}
           patch={patch}

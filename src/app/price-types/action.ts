@@ -1,5 +1,6 @@
 "use server";
 import { revalidatePath } from "next/cache";
+import { cookies } from "next/headers";
 import { fetchService } from "@/shared/fetch-api";
 import { getFormActionState } from "@/shared/services/get-form-action-state";
 import { resetNewStateValues } from "@/shared/services/reset-new-store-values";
@@ -32,6 +33,13 @@ export const fetchPriceTypes = async (name: string, limit: string, page?: string
   });
 };
 
+export const fetchPriceType = async (id: string) => {
+  return await fetchService.get<PriceTypeModel>({
+    url: `price-type/${id}`,
+    tags: [`Price_Type_${id}`],
+  });
+};
+
 export const deletePriceTypeAction = async (
   id: number,
 ): Promise<{ status: "error" | "success"; message: string }> => {
@@ -45,6 +53,8 @@ export const deletePriceTypeAction = async (
       }
 
       if (response.status === "success") {
+        const cookieStore = await cookies();
+        cookieStore.set("delete", String(id));
         revalidatePath("/price-types");
       }
 
@@ -133,6 +143,8 @@ export const updatePriceTypeAction = async (
         }
 
         if (response.status === "success") {
+          const cookieStore = await cookies();
+          cookieStore.set("update", String(id));
           revalidatePath("/price-types");
         } else {
           setNewStoreErrorFromServer(response.errors, validate.newState);
