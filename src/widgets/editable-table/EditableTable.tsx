@@ -50,12 +50,12 @@ export const EditableTable = (props: Props) => {
         {props.data.map((itemRow, indexRow) => (
           <tr
             style={{ gridTemplateColumns: props.gridTemplateColumns }}
-            key={indexRow}
+            key={itemRow[indexRow].rowId}
             className={styles.dataRow}
           >
             {itemRow.map((cell, indexCell) => (
               <td
-                key={indexCell}
+                key={`${itemRow[indexRow].rowId}_${cell.columnId}_${cell.rowId}_${props.headerRowLabels[indexCell]}`}
                 className={`${styles.dataCell} ${cell.type === "action" ? styles.dataCellAction : ""}  ${cell.type === "input" ? styles.dataCellInput : ""}`}
               >
                 {cell.type === "label" && <p className={styles.textOverflowLine}>{cell.value}</p>}

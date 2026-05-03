@@ -34,8 +34,8 @@ export const MainMobileTable = <T extends { id: number }>(props: Props<T>) => {
   const [pages, setPages] = useState<number[]>([]);
   const router = useRouter();
 
-  const getUpdateDataEvent = useEffectEvent(() => {
-    const updatePages = structuredClone(pages);
+  const getUpdateDataEvent = useEffectEvent((currentPage: number) => {
+    const updatePages = pages;
     const updateData: T[] = [];
 
     updatePages.push(currentPage);
@@ -66,7 +66,7 @@ export const MainMobileTable = <T extends { id: number }>(props: Props<T>) => {
   });
 
   useLayoutEffect(() => {
-    getUpdateDataEvent();
+    getUpdateDataEvent(currentPage);
   }, [currentPage]);
 
   return (

@@ -1,8 +1,9 @@
 "use client";
 import { useState, useTransition } from "react";
+import { useWindowSize } from "@/shared/hooks/useWindowSize";
 import { notificationAdapter } from "@/stores/notification/adapter";
-import { MainTable, type RenderTableOptions } from "@/widgets/main-table/MainTable";
 import { MainMobileTable } from "@/widgets/main-mobile-table/MainMobileTable";
+import { MainTable, type RenderTableOptions } from "@/widgets/main-table/MainTable";
 import { ModalDelete } from "@/widgets/modals/modal-delete/ModalDelete";
 import { TableControls } from "@/widgets/table-controls/TableControls";
 import type { CartDiscountModel, CreateCartDiscountFormFields } from "../../action";
@@ -27,6 +28,7 @@ type Props = {
 };
 
 export const CartDiscountsTableWrapper = (props: Props) => {
+  const { isMobile, isMounted } = useWindowSize();
   const [submitLoading, transition] = useTransition();
   const [optionFormModal, setOptionFormModal] = useState<{
     id: number | null;
@@ -175,48 +177,31 @@ export const CartDiscountsTableWrapper = (props: Props) => {
           name={props.name}
           queryKey="name"
         />
-        {props.data && props.data.length > 0 && (
-          <>
-            <div className="desktop-table">
-              <MainTable
-                data={props.data}
-                onEditAction={handleOpenEditModal}
-                onDeleteAction={handleOpenDeleteModal}
-                headerRowLabels={[
-                  "ID",
-                  "Название",
-                  "Мин. сумма",
-                  "Скидка (%)",
-                  "Доступно",
-                  "Активна",
-                ]}
-                stickyActionColumn
-                gridTemplateColumns="65px minmax(200px, 1fr) minmax(120px, 160px) minmax(120px, 160px) minmax(120px, 160px) minmax(120px, 160px) 58px"
-                tableOptions={tableOptions}
-              />
-            </div>
-            <div className="mobile-table">
-              <MainMobileTable
-                titleKey="name"
-                data={props.data}
-                onEditAction={handleOpenEditModal}
-                onDeleteAction={handleOpenDeleteModal}
-                tableOptions={tableOptions}
-                headerRowLabels={[
-                  "ID",
-                  "Название",
-                  "Мин. сумма",
-                  "Скидка (%)",
-                  "Доступно",
-                  "Активна",
-                ]}
-                headerRowWidth={["38px", "140px", "100px", "80px", "100px", "100px"]}
-                searchParams={props.searchParams}
-                isLoadMoreDisabled={props.isLoadMoreDisabled}
-                patch={props.patch}
-              />
-            </div>
-          </>
+        {isMounted && !isMobile && props.data && props.data.length > 0 && (
+          <MainTable
+            data={props.data}
+            onEditAction={handleOpenEditModal}
+            onDeleteAction={handleOpenDeleteModal}
+            headerRowLabels={["ID", "Название", "Мин. сумма", "Скидка (%)", "Доступно", "Активна"]}
+            stickyActionColumn
+            gridTemplateColumns="65px minmax(200px, 1fr) minmax(120px, 160px) minmax(120px, 160px) minmax(120px, 160px) minmax(120px, 160px) 58px"
+            tableOptions={tableOptions}
+          />
+        )}
+
+        {isMounted && isMobile && props.data && props.data.length > 0 && (
+          <MainMobileTable
+            titleKey="name"
+            data={props.data}
+            onEditAction={handleOpenEditModal}
+            onDeleteAction={handleOpenDeleteModal}
+            tableOptions={tableOptions}
+            headerRowLabels={["ID", "Название", "Мин. сумма", "Скидка (%)", "Доступно", "Активна"]}
+            headerRowWidth={["38px", "140px", "100px", "80px", "100px", "100px"]}
+            searchParams={props.searchParams}
+            isLoadMoreDisabled={props.isLoadMoreDisabled}
+            patch={props.patch}
+          />
         )}
       </div>
     </>

@@ -6,6 +6,7 @@
   flex-direction: column;
   overflow: hidden;
   position: relative;
+  border-bottom: 1px solid lightgray;
 }
 
 .categoryListItem {
@@ -53,15 +54,7 @@
 }
 
 .hoverDragCenter {
-  /* border: 1px solid #c1d5f6; */
   background-color: #e3ebf8;
-}
-
-.categoryName {
-  text-wrap: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  color: black;
 }
 
 .categoryNameSearch {
@@ -129,6 +122,14 @@
 .leftSide {
   display: flex;
   align-items: center;
+  overflow: hidden;
+}
+
+.categoryName {
+  text-wrap: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  color: black;
 }
 
 .leftSideCategory {

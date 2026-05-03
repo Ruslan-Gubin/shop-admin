@@ -1,6 +1,7 @@
 "use client";
 import { useState, useTransition } from "react";
 import type { PriceTypeModel } from "@/app/price-types/action";
+import { useWindowSize } from "@/shared/hooks/useWindowSize";
 import { notificationAdapter } from "@/stores/notification/adapter";
 import { EditableTable, type EditableTableDataItem } from "@/widgets/editable-table/EditableTable";
 import { EditableTableMobile } from "@/widgets/editable-table-mobile/EditableTableMobile";
@@ -36,6 +37,7 @@ type Props = {
 };
 
 export const PriceAutoFillTableWrapper = (props: Props) => {
+  const { isMobile, isMounted } = useWindowSize();
   const [submitLoading, transition] = useTransition();
   const [optionFormModal, setOptionFormModal] = useState<{
     id: number | null;
@@ -231,31 +233,28 @@ export const PriceAutoFillTableWrapper = (props: Props) => {
           name={props.range}
           queryKey="range"
         />
-        {props.ranges && props.ranges.length > 0 && (
-          <>
-            <div className="desktop-table">
-              <EditableTable
-                data={tableData}
-                onBlurInputAction={onBlurInputAction}
-                onEditAction={handleOpenEditModal}
-                onDeleteAction={handleOpenDeleteModal}
-                headerRowLabels={headerRowLabels}
-                variant="stickyFirstColumn"
-                gridTemplateColumns={gridTemplateColumns}
-              />
-            </div>
-            <div className="mobile-table">
-              <EditableTableMobile
-                data={tableData}
-                onBlurInputAction={onBlurInputAction}
-                onEditAction={handleOpenEditModal}
-                onDeleteAction={handleOpenDeleteModal}
-                headerRowLabels={headerRowLabels}
-                label={headerRowLabels[0]}
-                labelValueIndex={0}
-              />
-            </div>
-          </>
+        {isMounted && !isMobile && props.ranges && props.ranges.length > 0 && (
+          <EditableTable
+            data={tableData}
+            onBlurInputAction={onBlurInputAction}
+            onEditAction={handleOpenEditModal}
+            onDeleteAction={handleOpenDeleteModal}
+            headerRowLabels={headerRowLabels}
+            variant="stickyFirstColumn"
+            gridTemplateColumns={gridTemplateColumns}
+          />
+        )}
+
+        {isMounted && isMobile && props.ranges && props.ranges.length > 0 && (
+          <EditableTableMobile
+            data={tableData}
+            onBlurInputAction={onBlurInputAction}
+            onEditAction={handleOpenEditModal}
+            onDeleteAction={handleOpenDeleteModal}
+            headerRowLabels={headerRowLabels}
+            label={headerRowLabels[0]}
+            labelValueIndex={0}
+          />
         )}
       </div>
     </>

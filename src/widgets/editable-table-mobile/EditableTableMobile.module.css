@@ -59,12 +59,6 @@
   overflow: hidden;
 }
 
-.inputValue p {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 100%;
-}
-
 .cellInput {
   background-color: transparent;
   border-radius: 4px;
