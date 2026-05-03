@@ -251,6 +251,8 @@ export const PriceAutoFillTableWrapper = (props: Props) => {
                 onEditAction={handleOpenEditModal}
                 onDeleteAction={handleOpenDeleteModal}
                 headerRowLabels={headerRowLabels}
+                label={headerRowLabels[0]}
+                labelValueIndex={0}
               />
             </div>
           </>
