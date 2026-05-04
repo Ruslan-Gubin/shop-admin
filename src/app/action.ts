@@ -1,10 +1,10 @@
 "use server";
-import { revalidatePath } from "next/cache";
+import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { CONFIG_APP } from "@/shared/config/config";
 import { fetchService } from "@/shared/fetch-api";
-import { updateTokensInAction } from "@/shared/services/update-tokens-in-action";
+import { updateTokensInAction } from "@/shared/helpers/updateCookieAction";
 
 export interface ProductModel {
   additional_photos: string;
@@ -50,27 +50,43 @@ export const fetchProducts = async (page?: string, name?: string) => {
   });
 };
 
+export const fetchProduct = async (id: string) => {
+  const cookieStore = await cookies();
+
+  return await fetchService
+    .get<ProductModel>({
+      url: `product/${id}`,
+      tags: [`Products_${id}`],
+    })
+    .then((response) => {
+      if (response.tokens) {
+        updateTokensInAction(cookieStore, response.tokens);
+      }
+      return response;
+    });
+};
+
 export const fetchConnect = async () => {
   return await fetchService.get<null>({ url: "connect" });
 };
 
 export const logoutAction = async () => {
+  const cookieStore = await cookies();
+
   return fetchService
     .post<null>({
       url: "auth/logout",
     })
-    .then(async (response) => {
+    .then((response) => {
       if (response.tokens) {
-        await updateTokensInAction(response.tokens);
+        updateTokensInAction(cookieStore, response.tokens);
       }
       return { status: response.status, message: response.message };
     })
     .then((response) => {
       if (response.status === "success") {
-        cookies().then((cookieStore) => {
-          cookieStore.delete(CONFIG_APP.ACCESS_TOKEN_COOKIE);
-          cookieStore.delete(CONFIG_APP.REFRESH_TOKEN_COOKIE);
-        });
+        cookieStore.delete(CONFIG_APP.ACCESS_TOKEN_COOKIE);
+        cookieStore.delete(CONFIG_APP.REFRESH_TOKEN_COOKIE);
         redirect("/sign-in");
       }
       return response;
@@ -80,17 +96,19 @@ export const logoutAction = async () => {
 export const deleteProductAction = async (
   id: number,
 ): Promise<{ status: "error" | "success"; message: string }> => {
+  const cookieStore = await cookies();
+
   return fetchService
     .delete<null>({
       url: `product/${id}`,
     })
-    .then(async (response) => {
+    .then((response) => {
       if (response.tokens) {
-        await updateTokensInAction(response.tokens);
+        updateTokensInAction(cookieStore, response.tokens);
       }
 
       if (response.status === "success") {
-        revalidatePath("/");
+        revalidateTag("Products", "max");
       }
 
       return { status: response.status, message: response.message };

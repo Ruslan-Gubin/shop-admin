@@ -1,9 +1,10 @@
 "use server";
+import { cookies } from "next/headers";
 import type { ProductModel } from "@/app/action";
 import { fetchService } from "@/shared/fetch-api";
+import { updateItemCookieAction, updateTokensInAction } from "@/shared/helpers/updateCookieAction";
 import { getFormActionState } from "@/shared/services/get-form-action-state";
 import { setNewStoreErrorFromServer } from "@/shared/services/set-new-store-error-from-server";
-import { updateTokensInAction } from "@/shared/services/update-tokens-in-action";
 import type { CreateProductFormFields } from "../../create/action";
 import { updateProductSchema } from "./schema";
 
@@ -32,20 +33,23 @@ export const updateProductAction = async (
     validate.payload.price = Number(validate.payload.price);
     const id = validate.newState.id;
 
+    const cookieStore = await cookies();
+
     await fetchService
       .patch<null>({
         url: `product/${id}`,
         payload: validate.payload,
       })
-      .then(async (response) => {
+      .then((response) => {
         validate.newState.message = response.message;
         validate.newState.status = response.status;
 
         if (response.tokens) {
-          await updateTokensInAction(response.tokens);
+          updateTokensInAction(cookieStore, response.tokens);
         }
 
         if (response.status !== "success") {
+          updateItemCookieAction(cookieStore, Number(id));
           setNewStoreErrorFromServer(response.errors, validate.newState);
         }
       });

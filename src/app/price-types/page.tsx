@@ -22,13 +22,6 @@ export default async function PriceTypesPage(req: {
   const patch = "/price-types";
   const limit = 10;
 
-  const data = tableData.data?.priceTypes;
-  const element = data ? data[0] : null;
-
-  if (element) {
-    console.log(element.name);
-  }
-
   const redirectPageAfterDelete = async () => {
     "use server";
     if (

@@ -1,10 +1,16 @@
 "use server";
 import { revalidatePath } from "next/cache";
+import { cookies } from "next/headers";
 import { fetchService } from "@/shared/fetch-api";
+import {
+  addItemCookieAction,
+  deleteItemCookieAction,
+  updateItemCookieAction,
+  updateTokensInAction,
+} from "@/shared/helpers/updateCookieAction";
 import { getFormActionState } from "@/shared/services/get-form-action-state";
 import { resetNewStateValues } from "@/shared/services/reset-new-store-values";
 import { setNewStoreErrorFromServer } from "@/shared/services/set-new-store-error-from-server";
-import { updateTokensInAction } from "@/shared/services/update-tokens-in-action";
 import { createPromotionSchema } from "./schema";
 
 export type PromotionModel = {
@@ -32,19 +38,39 @@ export const fetchPromotions = async (name: string, page?: string) => {
   });
 };
 
+export const fetchPromotion = async (id: string) => {
+  const cookieStore = await cookies();
+
+  return await fetchService
+    .get<PromotionModel>({
+      url: `promotions/${id}`,
+      tags: [`Promotions_${id}`],
+    })
+    .then((response) => {
+      if (response.tokens) {
+        updateTokensInAction(cookieStore, response.tokens);
+      }
+
+      return response;
+    });
+};
+
 export const deletePromotionAction = async (
   id: number,
 ): Promise<{ status: "error" | "success"; message: string }> => {
+  const cookieStore = await cookies();
+
   return fetchService
     .delete<null>({
       url: `promotions/${id}`,
     })
-    .then(async (response) => {
+    .then((response) => {
       if (response.tokens) {
-        await updateTokensInAction(response.tokens);
+        updateTokensInAction(cookieStore, response.tokens);
       }
 
       if (response.status === "success") {
+        deleteItemCookieAction(cookieStore, id);
         revalidatePath("/promotions");
       }
 
@@ -73,26 +99,29 @@ export const createPromotionAction = async (
     prevState,
     createPromotionSchema,
   );
-  console.log(validate);
 
   if (validate.isValid) {
     validate.payload.percent = Number(validate.payload.percent);
     validate.payload.is_active = formData.get("is_active") === "on";
+
+    const cookieStore = await cookies();
 
     await fetchService
       .post<PromotionModel>({
         url: "promotions/create",
         payload: validate.payload,
       })
-      .then(async (response) => {
+      .then((response) => {
         validate.newState.message = response.message;
         validate.newState.status = response.status;
 
         if (response.tokens) {
-          await updateTokensInAction(response.tokens);
+          updateTokensInAction(cookieStore, response.tokens);
         }
 
         if (response.status === "success" && response.data) {
+          addItemCookieAction(cookieStore, response.data);
+
           resetNewStateValues(validate.newState);
           revalidatePath("/promotions");
         } else {
@@ -123,20 +152,23 @@ export const updatePromotionAction = async (
     validate.payload.percent = Number(validate.payload.percent);
     validate.payload.is_active = formData.get("is_active") === "on";
 
+    const cookieStore = await cookies();
+
     await fetchService
       .patch<null>({
         url: `promotions/${id}`,
         payload: validate.payload,
       })
-      .then(async (response) => {
+      .then((response) => {
         validate.newState.message = response.message;
         validate.newState.status = response.status;
 
         if (response.tokens) {
-          await updateTokensInAction(response.tokens);
+          updateTokensInAction(cookieStore, response.tokens);
         }
 
         if (response.status === "success") {
+          updateItemCookieAction(cookieStore, id);
           revalidatePath("/promotions");
         } else {
           setNewStoreErrorFromServer(response.errors, validate.newState);
@@ -149,4 +181,3 @@ export const updatePromotionAction = async (
 
   return validate.newState;
 };
-

@@ -85,6 +85,7 @@ export const MainMobileTable = <T extends { id: number }>(props: Props<T>) => {
 
       const deleteId = getCookie("delete");
       const updateId = getCookie("update");
+      const addItem = getCookie("add");
 
       if (deleteId) {
         setData((prev) => prev.filter((el) => el.id !== Number(deleteId)));
@@ -100,6 +101,14 @@ export const MainMobileTable = <T extends { id: number }>(props: Props<T>) => {
             deleteCookie("update");
           }
         });
+      }
+
+      if (addItem) {
+        const newItem: T = JSON.parse(decodeURIComponent(addItem));
+        if (newItem) {
+          setData((prev) => [newItem, ...prev]);
+        }
+        deleteCookie("add");
       }
     }
   });

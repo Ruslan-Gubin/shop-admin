@@ -8,6 +8,7 @@ import { UpdateToken } from "@/views/UpdateToken/UpdateToken";
 import {
   createPromotionAction,
   deletePromotionAction,
+  fetchPromotion,
   fetchPromotions,
   updatePromotionAction,
 } from "./action";
@@ -28,7 +29,9 @@ export default async function PromotionsPage(req: {
       Number(searchParams.page) > 1 &&
       tableData?.data?.promotions.length === 1
     ) {
-      redirect(getUpdateQueryPageString("/promotions", searchParams, Number(searchParams.page) - 1));
+      redirect(
+        getUpdateQueryPageString("/promotions", searchParams, Number(searchParams.page) - 1),
+      );
     }
   };
 
@@ -56,6 +59,7 @@ export default async function PromotionsPage(req: {
           isLoadMoreDisabled={isLoadMoreDisabled}
           patch={patch}
           searchParams={searchParams}
+          fetchTableElementAction={fetchPromotion}
         />
         {typeof tableData?.data?.totalCount === "number" && tableData?.data?.totalCount > 10 && (
           <Pagination

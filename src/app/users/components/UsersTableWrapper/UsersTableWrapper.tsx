@@ -2,6 +2,7 @@
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { useWindowSize } from "@/shared/hooks/useWindowSize";
+import type { ResponseData } from "@/shared/types/response";
 import { notificationAdapter } from "@/stores/notification/adapter";
 import { MainMobileTable } from "@/widgets/main-mobile-table/MainMobileTable";
 import { MainTable, type RenderTableOptions } from "@/widgets/main-table/MainTable";
@@ -17,6 +18,7 @@ type Props = {
   isLoadMoreDisabled: boolean;
   patch: string;
   searchParams: { [key: string]: string | string[] | undefined };
+  fetchTableElementAction: (id: string) => Promise<ResponseData<UserModel>>;
 };
 
 export const UsersTableWrapper = (props: Props) => {
@@ -123,6 +125,7 @@ export const UsersTableWrapper = (props: Props) => {
             searchParams={props.searchParams}
             isLoadMoreDisabled={props.isLoadMoreDisabled}
             patch={props.patch}
+            fetchTableElementAction={props.fetchTableElementAction}
           />
         )}
       </div>

@@ -1,10 +1,15 @@
 "use server";
 import { revalidatePath } from "next/cache";
+import { cookies } from "next/headers";
 import { fetchService } from "@/shared/fetch-api";
+import {
+  addItemCookieAction,
+  updateItemCookieAction,
+  updateTokensInAction,
+} from "@/shared/helpers/updateCookieAction";
 import { getFormActionState } from "@/shared/services/get-form-action-state";
 import { resetNewStateValues } from "@/shared/services/reset-new-store-values";
 import { setNewStoreErrorFromServer } from "@/shared/services/set-new-store-error-from-server";
-import { updateTokensInAction } from "@/shared/services/update-tokens-in-action";
 import type { FetchPriceTypesResponse } from "../price-types/action";
 import { createRangeSchema } from "./schema";
 
@@ -31,6 +36,23 @@ export const fetchRanges = async (search?: string) => {
     params: { search: search || "" },
     tags: ["PriceRanges"],
   });
+};
+
+export const fetchRange = async (id: string) => {
+  const cookieStore = await cookies();
+
+  return await fetchService
+    .get<RangeModel>({
+      url: `price-ranges/${id}`,
+      tags: [`PriceRanges_${id}`],
+    })
+    .then((response) => {
+      if (response.tokens) {
+        updateTokensInAction(cookieStore, response.tokens);
+      }
+
+      return response;
+    });
 };
 
 export const fetchPriceAutoFillPageData = async (range?: string) => {
@@ -74,21 +96,24 @@ export const createRangeAction = async (
     validate.payload.price_from = Number(validate.payload.price_from);
     validate.payload.price_to = Number(validate.payload.price_to);
 
+    const cookieStore = await cookies();
+
     await fetchService
       .post<RangeModel>({
         url: "price-ranges/create",
         payload: validate.payload,
       })
-      .then(async (response) => {
+      .then((response) => {
         validate.newState.message = response.message;
         validate.newState.status = response.status;
-        console.log(response);
 
         if (response.tokens) {
-          await updateTokensInAction(response.tokens);
+          updateTokensInAction(cookieStore, response.tokens);
         }
 
         if (response.status === "success" && response.data) {
+          addItemCookieAction(cookieStore, response.data);
+
           resetNewStateValues(validate.newState);
           revalidatePath("/price-auto-fill");
         } else {
@@ -118,20 +143,23 @@ export const updateRangeAction = async (
   validate.payload.price_to = Number(validate.payload.price_to);
 
   if (validate.isValid && id) {
+    const cookieStore = await cookies();
+
     await fetchService
       .patch<null>({
         url: `price-ranges/${id}`,
         payload: validate.payload,
       })
-      .then(async (response) => {
+      .then((response) => {
         validate.newState.message = response.message;
         validate.newState.status = response.status;
 
         if (response.tokens) {
-          await updateTokensInAction(response.tokens);
+          updateTokensInAction(cookieStore, response.tokens);
         }
 
         if (response.status === "success") {
+          updateItemCookieAction(cookieStore, id);
           revalidatePath("/price-auto-fill");
         } else {
           setNewStoreErrorFromServer(response.errors, validate.newState);
@@ -148,13 +176,15 @@ export const updateRangeAction = async (
 export const deleteRangeAction = async (
   id: number,
 ): Promise<{ status: "error" | "success"; message: string }> => {
+  const cookieStore = await cookies();
+
   return fetchService
     .delete<null>({
       url: `price-ranges/${id}`,
     })
-    .then(async (response) => {
+    .then((response) => {
       if (response.tokens) {
-        await updateTokensInAction(response.tokens);
+        updateTokensInAction(cookieStore, response.tokens);
       }
 
       if (response.status === "success") {
@@ -170,14 +200,16 @@ export const createPriceFillAction = async (
   price_type_id: number,
   percent: number,
 ): Promise<{ status: "error" | "success"; message: string }> => {
+  const cookieStore = await cookies();
+
   return fetchService
     .post<PriceFillModel>({
       url: "price-fill/create",
       payload: { price_range_id, price_type_id, percent },
     })
-    .then(async (response) => {
+    .then((response) => {
       if (response.tokens) {
-        await updateTokensInAction(response.tokens);
+        updateTokensInAction(cookieStore, response.tokens);
       }
 
       if (response.status === "success") {
@@ -192,14 +224,16 @@ export const updatePriceFillAction = async (
   id: number,
   percent: number,
 ): Promise<{ status: "error" | "success"; message: string }> => {
+  const cookieStore = await cookies();
+
   return fetchService
     .patch<PriceFillModel>({
       url: `price-fill/${id}`,
       payload: { percent },
     })
-    .then(async (response) => {
+    .then((response) => {
       if (response.tokens) {
-        await updateTokensInAction(response.tokens);
+        updateTokensInAction(cookieStore, response.tokens);
       }
 
       if (response.status === "success") {
@@ -213,13 +247,15 @@ export const updatePriceFillAction = async (
 export const deletePriceFillAction = async (
   id: number,
 ): Promise<{ status: "error" | "success"; message: string }> => {
+  const cookieStore = await cookies();
+
   return fetchService
     .delete<PriceFillModel>({
       url: `price-fill/${id}`,
     })
-    .then(async (response) => {
+    .then((response) => {
       if (response.tokens) {
-        await updateTokensInAction(response.tokens);
+        updateTokensInAction(cookieStore, response.tokens);
       }
 
       if (response.status === "success") {

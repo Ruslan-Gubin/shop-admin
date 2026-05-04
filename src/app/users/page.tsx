@@ -5,7 +5,7 @@ import { getUpdateQueryPageString } from "@/shared/helpers/getUpdateQueryPageStr
 import { ErrorAlert } from "@/shared/ui/error-alert/ErrorAlert";
 import { Pagination } from "@/shared/ui/pagination/Pagination";
 import { UpdateToken } from "@/views/UpdateToken/UpdateToken";
-import { deleteUserAction, fetchUsers } from "./action";
+import { deleteUserAction, fetchUser, fetchUsers } from "./action";
 import { UsersTableWrapper } from "./components/UsersTableWrapper/UsersTableWrapper";
 
 export default async function UsersPage(req: {
@@ -45,6 +45,7 @@ export default async function UsersPage(req: {
           isLoadMoreDisabled={isLoadMoreDisabled}
           patch={patch}
           searchParams={searchParams}
+          fetchTableElementAction={fetchUser}
         />
         {tableData?.data &&
           typeof tableData?.data?.totalCount === "number" &&

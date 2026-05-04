@@ -8,6 +8,7 @@ import { UpdateToken } from "@/views/UpdateToken/UpdateToken";
 import {
   createCartDiscountAction,
   deleteCartDiscountAction,
+  fetchCartDiscount,
   fetchCartDiscounts,
   updateCartDiscountAction,
 } from "./action";
@@ -56,6 +57,7 @@ export default async function CartDiscountsPage(req: {
           isLoadMoreDisabled={isLoadMoreDisabled}
           patch={patch}
           searchParams={searchParams}
+          fetchTableElementAction={fetchCartDiscount}
         />
         {typeof tableData?.data?.totalCount === "number" && tableData?.data?.totalCount > 10 && (
           <Pagination

@@ -3,6 +3,7 @@ import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import type { ProductModel } from "@/app/action";
 import { useWindowSize } from "@/shared/hooks/useWindowSize";
+import type { ResponseData } from "@/shared/types/response";
 import { notificationAdapter } from "@/stores/notification/adapter";
 import { MainMobileTable } from "@/widgets/main-mobile-table/MainMobileTable";
 import { MainTable, type RenderTableOptions } from "@/widgets/main-table/MainTable";
@@ -13,6 +14,7 @@ type Props = {
   products: ProductModel[];
   onDeleteItemAction: (id: number) => Promise<{ status: "error" | "success"; message: string }>;
   redirectPageAfterDeleteAction: () => void;
+  fetchTableElementAction: (id: string) => Promise<ResponseData<ProductModel>>;
   name: string;
   isLoadMoreDisabled: boolean;
   patch: string;
@@ -131,6 +133,7 @@ export const ProductsTableWrapper = (props: Props) => {
             searchParams={props.searchParams}
             isLoadMoreDisabled={props.isLoadMoreDisabled}
             patch={props.patch}
+            fetchTableElementAction={props.fetchTableElementAction}
           />
         )}
       </div>

@@ -1,11 +1,12 @@
 "use server";
-import { getFormActionState } from "@/shared/services/get-form-action-state";
-import { updateUserSchema } from "./schema";
-import { updateTokensInAction } from "@/shared/services/update-tokens-in-action";
+import { cookies } from "next/headers";
 import { fetchService } from "@/shared/fetch-api";
+import { normalizePhoneNumber } from "@/shared/helpers/normalizePhoneNumber";
+import { updateItemCookieAction, updateTokensInAction } from "@/shared/helpers/updateCookieAction";
+import { getFormActionState } from "@/shared/services/get-form-action-state";
 import { setNewStoreErrorFromServer } from "@/shared/services/set-new-store-error-from-server";
 import type { UserModel } from "../../action";
-import { normalizePhoneNumber } from "@/shared/helpers/normalizePhoneNumber";
+import { updateUserSchema } from "./schema";
 
 export type UpdateUserFormFields = {
   name: { value: string; error: string };
@@ -29,11 +30,7 @@ export const updateUserAction = async (
   prevState: UpdateUserFormFields,
   formData: FormData,
 ): Promise<UpdateUserFormFields> => {
-  const validate = getFormActionState<UpdateUserFormFields>(
-    formData,
-    prevState,
-    updateUserSchema,
-  );
+  const validate = getFormActionState<UpdateUserFormFields>(formData, prevState, updateUserSchema);
 
   if (validate.isValid) {
     const id = validate.newState.id;
@@ -42,6 +39,8 @@ export const updateUserAction = async (
       validate.payload.phone = normalizePhoneNumber(validate.payload.phone);
     }
     const { repeatPassword, ...restPayload } = validate.payload;
+
+    const cookieStore = await cookies();
 
     await fetchService
       .patch<null>({
@@ -53,12 +52,13 @@ export const updateUserAction = async (
         validate.newState.status = response.status;
 
         if (response.tokens) {
-          await updateTokensInAction(response.tokens);
+          updateTokensInAction(cookieStore, response.tokens);
         }
 
         if (response.status !== "success") {
           setNewStoreErrorFromServer(response.errors, validate.newState);
         } else {
+          updateItemCookieAction(cookieStore, Number(id));
           validate.newState.password.value = "";
           validate.newState.repeatPassword.value = "";
         }

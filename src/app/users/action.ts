@@ -1,7 +1,8 @@
 "use server";
 import { revalidatePath } from "next/cache";
+import { cookies } from "next/headers";
 import { fetchService } from "@/shared/fetch-api";
-import { updateTokensInAction } from "@/shared/services/update-tokens-in-action";
+import { deleteItemCookieAction, updateTokensInAction } from "@/shared/helpers/updateCookieAction";
 
 export interface UserModel {
   created_at: string;
@@ -30,20 +31,38 @@ export const fetchUsers = async (page?: string, name?: string) => {
   });
 };
 
+export const fetchUser = async (id: string) => {
+  const cookieStore = await cookies();
+
+  return await fetchService
+    .get<UserModel>({
+      url: `users/${id}`,
+      tags: [`Users_${id}`],
+    })
+    .then((response) => {
+      if (response.tokens) {
+        updateTokensInAction(cookieStore, response.tokens);
+      }
+
+      return response;
+    });
+};
+
 export const deleteUserAction = async (
   id: number,
 ): Promise<{ status: "error" | "success"; message: string }> => {
+  const cookieStore = await cookies();
   return fetchService
     .delete<null>({
       url: `users/${id}`,
     })
     .then(async (response) => {
-      console.log(response);
       if (response.tokens) {
-        await updateTokensInAction(response.tokens);
+        updateTokensInAction(cookieStore, response.tokens);
       }
 
       if (response.status === "success") {
+        deleteItemCookieAction(cookieStore, id);
         revalidatePath("/users");
       }
 

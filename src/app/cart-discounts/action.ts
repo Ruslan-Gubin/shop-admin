@@ -1,10 +1,16 @@
 "use server";
 import { revalidatePath } from "next/cache";
+import { cookies } from "next/headers";
 import { fetchService } from "@/shared/fetch-api";
+import {
+  addItemCookieAction,
+  deleteItemCookieAction,
+  updateItemCookieAction,
+  updateTokensInAction,
+} from "@/shared/helpers/updateCookieAction";
 import { getFormActionState } from "@/shared/services/get-form-action-state";
 import { resetNewStateValues } from "@/shared/services/reset-new-store-values";
 import { setNewStoreErrorFromServer } from "@/shared/services/set-new-store-error-from-server";
-import { updateTokensInAction } from "@/shared/services/update-tokens-in-action";
 import { createCartDiscountSchema } from "./schema";
 
 export type CartDiscountModel = {
@@ -31,19 +37,39 @@ export const fetchCartDiscounts = async (name: string, page?: string) => {
   });
 };
 
+export const fetchCartDiscount = async (id: string) => {
+  const cookieStore = await cookies();
+
+  return await fetchService
+    .get<CartDiscountModel>({
+      url: `cart-discounts/${id}`,
+      tags: [`Cart_Discounts_${id}`],
+    })
+    .then((response) => {
+      if (response.tokens) {
+        updateTokensInAction(cookieStore, response.tokens);
+      }
+
+      return response;
+    });
+};
+
 export const deleteCartDiscountAction = async (
   id: number,
 ): Promise<{ status: "error" | "success"; message: string }> => {
+  const cookieStore = await cookies();
+
   return fetchService
     .delete<null>({
       url: `cart-discounts/${id}`,
     })
-    .then(async (response) => {
+    .then((response) => {
       if (response.tokens) {
-        await updateTokensInAction(response.tokens);
+        updateTokensInAction(cookieStore, response.tokens);
       }
 
       if (response.status === "success") {
+        deleteItemCookieAction(cookieStore, id);
         revalidatePath("/cart-discounts");
       }
 
@@ -77,20 +103,23 @@ export const createCartDiscountAction = async (
     validate.payload.percent = Number(validate.payload.percent);
     validate.payload.is_active = validate.payload.is_active === "on";
 
+    const cookieStore = await cookies();
+
     await fetchService
       .post<CartDiscountModel>({
         url: "cart-discounts/create",
         payload: validate.payload,
       })
-      .then(async (response) => {
+      .then((response) => {
         validate.newState.message = response.message;
         validate.newState.status = response.status;
 
         if (response.tokens) {
-          await updateTokensInAction(response.tokens);
+          updateTokensInAction(cookieStore, response.tokens);
         }
 
         if (response.status === "success" && response.data) {
+          addItemCookieAction(cookieStore, response.data);
           resetNewStateValues(validate.newState);
           revalidatePath("/cart-discounts");
         } else {
@@ -122,20 +151,23 @@ export const updateCartDiscountAction = async (
     validate.payload.percent = Number(validate.payload.percent);
     validate.payload.is_active = validate.payload.is_active === "on";
 
+    const cookieStore = await cookies();
+
     await fetchService
       .patch<null>({
         url: `cart-discounts/${id}`,
         payload: validate.payload,
       })
-      .then(async (response) => {
+      .then((response) => {
         validate.newState.message = response.message;
         validate.newState.status = response.status;
 
         if (response.tokens) {
-          await updateTokensInAction(response.tokens);
+          updateTokensInAction(cookieStore, response.tokens);
         }
 
         if (response.status === "success") {
+          updateItemCookieAction(cookieStore, id);
           revalidatePath("/cart-discounts");
         } else {
           setNewStoreErrorFromServer(response.errors, validate.newState);
