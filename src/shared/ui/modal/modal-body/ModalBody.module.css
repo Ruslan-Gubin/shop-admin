@@ -1,0 +1,5 @@
+.root {
+  flex: 1 1 auto;
+  padding-inline: 24px;
+  overflow-y: auto;
+}

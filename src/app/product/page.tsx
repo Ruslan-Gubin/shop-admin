@@ -1,6 +1,6 @@
 "use server";
 import { redirect } from "next/navigation";
-import { deleteProductAction, fetchProducts } from "@/app/action";
+import { deleteProductAction, fetchProduct, fetchProducts } from "@/app/action";
 import { getIsLoadMoreDisabled } from "@/shared/helpers/getIsLoadMoreDisabled";
 import { getUpdateQueryPageString } from "@/shared/helpers/getUpdateQueryPageString";
 import { ErrorAlert } from "@/shared/ui/error-alert/ErrorAlert";
@@ -49,6 +49,7 @@ export default async function ProductsPage(req: {
           isLoadMoreDisabled={isLoadMoreDisabled}
           patch={patch}
           searchParams={searchParams}
+          fetchTableElementAction={fetchProduct}
         />
         {tableData?.data &&
           typeof tableData?.data?.totalCount === "number" &&

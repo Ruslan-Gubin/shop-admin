@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { Header } from "@/views/Header/Header";
 import { LayoutLeftSide } from "@/views/LayoutLeftSide/LayoutLeftSide";
 import { NotificationList } from "@/widgets/notification/notifications-result/NotificationsResult";
+import { logoutAction } from "./action";
 import { Roboto } from "./core/fonts";
 import { getMetadata } from "./core/generateMetadata";
 import styles from "./styles/Layout.module.css";
@@ -36,7 +37,7 @@ export default async function RootLayout(
         </aside>
         <aside className={styles.layoutAsideContent}>
           <header className={styles.layoutHeader}>
-            <Header />
+            <Header logoutAction={logoutAction} />
           </header>
           <main className={styles.layoutMain}>{props.children}</main>
         </aside>

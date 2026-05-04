@@ -1,6 +1,8 @@
-import { Button } from "@/shared/ui/button-main/Button";
-import { CloseModal } from "@/shared/ui/close-modal/CloseModal";
 import { Modal } from "@/shared/ui/modal/Modal";
+import { ModalBody } from "@/shared/ui/modal/modal-body/ModalBody";
+import { ModalContent } from "@/shared/ui/modal/modal-content/ModalContent";
+import { ModalFooter } from "@/shared/ui/modal/modal-footer/ModalFooter";
+import { ModalHeader } from "@/shared/ui/modal/modal-header/ModalHeader";
 import styles from "./ModalDelete.module.css";
 
 type Props = {
@@ -24,35 +26,26 @@ const ModalDelete = ({
 }: Props) => {
   return (
     <Modal active={isOpen} handleCloseAction={onClose}>
-      <section className={styles.modalContent}>
-        <header className={styles.header}>
-          <div className={styles.titleWrapper}>
-            <h2 className={styles.headerTitle}>{title}</h2>
-          </div>
-          <CloseModal onClose={onClose} />
-        </header>
-        <div className={styles.content}>
+      <ModalContent>
+        <ModalHeader title={title} onClose={onClose} />
+        <ModalBody>
           {showSubTitle && <p className={styles.contentText}>Вы уверены, что хотите продолжить?</p>}
           <p className={styles.contentTextRed}>
             {readText ? readText : "Это действие является постоянным и не может быть отменено!"}
           </p>
-        </div>
+        </ModalBody>
 
-        <div className={styles.footer}>
-          <Button variant="ghost" size="md" disabled={false} onClick={onClose}>
-            Отменить
-          </Button>
-          <Button
-            variant="solid"
-            size="md"
-            variantColor="error"
-            disabled={disabled}
-            onClick={submit}
-          >
-            Удалить
-          </Button>
-        </div>
-      </section>
+        <ModalFooter
+          cancelAction={{ action: onClose }}
+          submitAction={{
+            action: submit,
+            disabled,
+            variant: "solid",
+            variantColor: "error",
+            text: "Удалить",
+          }}
+        />
+      </ModalContent>
     </Modal>
   );
 };

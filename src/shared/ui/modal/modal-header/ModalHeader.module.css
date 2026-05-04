@@ -1,0 +1,31 @@
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding-inline: 24px;
+  padding-top: 24px;
+}
+
+.titleWrapper {
+  display: flex;
+  align-items: center;
+  column-gap: 16px;
+}
+
+.headerTitle {
+  font-weight: 500;
+  font-size: 22px;
+
+  @media (max-width: 530px) {
+    max-width: 80%;
+    line-height: normal;
+  }
+}
+
+.closeButton {
+  width: 20px;
+  min-width: 20px;
+  height: 20px;
+  overflow: hidden;
+  background-color: rgba(255, 255, 255, 0);
+}

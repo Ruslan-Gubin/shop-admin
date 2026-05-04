@@ -1,15 +1,21 @@
 import styles from "./Header.module.css";
+import { LogoutButton } from "./LogoutButton/LogoutButton";
 import { MobileMenuHeader } from "./MobileMenuHeader/MobileMenuHeader";
 
-export const Header = () => {
+type Props = {
+  logoutAction: () => Promise<{ status: string; message: string }>;
+};
 
+export const Header = (props: Props) => {
   return (
     <aside className={styles.headerWrapper}>
       <aside className={styles.headerLeftSide}>
         <MobileMenuHeader />
       </aside>
       <aside>
-        <div>Right side</div>
+        <div>
+          <LogoutButton logoutAction={props.logoutAction} />
+        </div>
       </aside>
     </aside>
   );

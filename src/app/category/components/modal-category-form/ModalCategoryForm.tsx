@@ -1,12 +1,13 @@
 import { useActionState, useEffectEvent, useLayoutEffect } from "react";
 import { CancelSvg } from "@/shared/svg/CancelSvg";
-import { Button } from "@/shared/ui/button-main/Button";
-import { CloseModal } from "@/shared/ui/close-modal/CloseModal";
 import { Input } from "@/shared/ui/input-main/Input";
 import { Modal } from "@/shared/ui/modal/Modal";
+import { ModalBody } from "@/shared/ui/modal/modal-body/ModalBody";
+import { ModalContent } from "@/shared/ui/modal/modal-content/ModalContent";
+import { ModalFooter } from "@/shared/ui/modal/modal-footer/ModalFooter";
+import { ModalHeader } from "@/shared/ui/modal/modal-header/ModalHeader";
 import { notificationAdapter } from "@/stores/notification/adapter";
 import type { CreateCategoryFormFields } from "../../action";
-import styles from "./ModalCategoryForm.module.css";
 
 type Props = {
   onCloseModal: () => void;
@@ -52,49 +53,43 @@ export const ModalCategoryForm = (props: Props) => {
 
   return (
     <Modal active={props.isOpen} handleCloseAction={props.onCloseModal}>
-      <section className={styles.modalContent}>
-        <header className={styles.header}>
-          <div className={styles.titleWrapper}>
-            <h2 className={styles.headerTitle}>{props.title}</h2>
-          </div>
-          <CloseModal onClose={props.onCloseModal} />
-        </header>
+      <form action={formAction}>
+        <ModalContent>
+          <ModalHeader title={props.title} onClose={props.onCloseModal} />
 
-        <form action={formAction} className={styles.form}>
-          <div className={styles.formInputs}>
-            <Input
-              error={state.name.error}
-              defaultValue={state.name.value}
-              name="name"
-              id="name_category_input"
-              variant="outlined"
-              variantSize="sm"
-              placeholder="Название"
-              label="Название"
-              rightIcon={<CancelSvg />}
-            />
-            <Input
-              error={state.description.error}
-              defaultValue={state.description.value}
-              name="description"
-              id="description_category_input"
-              variant="outlined"
-              variantSize="sm"
-              placeholder="Описание"
-              label="Описание"
-              rightIcon={<CancelSvg />}
-            />
-          </div>
-          <footer className={styles.footer}>
-            <Button size="md" variant="ghost" onClick={props.onCloseModal} type="button">
-              Отменить
-            </Button>
-            <Button size="md" variant="solid" variantColor="green" disabled={pending} type="submit">
-              {props.submitButtonText}
-            </Button>
-          </footer>
-        </form>
-      </section>
+          <ModalBody>
+            <div className="form-modal-inputs">
+              <Input
+                error={state.name.error}
+                defaultValue={state.name.value}
+                name="name"
+                id="name_category_input"
+                variant="outlined"
+                variantSize="sm"
+                placeholder="Название"
+                label="Название"
+                rightIcon={<CancelSvg />}
+              />
+              <Input
+                error={state.description.error}
+                defaultValue={state.description.value}
+                name="description"
+                id="description_category_input"
+                variant="outlined"
+                variantSize="sm"
+                placeholder="Описание"
+                label="Описание"
+                rightIcon={<CancelSvg />}
+              />
+            </div>
+          </ModalBody>
+
+          <ModalFooter
+            cancelAction={{ action: props.onCloseModal }}
+            submitAction={{ type: "submit", disabled: pending, text: props.submitButtonText }}
+          />
+        </ModalContent>
+      </form>
     </Modal>
   );
 };

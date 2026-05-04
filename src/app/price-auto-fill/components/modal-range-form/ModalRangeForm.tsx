@@ -1,12 +1,13 @@
 import { useActionState, useEffectEvent, useLayoutEffect } from "react";
 import { CancelSvg } from "@/shared/svg/CancelSvg";
-import { Button } from "@/shared/ui/button-main/Button";
-import { CloseModal } from "@/shared/ui/close-modal/CloseModal";
 import { Input } from "@/shared/ui/input-main/Input";
 import { Modal } from "@/shared/ui/modal/Modal";
+import { ModalBody } from "@/shared/ui/modal/modal-body/ModalBody";
+import { ModalContent } from "@/shared/ui/modal/modal-content/ModalContent";
+import { ModalFooter } from "@/shared/ui/modal/modal-footer/ModalFooter";
+import { ModalHeader } from "@/shared/ui/modal/modal-header/ModalHeader";
 import { notificationAdapter } from "@/stores/notification/adapter";
 import type { CreateRangeFormFields } from "../../action";
-import styles from "./ModalRangeForm.module.css";
 
 type Props = {
   onCloseModal: () => void;
@@ -48,51 +49,43 @@ export const ModalRangeForm = (props: Props) => {
 
   return (
     <Modal active={props.isOpen} handleCloseAction={props.onCloseModal}>
-      <section className={styles.modalContent}>
-        <header className={styles.header}>
-          <div className={styles.titleWrapper}>
-            <h2 className={styles.headerTitle}>{props.title}</h2>
-          </div>
-          <CloseModal onClose={props.onCloseModal} />
-        </header>
-
-        <form action={formAction} className={styles.form}>
-          <div className={styles.formInputs}>
-            <Input
-              error={state.price_from.error}
-              defaultValue={state.price_from.value}
-              name="price_from"
-              id="price_from_range_input"
-              variant="outlined"
-              variantSize="sm"
-              type="number"
-              placeholder="От"
-              label="От"
-              rightIcon={<CancelSvg />}
-            />
-            <Input
-              error={state.price_to.error}
-              defaultValue={state.price_to.value}
-              name="price_to"
-              id="price_to_range_input"
-              variant="outlined"
-              variantSize="sm"
-              type="number"
-              placeholder="До"
-              label="До"
-              rightIcon={<CancelSvg />}
-            />
-          </div>
-          <footer className={styles.footer}>
-            <Button size="md" variant="ghost" onClick={props.onCloseModal} type="button">
-              Отменить
-            </Button>
-            <Button size="md" variant="solid" variantColor="green" disabled={pending} type="submit">
-              {props.submitButtonText}
-            </Button>
-          </footer>
-        </form>
-      </section>
+      <form action={formAction}>
+        <ModalContent>
+          <ModalHeader title={props.title} onClose={props.onCloseModal} />
+          <ModalBody>
+            <div className="form-modal-inputs">
+              <Input
+                error={state.price_from.error}
+                defaultValue={state.price_from.value}
+                name="price_from"
+                id="price_from_range_input"
+                variant="outlined"
+                variantSize="sm"
+                type="number"
+                placeholder="От"
+                label="От"
+                rightIcon={<CancelSvg />}
+              />
+              <Input
+                error={state.price_to.error}
+                defaultValue={state.price_to.value}
+                name="price_to"
+                id="price_to_range_input"
+                variant="outlined"
+                variantSize="sm"
+                type="number"
+                placeholder="До"
+                label="До"
+                rightIcon={<CancelSvg />}
+              />
+            </div>
+          </ModalBody>
+          <ModalFooter
+            cancelAction={{ action: props.onCloseModal }}
+            submitAction={{ type: "submit", disabled: pending, text: props.submitButtonText }}
+          />
+        </ModalContent>
+      </form>
     </Modal>
   );
 };

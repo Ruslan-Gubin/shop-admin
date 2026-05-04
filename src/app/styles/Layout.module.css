@@ -36,7 +36,6 @@
 
 .layoutHeader {
   height: var(--header-size-height);
-  /* 60px */
   position: sticky;
   top: 0;
   left: 0;

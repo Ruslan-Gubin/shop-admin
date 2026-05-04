@@ -1,7 +1,6 @@
 "use server";
 import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
 import { CONFIG_APP } from "@/shared/config/config";
 import { fetchService } from "@/shared/fetch-api";
 import { updateTokensInAction } from "@/shared/helpers/updateCookieAction";
@@ -87,7 +86,6 @@ export const logoutAction = async () => {
       if (response.status === "success") {
         cookieStore.delete(CONFIG_APP.ACCESS_TOKEN_COOKIE);
         cookieStore.delete(CONFIG_APP.REFRESH_TOKEN_COOKIE);
-        redirect("/sign-in");
       }
       return response;
     });
