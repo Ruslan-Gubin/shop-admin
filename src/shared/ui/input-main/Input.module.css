@@ -3,6 +3,10 @@
   align-items: center;
   position: relative;
   border-bottom-color: blue;
+
+  & button:disabled {
+    cursor: default;
+  }
 }
 
 .inputWrapper {

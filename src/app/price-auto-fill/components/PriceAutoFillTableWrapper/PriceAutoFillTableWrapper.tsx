@@ -188,15 +188,14 @@ export const PriceAutoFillTableWrapper = (props: Props) => {
     return data;
   };
 
-  const filteredPriceTypes = props.priceTypes.filter((el) => el.isPublic);
-  const priceTypesLabels = filteredPriceTypes.map((el) => el.name);
-  const tableData = generateTableData(props.ranges, filteredPriceTypes);
+  const priceTypesLabels = props.priceTypes.map((el) => el.name);
+  const tableData = generateTableData(props.ranges, props.priceTypes);
   const headerRowLabels = ["Диапазон", "", ...priceTypesLabels];
 
   const gridTemplateColumns = [
     "200px",
     "58px",
-    ...priceTypesLabels.map(() => "minmax(160px, 200px)"),
+    ...priceTypesLabels.map(() => "minmax(160px, 1fr)"),
   ].join(" ");
 
   return (

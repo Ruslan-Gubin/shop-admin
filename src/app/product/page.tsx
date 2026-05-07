@@ -1,11 +1,11 @@
 "use server";
 import { redirect } from "next/navigation";
-import { deleteProductAction, fetchProduct, fetchProducts } from "@/app/action";
 import { getIsLoadMoreDisabled } from "@/shared/helpers/getIsLoadMoreDisabled";
 import { getUpdateQueryPageString } from "@/shared/helpers/getUpdateQueryPageString";
 import { ErrorAlert } from "@/shared/ui/error-alert/ErrorAlert";
 import { Pagination } from "@/shared/ui/pagination/Pagination";
 import { UpdateToken } from "@/views/UpdateToken/UpdateToken";
+import { deleteProductAction, fetchProduct, fetchProducts } from "./action";
 import { ProductsTableWrapper } from "./components/ProductsTableWrapper/ProductsTableWrapper";
 
 export default async function ProductsPage(req: {

@@ -1,16 +1,12 @@
 "use server";
 import { cookies } from "next/headers";
-import type { ProductModel } from "@/app/action";
 import { fetchService } from "@/shared/fetch-api";
 import { updateItemCookieAction, updateTokensInAction } from "@/shared/helpers/updateCookieAction";
 import { getFormActionState } from "@/shared/services/get-form-action-state";
 import { setNewStoreErrorFromServer } from "@/shared/services/set-new-store-error-from-server";
+import type { ProductModel } from "../../action";
 import type { CreateProductFormFields } from "../../create/action";
 import { updateProductSchema } from "./schema";
-
-export interface UpdateProductFormFields extends CreateProductFormFields {
-  id: string;
-}
 
 export const fetchProduct = async (id: string) => {
   return await fetchService.get<ProductModel>({
@@ -19,10 +15,10 @@ export const fetchProduct = async (id: string) => {
 };
 
 export const updateProductAction = async (
-  prevState: UpdateProductFormFields,
+  prevState: CreateProductFormFields,
   formData: FormData,
-): Promise<UpdateProductFormFields> => {
-  const validate = getFormActionState<UpdateProductFormFields>(
+): Promise<CreateProductFormFields> => {
+  const validate = getFormActionState<CreateProductFormFields>(
     formData,
     prevState,
     updateProductSchema,

@@ -1,7 +1,6 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
-import type { ProductModel } from "@/app/action";
 import { useWindowSize } from "@/shared/hooks/useWindowSize";
 import type { ResponseData } from "@/shared/types/response";
 import { notificationAdapter } from "@/stores/notification/adapter";
@@ -9,6 +8,7 @@ import { MainMobileTable } from "@/widgets/main-mobile-table/MainMobileTable";
 import { MainTable, type RenderTableOptions } from "@/widgets/main-table/MainTable";
 import { ModalDelete } from "@/widgets/modals/modal-delete/ModalDelete";
 import { TableControls } from "@/widgets/table-controls/TableControls";
+import type { ProductModel } from "../../action";
 
 type Props = {
   products: ProductModel[];

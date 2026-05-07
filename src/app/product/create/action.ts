@@ -1,12 +1,12 @@
 "use server";
 import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
-import type { ProductModel } from "@/app/action";
 import { fetchService } from "@/shared/fetch-api";
 import { addItemCookieAction, updateTokensInAction } from "@/shared/helpers/updateCookieAction";
 import { getFormActionState } from "@/shared/services/get-form-action-state";
 import { resetNewStateValues } from "@/shared/services/reset-new-store-values";
 import { setNewStoreErrorFromServer } from "@/shared/services/set-new-store-error-from-server";
+import type { ProductModel } from "../action";
 import { createProductSchema } from "./schema";
 
 export type CreateProductFormFields = {
@@ -16,6 +16,7 @@ export type CreateProductFormFields = {
   code: { value: string; error: string };
   message: string;
   status: string;
+  id: number | null;
 };
 
 export const createProductAction = async (

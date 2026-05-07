@@ -11,6 +11,7 @@ interface Props extends React.InputHTMLAttributes<HTMLInputElement> {
   variantColor?: "teal" | "error" | "green" | "pink";
   value?: string;
   onClickRightIcon?: () => void;
+  onClickLeftIcon?: () => void;
   leftIcon?: ReactNode;
   rightIcon?: ReactNode;
   label?: string;
@@ -27,6 +28,7 @@ export const Input = ({
   variant = "standard",
   value,
   onClickRightIcon,
+  onClickLeftIcon,
   leftIcon,
   rightIcon,
   label,
@@ -47,7 +49,15 @@ export const Input = ({
 
   return (
     <div className={`${styles.wrapper} ${styles[variantSize]} ${styles[variant]}`}>
-      {leftIcon && <>{leftIcon}</>}
+      {leftIcon && (
+        <button
+          disabled={!onClickLeftIcon}
+          type="button"
+          onClick={onClickLeftIcon && onClickLeftIcon}
+        >
+          {leftIcon}
+        </button>
+      )}
       <div className={styles.inputWrapper}>
         {error && (
           <label htmlFor={name} className={styles.error}>

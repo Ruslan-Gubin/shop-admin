@@ -87,6 +87,6 @@ export const EditableTable = (props: Props) => {
           </tr>
         ))}
       </tbody>
-    </table>
+    </table >
   );
 };

@@ -5,7 +5,7 @@ import { getUpdateQueryPageString } from "@/shared/helpers/getUpdateQueryPageStr
 import { ErrorAlert } from "@/shared/ui/error-alert/ErrorAlert";
 import { Pagination } from "@/shared/ui/pagination/Pagination";
 import { UpdateToken } from "@/views/UpdateToken/UpdateToken";
-import { deleteProductAction, fetchProduct, fetchProducts } from "./action";
+import { deleteProductAction, fetchProduct, fetchProducts } from "./product/action";
 import { ProductsTableWrapper } from "./product/components/ProductsTableWrapper/ProductsTableWrapper";
 
 export default async function HomePage(req: {
