@@ -1,0 +1,18 @@
+.dimensions {
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+
+  & div {
+    flex: 1;
+  }
+
+  @media (max-width: 500px) {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  @media (max-width: 360px) {
+    grid-template-columns: 1fr;
+  }
+}

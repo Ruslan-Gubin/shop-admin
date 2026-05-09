@@ -257,14 +257,14 @@ export const MainMobileTable = <T extends { id: number }>(props: Props<T>) => {
                 onClick={() => props.onEditAction?.(item)}
                 aria-label="Редактировать"
               >
-                <EditSvg />
+                <EditSvg fill="#727280" />
               </button>
               <button
                 type="button"
                 onClick={() => props.onDeleteAction?.(item.id)}
                 aria-label="Удалить"
               >
-                <DeleteSvg />
+                <DeleteSvg fill="#727280" />
               </button>
             </>
           }

@@ -21,13 +21,18 @@
 
   @media (max-width: 880px) {
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 12px;
   }
 
   @media (max-width: 500px) {
     grid-template-columns: 1fr;
-    gap: 10px;
   }
+}
+
+.instruction {
+  font-size: 14px;
+  color: #64748b;
+  line-height: 1.5;
+  gap: 8px;
 }
 
 .rangeTextError {

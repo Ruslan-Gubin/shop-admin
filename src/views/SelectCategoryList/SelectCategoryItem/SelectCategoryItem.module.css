@@ -1,0 +1,87 @@
+.categoryList {
+  color: black;
+  margin-left: 10px;
+  padding-left: 6px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+}
+
+.selectButton {
+  opacity: 0;
+  font-size: 14px;
+  color: #0075f2;
+}
+
+.categoryListItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: white;
+  height: 30px;
+  z-index: 1;
+  position: relative;
+
+  border: 1px solid white;
+
+  &:hover {
+    background-color: #f3f4f8;
+
+    & .selectButton {
+      transition: opacity 0.4s linear;
+      opacity: 1;
+    }
+  }
+}
+
+.leftSide {
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  column-gap: 12px;
+}
+
+.leftSideCategory {
+  display: flex;
+  align-items: center;
+  color: black;
+  column-gap: 2px;
+}
+
+.arrowContainer {
+  width: 18px;
+  height: 18px;
+}
+
+.categoryName {
+  text-wrap: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  color: black;
+
+  &:hover {
+    background-color: #f3f4f8;
+
+    & .selectButton {
+      transition: opacity 0.4s linear;
+      opacity: 1;
+    }
+  }
+}
+
+.navigateMenuItemSvgActive {
+  will-change: transform;
+  transform: rotate(90deg);
+  animation: rotateBird 0.2s ease 1 forwards;
+}
+
+@keyframes rotateBird {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(90deg);
+  }
+}

@@ -1,4 +1,4 @@
-export const PriceAutoFillSvg = ({ fill }: { fill?: string }) => {
+export const PriceAutoFillSvg = ({ fill, title }: { fill?: string; title?: string }) => {
   return (
     <svg
       width="18px"
@@ -7,7 +7,7 @@ export const PriceAutoFillSvg = ({ fill }: { fill?: string }) => {
       fill={fill ? fill : "currentColor"}
       xmlns="http://www.w3.org/2000/svg"
     >
-      <title>Автозаполнение</title>
+      <title>{title || "Автозаполнение"}</title>
       <path
         fillRule="evenodd"
         clipRule="evenodd"

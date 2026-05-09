@@ -3,6 +3,9 @@ import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
 import { fetchService } from "@/shared/fetch-api";
 import { updateTokensInAction } from "@/shared/helpers/updateCookieAction";
+import { PriceFillModel, RangeModel } from "../price-auto-fill/action";
+import { FetchPriceTypesResponse } from "../price-types/action";
+import { CategoryModel } from "../category/action";
 
 export interface ProductModel {
   additional_photos: string;
@@ -31,6 +34,30 @@ export interface ProductModel {
   updated_at: string | null;
   views: number;
 }
+
+export const fetchProductFormData = async () => {
+  return await fetchService.fetchChain<
+    [RangeModel[], FetchPriceTypesResponse, PriceFillModel[], CategoryModel[]]
+  >([
+    {
+      url: "price-ranges",
+      tags: ["PriceRanges"],
+    },
+    {
+      url: "price-type/types",
+      params: { limit: "100", page: "1" },
+      tags: [`PriceTypes`],
+    },
+    {
+      url: "price-fill",
+      tags: [`PriceFill`],
+    },
+    {
+      url: "category/categories",
+      tags: [`Categories`],
+    },
+  ]);
+};
 
 export const fetchProducts = async (page?: string, name?: string) => {
   return await fetchService.get<{

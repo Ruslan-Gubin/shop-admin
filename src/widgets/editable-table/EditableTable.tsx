@@ -62,10 +62,10 @@ export const EditableTable = (props: Props) => {
                 {cell.type === "action" && (props.onEditAction || props.onDeleteAction) && (
                   <>
                     <button type="button" onClick={() => props.onEditAction?.(cell.rowId)}>
-                      <EditSvg />
+                      <EditSvg fill="#727280" />
                     </button>
                     <button type="button" onClick={() => props.onDeleteAction?.(cell.rowId)}>
-                      <DeleteSvg />
+                      <DeleteSvg fill="#727280" />
                     </button>
                   </>
                 )}
@@ -87,6 +87,6 @@ export const EditableTable = (props: Props) => {
           </tr>
         ))}
       </tbody>
-    </table >
+    </table>
   );
 };

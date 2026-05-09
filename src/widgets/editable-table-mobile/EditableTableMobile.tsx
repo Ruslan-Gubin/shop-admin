@@ -62,7 +62,7 @@ export const EditableTableMobile = (props: Props) => {
                   onClick={() => props.onEditAction?.(row[0].rowId)}
                   aria-label="Редактировать"
                 >
-                  <EditSvg />
+                  <EditSvg fill="#727280" />
                 </button>
               )}
               {props.onDeleteAction && (
@@ -71,7 +71,7 @@ export const EditableTableMobile = (props: Props) => {
                   onClick={() => props.onDeleteAction?.(row[0].rowId)}
                   aria-label="Удалить"
                 >
-                  <DeleteSvg />
+                  <DeleteSvg fill="#727280" />
                 </button>
               )}
             </>

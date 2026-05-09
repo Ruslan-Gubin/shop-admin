@@ -5,7 +5,6 @@ import { CancelSvg } from "@/shared/svg/CancelSvg";
 import { Button } from "@/shared/ui/button-main/Button";
 import { Input } from "@/shared/ui/input-main/Input";
 import { PriceAutoFillSvg } from "@/views/LayoutLeftSide/svg/PriceAutoFillSvg";
-import { FormInstruction } from "@/widgets/form-instruction/FormInstruction";
 import { FormSection } from "@/widgets/form-section/FormSection";
 import styles from "./ProductFormPrices.module.css";
 
@@ -84,7 +83,7 @@ export const ProductFormPrices = (props: Props) => {
             label="Закупочная цена"
             type="number"
             rightIcon={<CancelSvg />}
-            onChange={(e) => handleChangePurchasePrice(String(e.target.value))}
+            onChange={(e) => handleChangePurchasePrice(e.target.value)}
             onClickRightIcon={() => handleChangePurchasePrice("")}
           />
         </div>
@@ -100,7 +99,8 @@ export const ProductFormPrices = (props: Props) => {
           <p className={styles.fillAllButtonText}>Заполнить все типы цен</p>
         </Button>
       </div>
-      <FormInstruction>
+
+      <div className={styles.instruction}>
         {isErrorRangeText ? (
           <span className={styles.rangeTextError}>
             Для этой закупочной цены не настроен{" "}
@@ -124,7 +124,7 @@ export const ProductFormPrices = (props: Props) => {
           </Link>
           .
         </span>
-      </FormInstruction>
+      </div>
 
       <ul className={styles.pricesGrid}>
         {props.priceTypes.map((priceType) => (

@@ -106,10 +106,10 @@ export const MainTable = <T extends { id: number }>(props: Props<T>) => {
             {isHasAction && (
               <td className={styles.actionButtons}>
                 <button type="button" onClick={() => props.onEditAction?.(item)}>
-                  <EditSvg />
+                  <EditSvg fill="#727280" />
                 </button>
                 <button type="button" onClick={() => props.onDeleteAction?.(item.id)}>
-                  <DeleteSvg />
+                  <DeleteSvg fill="#727280" />
                 </button>
               </td>
             )}

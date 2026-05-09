@@ -1,0 +1,23 @@
+.specificationList {
+  display: flex;
+  flex-direction: column;
+  row-gap: 24px;
+}
+
+.specificationItem {
+  display: flex;
+  column-gap: 16px;
+
+  & div {
+    flex: 1;
+  }
+
+  @media (max-width: 500px) {
+    column-gap: 6px;
+  }
+}
+
+.deleteContainer {
+  width: 20px;
+  min-width: 20px;
+}

@@ -1,4 +1,6 @@
+"use server";
 import { fetchPriceAutoFillPageData } from "@/app/price-auto-fill/action";
+import type { PriceTypeModel } from "@/app/price-types/action";
 import { ErrorAlert } from "@/shared/ui/error-alert/ErrorAlert";
 import { UpdateToken } from "@/views/UpdateToken/UpdateToken";
 import { ProductForm } from "../../components/ProductForm/ProductForm";
@@ -10,6 +12,17 @@ export default async function ProductEditPage({ params }: { params: Promise<{ id
   const product = await fetchProduct(id);
   const [rangesData, priceTypesData, priceFill] = await fetchPriceAutoFillPageData();
 
+  const getInitialPriceValues = (priceTypes: PriceTypeModel[]) => {
+    const initial: Record<string, string> = {};
+
+    for (let i = 0; i < priceTypes.length; i++) {
+      initial[priceTypes[i].id] = "";
+    }
+    return initial;
+  };
+
+  const initialPriceTypesValues = getInitialPriceValues(priceTypesData.data?.priceTypes || []);
+
   return (
     <div>
       {product?.tokens && <UpdateToken tokens={product.tokens} />}
@@ -17,6 +30,10 @@ export default async function ProductEditPage({ params }: { params: Promise<{ id
       <div className={styles.root}>
         {product?.data && (
           <ProductForm
+            initialPriceTypesValues={initialPriceTypesValues}
+            priceFill={priceFill.data || []}
+            ranges={rangesData.data || []}
+            variant="edit"
             priceTypes={priceTypesData.data?.priceTypes || []}
             submitFormAction={updateProductAction}
             initValue={{
@@ -24,7 +41,7 @@ export default async function ProductEditPage({ params }: { params: Promise<{ id
               code: product.data.code,
               count: String(product.data.count),
               price: String(product.data.price),
-              id: Number(id),
+              id: id ? Number(id) : null,
             }}
           />
         )}
