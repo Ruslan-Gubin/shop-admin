@@ -106,18 +106,18 @@ h3 {
 .page-wrapper {
   display: flex;
   flex-direction: column;
-  row-gap: 24px;
+  row-gap: var(--padding-content-block);
 }
 
 .table-container {
   display: flex;
   flex-direction: column;
-  row-gap: 20px;
+  row-gap: var(--gap-info-block);
 }
 
 .form-modal-inputs {
   display: flex;
   flex-direction: column;
-  row-gap: 24px;
+  row-gap: var(--gap-info-block);
   padding-top: 4px;
 }

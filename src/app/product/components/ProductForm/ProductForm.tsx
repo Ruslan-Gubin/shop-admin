@@ -1,11 +1,12 @@
 "use client";
-import { useState, useTransition } from "react";
+import { useLayoutEffect, useState, useTransition } from "react";
 import type { CategoryModel } from "@/app/category/action";
 import { AddSvg } from "@/app/category/components/category-item/svg/AddSvg";
 import { EditSvg } from "@/app/category/components/category-item/svg/EditSvg";
 import type { PriceTypeModel } from "@/app/price-types/action";
-import type { CreateProductFormFields } from "@/app/product/create/action";
+import type { ProductFormPayloadValues } from "@/app/product/create/action";
 import { Button } from "@/shared/ui/button-main/Button";
+import { notificationAdapter } from "@/stores/notification/adapter";
 import { ProductFormAdditionally } from "./components/Additionally/ProductFormAdditionally";
 import { ProductFormGeneralInfo } from "./components/GeneralInfo/ProductFormGeneralInfo";
 import { ProductFormPhotos } from "./components/Photo/ProductFormPhotos";
@@ -17,10 +18,18 @@ import styles from "./ProductForm.module.css";
 type Props = {
   categories: CategoryModel[];
   variant: "create" | "edit";
-  submitFormAction: (
-    prevState: CreateProductFormFields,
-    formData: FormData,
-  ) => Promise<CreateProductFormFields>;
+  submitAction: (
+    values: ProductFormPayloadValues,
+    typePriceValues: Record<string, string>,
+  ) => Promise<{
+    errors: Record<keyof ProductFormPayloadValues, string> | null;
+    notification: {
+      status: "error" | "success";
+      message: string;
+    } | null;
+    updateTypesPricesValues: Record<string, string> | null;
+    updateValues: ProductFormPayloadValues | null;
+  }>;
   initValue?: {
     name: string;
     count: string;
@@ -30,6 +39,7 @@ type Props = {
   };
   priceTypes: PriceTypeModel[];
   initialPriceTypesValues: Record<string, string>;
+  initialValues: ProductFormPayloadValues;
   getFillValuesAction: (
     currentPrice: number,
   ) => Promise<{ updateFillValues: Record<string, number>; isHasRange: boolean }>;
@@ -37,64 +47,48 @@ type Props = {
 
 export const ProductForm = (props: Props) => {
   const [pending, transition] = useTransition();
-  const [values, setValues] = useState<{
-    name: string;
-    code: string;
-    description: string;
-    brand: string;
-    category: number | null;
-  }>({
+  const [values, setValues] = useState<ProductFormPayloadValues>(props.initialValues);
+  const [errors, setErrors] = useState<Record<keyof ProductFormPayloadValues, string>>({
     name: "",
     code: "",
-    brand: "",
-    category: null,
+    brand_id: "",
+    category_id: "",
     description: "",
+    country: "",
+    product_type: "",
+    weight: "",
+    equipment: "",
+    height: "",
+    length: "",
+    width: "",
+    purchase_price: "",
   });
+  const [typePriceValues, setTypePriceValues] = useState<Record<string, string>>({});
 
-  const [errors, setErrors] = useState<{
-    name: string;
-    code: string;
-    description: string;
-    brand: string;
-    category: string;
-  }>({
-    name: "",
-    code: "",
-    brand: "",
-    category: "",
-    description: "",
-  });
-  // const [state, formAction, pending] = useActionState(props.submitFormAction, {
-  //   name: {
-  //     value: props?.initValue?.name ? props.initValue.name : "",
-  //     error: "",
-  //   },
-  //   count: {
-  //     value: props?.initValue?.count ? props.initValue.count : "",
-  //     error: "",
-  //   },
-  //   price: {
-  //     value: props?.initValue?.price ? props.initValue.price : "",
-  //     error: "",
-  //   },
-  //   code: {
-  //     value: props?.initValue?.code ? props.initValue.code : "",
-  //     error: "",
-  //   },
-  //   id: props?.initValue?.id ? props.initValue.id : null,
-  //   message: "",
-  //   status: "",
-  // });
-
-  // useLayoutEffect(() => {
-  //   if (state.message && (state.status === "success" || state.status === "error")) {
-  //     notificationAdapter.add(state.message, state.status);
-  //   }
-  // }, [state]);
+  useLayoutEffect(() => {
+    setTypePriceValues(props.initialPriceTypesValues);
+    setValues(props.initialValues);
+  }, []);
 
   const submitForm = () => {
     transition(() => {
-      console.log(values);
+      props.submitAction(values, typePriceValues).then((response) => {
+        if (response.errors) {
+          setErrors(response.errors);
+        }
+
+        if (response.notification) {
+          notificationAdapter.add(response.notification.message, response.notification.status);
+        }
+
+        if (response.updateTypesPricesValues) {
+          setTypePriceValues(response.updateTypesPricesValues);
+        }
+
+        if (response.updateValues) {
+          setValues(response.updateValues);
+        }
+      });
     });
   };
 
@@ -103,7 +97,7 @@ export const ProductForm = (props: Props) => {
   };
 
   const handleSelectCategory = (id: number | null) => {
-    setValues((prev) => ({ ...prev, category: id }));
+    setValues((prev) => ({ ...prev, category_id: id }));
   };
 
   return (
@@ -116,21 +110,18 @@ export const ProductForm = (props: Props) => {
         onSelectCategory={handleSelectCategory}
       />
       <ProductFormAdditionally
-        additionally={{
-          country: "",
-          product_type: "",
-          weight: "",
-          equipment: "",
-          height: "",
-          length: "",
-          width: "",
-        }}
+        values={values}
+        errors={errors}
+        handleChangeValues={handleChangeValues}
       />
       <ProductFormSpecifications specifications={[{ label: "", value: "" }]} />
 
       <ProductFormPrices
+        setTypePriceValues={setTypePriceValues}
+        typePriceValues={typePriceValues}
+        purchase_price={values.purchase_price}
+        handleChangeValues={handleChangeValues}
         getFillValuesAction={props.getFillValuesAction}
-        initialPriceTypesValues={props.initialPriceTypesValues}
         priceTypes={props.priceTypes}
       />
       <ProductFormStocks

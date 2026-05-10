@@ -13,15 +13,15 @@ type Props = {
     name: string;
     code: string;
     description: string;
-    brand: string;
-    category: number | null;
+    brand_id: string;
+    category_id: number | null;
   };
   errors: {
     name: string;
     code: string;
     description: string;
-    brand: string;
-    category: string;
+    brand_id: string;
+    category_id: string;
   };
   handleChangeValues: (field: string, value: string) => void;
   categories: CategoryModel[];
@@ -63,8 +63,8 @@ export const ProductFormGeneralInfo = (props: Props) => {
   };
 
   const categoryName = useMemo(
-    () => getCategoryName(props.categories, props.values.category),
-    [props.categories, props.values.category],
+    () => getCategoryName(props.categories, props.values.category_id),
+    [props.categories, props.values.category_id],
   );
 
   return (
@@ -108,16 +108,16 @@ export const ProductFormGeneralInfo = (props: Props) => {
         onClickRightIcon={() => props.handleChangeValues("description", "")}
       />
       <Input
-        error={props.errors.brand}
-        value={props.values.brand}
+        error={props.errors.brand_id}
+        value={props.values.brand_id}
         name="product_brand"
         id="product_brand"
         variant="outlined"
         variantSize="sm"
         label="Бренд"
         rightIcon={<CancelSvg />}
-        onChange={(e) => props.handleChangeValues("brand", e.target.value)}
-        onClickRightIcon={() => props.handleChangeValues("brand", "")}
+        onChange={(e) => props.handleChangeValues("brand_id", e.target.value)}
+        onClickRightIcon={() => props.handleChangeValues("brand_id", "")}
       />
 
       <FormInstruction>
@@ -139,7 +139,7 @@ export const ProductFormGeneralInfo = (props: Props) => {
           >
             <span
               className={
-                props.values.category
+                props.values.category_id
                   ? `${styles.categoryLabel} ${styles.categoryLabelActive}`
                   : styles.categoryLabel
               }
@@ -148,7 +148,7 @@ export const ProductFormGeneralInfo = (props: Props) => {
             </span>
             <span
               className={
-                props.values.category
+                props.values.category_id
                   ? styles.categoryToggleButtonActive
                   : styles.categoryToggleButton
               }

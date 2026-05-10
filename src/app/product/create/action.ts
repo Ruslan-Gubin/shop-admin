@@ -1,11 +1,9 @@
 "use server";
-import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
 import { fetchService } from "@/shared/fetch-api";
-import { addItemCookieAction, updateTokensInAction } from "@/shared/helpers/updateCookieAction";
-import { getFormActionState } from "@/shared/services/get-form-action-state";
-import { resetNewStateValues } from "@/shared/services/reset-new-store-values";
-import { setNewStoreErrorFromServer } from "@/shared/services/set-new-store-error-from-server";
+import { updateTokensInAction } from "@/shared/helpers/updateCookieAction";
+import { getValidatePayload } from "@/shared/services/get-form-action-state";
+import { setErrorFromServer } from "@/shared/services/set-new-store-error-from-server";
 import type { ProductModel } from "../action";
 import { createProductSchema } from "./schema";
 
@@ -19,47 +17,77 @@ export type CreateProductFormFields = {
   id: number | null;
 };
 
-export const createProductAction = async (
-  prevState: CreateProductFormFields,
-  formData: FormData,
-): Promise<CreateProductFormFields> => {
-  const validate = getFormActionState<CreateProductFormFields>(
-    formData,
-    prevState,
-    createProductSchema,
-  );
+export type ProductFormPayloadValues = {
+  name: string;
+  code: string;
+  description: string;
+  brand_id: string;
+  category_id: number | null;
+  country: string;
+  product_type: string;
+  weight: string;
+  equipment: string;
+  height: string;
+  length: string;
+  width: string;
+  purchase_price: string;
+};
 
-  if (validate.isValid) {
-    validate.payload.count = Number(validate.payload.count);
-    validate.payload.price = Number(validate.payload.price);
+export type ProductFormPayload = {
+  name: string;
+  code: string;
+  description: string;
+  brand_id: number | null;
+  category_id: number | null;
+  country: string;
+  product_type: string;
+  equipment: string;
+  weight: number | null;
+  height: number | null;
+  length: number | null;
+  width: number | null;
+  purchase_price: number | null;
+};
+
+export const createProductAction = async (
+  payload: ProductFormPayloadValues,
+): Promise<{
+  status: "error" | "success";
+  errors: Record<keyof ProductFormPayloadValues, string>;
+  data: ProductModel | null;
+}> => {
+  const { isValid, errors } = getValidatePayload(payload, createProductSchema);
+
+  if (isValid) {
+    const updatePayload: ProductFormPayload = {
+      ...payload,
+      brand_id: null,
+      weight: payload.weight ? Number(payload.weight) : null,
+      height: payload.height ? Number(payload.height) : null,
+      length: payload.length ? Number(payload.length) : null,
+      width: payload.width ? Number(payload.width) : null,
+      purchase_price: payload.purchase_price ? Number(payload.purchase_price) : null,
+    };
 
     const cookieStore = await cookies();
 
-    await fetchService
+    return await fetchService
       .post<ProductModel>({
         url: "product/create",
-        payload: validate.payload,
+        payload: updatePayload,
       })
       .then((response) => {
-        validate.newState.message = response.message;
-        validate.newState.status = response.status;
-
         if (response.tokens) {
           updateTokensInAction(cookieStore, response.tokens);
         }
 
-        if (response.status === "success" && response.data) {
-          addItemCookieAction(cookieStore, response.data);
-          revalidateTag("Products", "max");
-          resetNewStateValues(validate.newState);
-        } else {
-          setNewStoreErrorFromServer(response.errors, validate.newState);
+        if (response.status === "error" && response.errors) {
+          setErrorFromServer(response.errors, errors);
         }
+
+        return { status: response.status, errors, data: response.data };
       });
-  } else {
-    validate.newState.message = "";
-    validate.newState.status = "";
   }
 
-  return validate.newState;
+  return { status: "error", errors, data: null };
 };

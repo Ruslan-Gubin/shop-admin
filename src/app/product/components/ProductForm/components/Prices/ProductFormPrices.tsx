@@ -10,47 +10,43 @@ import styles from "./ProductFormPrices.module.css";
 
 type Props = {
   priceTypes: PriceTypeModel[];
-  initialPriceTypesValues: Record<string, string>;
+  purchase_price: string;
+  handleChangeValues: (field: string, value: string) => void;
+  typePriceValues: Record<string, string>;
+  setTypePriceValues: (update: Record<string, string>) => void;
   getFillValuesAction: (
     currentPrice: number,
   ) => Promise<{ updateFillValues: Record<string, number>; isHasRange: boolean }>;
 };
 
 export const ProductFormPrices = (props: Props) => {
-  const [purchasePrice, setPurchasePrice] = useState<string>("");
-  const [typePriceValues, setTypePriceValues] = useState<Record<string, string>>({});
   const [fillValues, setFillValues] = useState<Record<string, number>>({});
   const [rangeNotFound, setRangeNotFound] = useState<boolean>(false);
-
-  useLayoutEffect(() => {
-    setTypePriceValues(props.initialPriceTypesValues);
-    setPurchasePrice("");
-  }, []);
 
   const handleAutoFillAll = () => {
     const updateTypePriceValues: Record<string, string> = {};
 
-    for (const key in typePriceValues) {
+    for (const key in props.typePriceValues) {
       const fillValue = fillValues[key];
-      updateTypePriceValues[key] = fillValue ? String(fillValue) : typePriceValues[key];
+      updateTypePriceValues[key] = fillValue ? String(fillValue) : props.typePriceValues[key];
     }
-    setTypePriceValues(updateTypePriceValues);
+    props.setTypePriceValues(updateTypePriceValues);
   };
 
   const handleAutoFill = (typeId: number) => {
     const fillValue = fillValues[typeId];
 
     if (fillValue) {
-      setTypePriceValues((prev) => ({ ...prev, [typeId]: String(fillValue) }));
+      props.setTypePriceValues((prev) => ({ ...prev, [typeId]: String(fillValue) }));
     }
   };
 
   const handleChangeTypePriceValue = (id: number, value: string) => {
-    setTypePriceValues((prev) => ({ ...prev, [id]: value }));
+    props.setTypePriceValues((prev) => ({ ...prev, [id]: value }));
   };
 
   const handleChangePurchasePrice = (value: string) => {
-    setPurchasePrice(value);
+    props.handleChangeValues("purchase_price", value);
     const currentPrice = Number(value);
 
     if (currentPrice) {
@@ -64,9 +60,9 @@ export const ProductFormPrices = (props: Props) => {
   };
 
   const isErrorRangeText =
-    purchasePrice.length > 0 &&
-    !Number.isNaN(purchasePrice) &&
-    Number(purchasePrice) > 0 &&
+    props.purchase_price.length > 0 &&
+    !Number.isNaN(props.purchase_price) &&
+    Number(props.purchase_price) > 0 &&
     !rangeNotFound;
 
   return (
@@ -74,9 +70,9 @@ export const ProductFormPrices = (props: Props) => {
       <div className={styles.purchaseRow}>
         <div className={styles.purchaseField}>
           <Input
-            value={purchasePrice}
-            name="purchasePrice"
-            id="purchasePrice"
+            value={props.purchase_price}
+            name="purchase_price"
+            id="purchase_price"
             variant="outlined"
             variantSize="sm"
             placeholder="Закупочная цена"
@@ -92,7 +88,7 @@ export const ProductFormPrices = (props: Props) => {
           size="sm"
           variant="solid"
           variantColor="green"
-          disabled={purchasePrice.length === 0 || !rangeNotFound}
+          disabled={props.purchase_price.length === 0 || !rangeNotFound}
           onClick={handleAutoFillAll}
         >
           <PriceAutoFillSvg />
@@ -153,7 +149,7 @@ export const ProductFormPrices = (props: Props) => {
               rightIcon={<CancelSvg />}
               onClickRightIcon={() => handleChangeTypePriceValue(priceType.id, "")}
               onChange={(e) => handleChangeTypePriceValue(priceType.id, e.target.value)}
-              value={typePriceValues[priceType.id] ?? ""}
+              value={props.typePriceValues[priceType.id] ?? ""}
             />
           </li>
         ))}

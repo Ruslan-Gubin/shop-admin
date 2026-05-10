@@ -3,36 +3,39 @@ import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
 import { fetchService } from "@/shared/fetch-api";
 import { updateTokensInAction } from "@/shared/helpers/updateCookieAction";
-import { PriceFillModel, RangeModel } from "../price-auto-fill/action";
-import { FetchPriceTypesResponse } from "../price-types/action";
-import { CategoryModel } from "../category/action";
+import { getValidatePayload } from "@/shared/services/get-form-action-state";
+import { setErrorFromServer } from "@/shared/services/set-new-store-error-from-server";
+import type { CategoryModel } from "../category/action";
+import type { PriceFillModel, RangeModel } from "../price-auto-fill/action";
+import type { FetchPriceTypesResponse } from "../price-types/action";
+import { createProductPriceSchema } from "./schema";
 
 export interface ProductModel {
-  additional_photos: string;
-  brand_id: number;
-  buy_count: number;
-  category_id: number;
-  code: string;
-  color: string;
-  count: number;
-  created_at: string;
-  department_id: number | null;
-  description: string;
-  discount: number;
   id: number;
-  is_hit: boolean;
-  is_stock: boolean;
-  main_photo: string;
   name: string;
-  old_price: number;
-  on_save: boolean;
-  options: string;
-  price: number;
-  rating: number;
-  title: string;
-  unit: string;
+  code: string;
+  brand_id: string; //TODO change number
+  category_id: number;
+  description: string;
+  country: string;
+  product_type: string;
+  equipment: string;
+  weight: number;
+  height: number;
+  length: number;
+  width: number;
+  purchase_price: number;
+  created_at: string;
   updated_at: string | null;
-  views: number;
+}
+
+export interface ProductPriceModel {
+  id: number;
+  product_id: number;
+  price_type_id: number;
+  price: number;
+  created_at: string;
+  updated_at: string | null;
 }
 
 export const fetchProductFormData = async () => {
@@ -55,6 +58,45 @@ export const fetchProductFormData = async () => {
     {
       url: "category/categories",
       tags: [`Categories`],
+    },
+  ]);
+};
+
+export const fetchProductFormEditData = async (id: string) => {
+  return await fetchService.fetchChain<
+    [
+      ProductModel,
+      RangeModel[],
+      FetchPriceTypesResponse,
+      PriceFillModel[],
+      CategoryModel[],
+      ProductPriceModel[],
+    ]
+  >([
+    {
+      url: `product/${id}`,
+      tags: [`Product_${id}`],
+    },
+    {
+      url: "price-ranges",
+      tags: ["PriceRanges"],
+    },
+    {
+      url: "price-type/types",
+      params: { limit: "100", page: "1" },
+      tags: [`PriceTypes`],
+    },
+    {
+      url: "price-fill",
+      tags: [`PriceFill`],
+    },
+    {
+      url: "category/categories",
+      tags: [`Categories`],
+    },
+    {
+      url: `product-price/${id}`,
+      tags: [`ProductPrices`],
     },
   ]);
 };
@@ -111,4 +153,60 @@ export const deleteProductAction = async (
 
       return { status: response.status, message: response.message };
     });
+};
+
+//TODO change url
+// export const fetchProductPrices = async () => {
+//   const cookieStore = await cookies();
+//
+//   return await fetchService
+//     .get<ProductPriceModel[]>({
+//       url: "product-price",
+//       tags: ["ProductsPrices"],
+//     })
+//     .then((response) => {
+//       if (response.tokens) {
+//         updateTokensInAction(cookieStore, response.tokens);
+//       }
+//       return response;
+//     });
+// };
+
+export type ProductPricePayload = {
+  product_id: number;
+  price_type_id: number;
+  price: number;
+};
+
+export const createProductPriceAction = async (
+  payload: ProductPricePayload,
+): Promise<{
+  status: "error" | "success";
+  errors: Record<keyof ProductPricePayload, string>;
+  data: ProductPriceModel | null;
+}> => {
+  const { isValid, errors } = getValidatePayload(payload, createProductPriceSchema);
+
+  if (isValid) {
+    const cookieStore = await cookies();
+
+    return await fetchService
+      .post<ProductPriceModel>({
+        url: "product-price/create",
+        payload: payload,
+      })
+      .then((response) => {
+        if (response.tokens) {
+          updateTokensInAction(cookieStore, response.tokens);
+        }
+
+        if (response.status === "error" && response.errors) {
+          setErrorFromServer(response.errors, errors);
+        }
+
+        return { status: response.status, errors, data: response.data };
+      });
+  }
+
+  return { status: "error", errors, data: null };
 };

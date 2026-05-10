@@ -1,6 +1,6 @@
 .purchaseRow {
   display: flex;
-  gap: 12px;
+  gap: 16px;
   flex-wrap: wrap;
 }
 

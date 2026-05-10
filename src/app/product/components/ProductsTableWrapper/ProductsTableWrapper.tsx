@@ -74,8 +74,8 @@ export const ProductsTableWrapper = (props: Props) => {
   const tableOptions: RenderTableOptions<ProductModel>[] = [
     { key: "id" },
     { key: "name" },
-    { key: "count" },
-    { key: "price" },
+    { key: "description" },
+    { key: "product_type" },
     { key: "code" },
     { key: "created_at", type: "date" },
   ];
@@ -83,8 +83,8 @@ export const ProductsTableWrapper = (props: Props) => {
   const headerRowLabels = [
     "ID",
     "Название",
-    "Количество",
-    "Цена",
+    "Описание",
+    "Вид товара",
     "Штриховой код",
     "Дата регистрации",
   ];
@@ -116,7 +116,7 @@ export const ProductsTableWrapper = (props: Props) => {
             headerRowLabels={headerRowLabels}
             stickyActionColumn
             stickyFirstColumn
-            gridTemplateColumns="65px minmax(150px, 1fr) minmax(110px, 150px) minmax(110px, 150px) minmax(130px, 150px) 160px 58px"
+            gridTemplateColumns="65px minmax(150px, 1fr) minmax(150px, 240px) minmax(110px, 150px) minmax(130px, 150px) 160px 58px"
             tableOptions={tableOptions}
           />
         )}

@@ -1,11 +1,10 @@
-import styles from "./ProductFormAdditionally.module.css";
-import { FormSection } from "@/widgets/form-section/FormSection";
-import { Input } from "@/shared/ui/input-main/Input";
-import { useState } from "react";
 import { CancelSvg } from "@/shared/svg/CancelSvg";
+import { Input } from "@/shared/ui/input-main/Input";
+import { FormSection } from "@/widgets/form-section/FormSection";
+import styles from "./ProductFormAdditionally.module.css";
 
 type Props = {
-  additionally: {
+  values: {
     country: string;
     product_type: string;
     weight: string;
@@ -14,31 +13,21 @@ type Props = {
     length: string;
     width: string;
   };
+  errors: {
+    country: string;
+    product_type: string;
+    weight: string;
+    equipment: string;
+    height: string;
+    length: string;
+    width: string;
+  };
+  handleChangeValues: (field: string, value: string) => void;
 };
 
 export const ProductFormAdditionally = (props: Props) => {
-  const [additionally, setAdditionally] = useState({
-    country: "",
-    product_type: "",
-    weight: "",
-    equipment: "",
-    height: "",
-    length: "",
-    width: "",
-  });
-
-  const handleChangeValues = (field: string, value: string) => {
-    setAdditionally((prev) => ({ ...prev, [field]: value }));
-  };
-
   return (
     <FormSection title="Дополнительно">
-      {/* <FormInstruction> */}
-      {/*   <span>PNG или JPEG с размером до 15 мб..</span> */}
-      {/* </FormInstruction> */}
-      {/* <div>Товар для взрослых</div> */}
-      {/* <div>Требуются особые условия доставки</div> */}
-
       <Input
         name="additionally_country"
         id="additionally_country"
@@ -46,9 +35,10 @@ export const ProductFormAdditionally = (props: Props) => {
         variantSize="sm"
         label="Страна-производитель"
         rightIcon={<CancelSvg />}
-        onClickRightIcon={() => handleChangeValues("country", "")}
-        onChange={(e) => handleChangeValues("country", e.target.value)}
-        value={additionally.country}
+        onClickRightIcon={() => props.handleChangeValues("country", "")}
+        onChange={(e) => props.handleChangeValues("country", e.target.value)}
+        error={props.errors.country}
+        value={props.values.country}
       />
       <Input
         name="additionally_product_type"
@@ -57,9 +47,10 @@ export const ProductFormAdditionally = (props: Props) => {
         variantSize="sm"
         label="Вид товара"
         rightIcon={<CancelSvg />}
-        onClickRightIcon={() => handleChangeValues("product_type", "")}
-        onChange={(e) => handleChangeValues("product_type", e.target.value)}
-        value={additionally.product_type}
+        onClickRightIcon={() => props.handleChangeValues("product_type", "")}
+        onChange={(e) => props.handleChangeValues("product_type", e.target.value)}
+        error={props.errors.product_type}
+        value={props.values.product_type}
       />
       <Input
         name="additionally_equipment"
@@ -67,11 +58,11 @@ export const ProductFormAdditionally = (props: Props) => {
         variant="outlined"
         variantSize="sm"
         label="Что входит в состав"
-        type="number"
         rightIcon={<CancelSvg />}
-        onClickRightIcon={() => handleChangeValues("equipment", "")}
-        onChange={(e) => handleChangeValues("equipment", e.target.value)}
-        value={additionally.equipment}
+        onClickRightIcon={() => props.handleChangeValues("equipment", "")}
+        onChange={(e) => props.handleChangeValues("equipment", e.target.value)}
+        error={props.errors.equipment}
+        value={props.values.equipment}
       />
 
       <div className={styles.dimensions}>
@@ -83,9 +74,10 @@ export const ProductFormAdditionally = (props: Props) => {
           label="Вес"
           type="number"
           rightIcon={<CancelSvg />}
-          onClickRightIcon={() => handleChangeValues("weight", "")}
-          onChange={(e) => handleChangeValues("weight", e.target.value)}
-          value={additionally.weight}
+          onClickRightIcon={() => props.handleChangeValues("weight", "")}
+          onChange={(e) => props.handleChangeValues("weight", e.target.value)}
+          error={props.errors.weight}
+          value={props.values.weight}
         />
 
         <Input
@@ -96,9 +88,10 @@ export const ProductFormAdditionally = (props: Props) => {
           label="Высота"
           type="number"
           rightIcon={<CancelSvg />}
-          onClickRightIcon={() => handleChangeValues("height", "")}
-          onChange={(e) => handleChangeValues("height", e.target.value)}
-          value={additionally.height}
+          onClickRightIcon={() => props.handleChangeValues("height", "")}
+          onChange={(e) => props.handleChangeValues("height", e.target.value)}
+          error={props.errors.height}
+          value={props.values.height}
         />
         <Input
           name="additionally_length"
@@ -108,9 +101,10 @@ export const ProductFormAdditionally = (props: Props) => {
           label="Длина"
           type="number"
           rightIcon={<CancelSvg />}
-          onClickRightIcon={() => handleChangeValues("length", "")}
-          onChange={(e) => handleChangeValues("length", e.target.value)}
-          value={additionally.length}
+          onClickRightIcon={() => props.handleChangeValues("length", "")}
+          onChange={(e) => props.handleChangeValues("length", e.target.value)}
+          error={props.errors.length}
+          value={props.values.length}
         />
         <Input
           name="additionally_width"
@@ -120,9 +114,10 @@ export const ProductFormAdditionally = (props: Props) => {
           label="Ширина"
           type="number"
           rightIcon={<CancelSvg />}
-          onClickRightIcon={() => handleChangeValues("width", "")}
-          onChange={(e) => handleChangeValues("width", e.target.value)}
-          value={additionally.width}
+          onClickRightIcon={() => props.handleChangeValues("width", "")}
+          onChange={(e) => props.handleChangeValues("width", e.target.value)}
+          error={props.errors.width}
+          value={props.values.width}
         />
       </div>
     </FormSection>
