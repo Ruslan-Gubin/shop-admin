@@ -5,6 +5,7 @@ import styles from "./LayoutLeftSide.module.css";
 import { NavigateMenu } from "./NavigateMenu/NavigateMenu";
 import { CartDiscountsSvg } from "./svg/CartDiscountsSvg";
 import { CategorySvg } from "./svg/CategorySvg";
+import { FeaturesSvg } from "./svg/FeaturesSvg";
 import { PriceAutoFillSvg } from "./svg/PriceAutoFillSvg";
 import { PriceTypeSvg } from "./svg/PriceTypeSvg";
 import { PromotionsSvg } from "./svg/PromotionsSvg";
@@ -58,6 +59,12 @@ export const LayoutLeftSide = () => {
       label: "Типы цен",
       href: "/price-types",
       icon: <PriceTypeSvg />,
+      children: [],
+    },
+    {
+      label: "Характеристики",
+      href: "/feature-names",
+      icon: <FeaturesSvg />,
       children: [],
     },
     {
