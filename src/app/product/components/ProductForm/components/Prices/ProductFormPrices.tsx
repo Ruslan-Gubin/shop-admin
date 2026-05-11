@@ -59,6 +59,10 @@ export const ProductFormPrices = (props: Props) => {
     }
   };
 
+  useLayoutEffect(() => {
+    handleChangePurchasePrice(props.purchase_price);
+  }, []);
+
   const isErrorRangeText =
     props.purchase_price.length > 0 &&
     !Number.isNaN(props.purchase_price) &&

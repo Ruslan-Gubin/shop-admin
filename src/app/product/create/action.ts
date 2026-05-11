@@ -7,16 +7,6 @@ import { setErrorFromServer } from "@/shared/services/set-new-store-error-from-s
 import type { ProductModel } from "../action";
 import { createProductSchema } from "./schema";
 
-export type CreateProductFormFields = {
-  name: { value: string; error: string };
-  count: { value: string; error: string };
-  price: { value: string; error: string };
-  code: { value: string; error: string };
-  message: string;
-  status: string;
-  id: number | null;
-};
-
 export type ProductFormPayloadValues = {
   name: string;
   code: string;

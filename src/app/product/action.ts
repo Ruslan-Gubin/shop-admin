@@ -155,23 +155,6 @@ export const deleteProductAction = async (
     });
 };
 
-//TODO change url
-// export const fetchProductPrices = async () => {
-//   const cookieStore = await cookies();
-//
-//   return await fetchService
-//     .get<ProductPriceModel[]>({
-//       url: "product-price",
-//       tags: ["ProductsPrices"],
-//     })
-//     .then((response) => {
-//       if (response.tokens) {
-//         updateTokensInAction(cookieStore, response.tokens);
-//       }
-//       return response;
-//     });
-// };
-
 export type ProductPricePayload = {
   product_id: number;
   price_type_id: number;
@@ -209,4 +192,40 @@ export const createProductPriceAction = async (
   }
 
   return { status: "error", errors, data: null };
+};
+
+export const editProductPriceAction = async (
+  id: number,
+  price: number,
+): Promise<"error" | "success"> => {
+  const cookieStore = await cookies();
+
+  return await fetchService
+    .patch<null>({
+      url: `product-price/${id}`,
+      payload: { price },
+    })
+    .then((response) => {
+      if (response.tokens) {
+        updateTokensInAction(cookieStore, response.tokens);
+      }
+
+      return response.status;
+    });
+};
+
+export const deleteProductPriceAction = async (id: number): Promise<"error" | "success"> => {
+  const cookieStore = await cookies();
+
+  return fetchService
+    .delete<null>({
+      url: `product-price/${id}`,
+    })
+    .then((response) => {
+      if (response.tokens) {
+        updateTokensInAction(cookieStore, response.tokens);
+      }
+
+      return response.status;
+    });
 };

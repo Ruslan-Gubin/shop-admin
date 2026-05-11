@@ -4,7 +4,7 @@ export const createProductSchema = z.object({
   name: z
     .string({ message: "Название должно быть строкой" })
     .nonempty({ message: "Название обязательно" })
-    .max(50, { message: "Максимум 50 символов" })
+    .max(255, { message: "Максимум 255 символов" })
     .min(2, { message: "Минимум 2 символа" }),
   code: z
     .string({ message: "Штрихкод должен быть строкой" })
