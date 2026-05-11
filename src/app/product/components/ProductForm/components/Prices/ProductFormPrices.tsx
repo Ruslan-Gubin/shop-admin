@@ -37,12 +37,12 @@ export const ProductFormPrices = (props: Props) => {
     const fillValue = fillValues[typeId];
 
     if (fillValue) {
-      props.setTypePriceValues((prev) => ({ ...prev, [typeId]: String(fillValue) }));
+      props.setTypePriceValues({ ...props.typePriceValues, [typeId]: String(fillValue) });
     }
   };
 
   const handleChangeTypePriceValue = (id: number, value: string) => {
-    props.setTypePriceValues((prev) => ({ ...prev, [id]: value }));
+    props.setTypePriceValues({ ...props.typePriceValues, [id]: value });
   };
 
   const handleChangePurchasePrice = (value: string) => {

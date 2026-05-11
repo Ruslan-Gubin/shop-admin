@@ -9,19 +9,20 @@
 
 ## Структура данных
 
-### Specification (Спецификация — справочник имён)
+### specification (Спецификация — справочник имён)
 
 ```typescript
 interface Specification {
   id: number;
-  name: string;           // "Материал", "Срок годности", "Цвет"
-  type: "text" | "color" | "number";  // Тип значения
+  name: string; // "Материал", "Срок годности", "Цвет"
+  type: "text" | "color" | "number"; // Тип значения
   created_at: Date;
   updated_at: Date;
 }
 ```
 
 **Примеры:**
+
 ```json
 { "id": 1, "name": "Материал", "type": "text" }
 { "id": 2, "name": "Цвет", "type": "color" }
@@ -45,15 +46,16 @@ interface Specification {
 ```typescript
 interface ProductSpecification {
   id: number;
-  product_id: number;      // FK → Product
+  product_id: number; // FK → Product
   specification_id: number; // FK → Specification
-  value: string;            // Значение характеристики
+  value: string; // Значение характеристики
   created_at: Date;
   updated_at: Date;
 }
 ```
 
 **Примеры:**
+
 ```json
 { "product_id": 5, "specification_id": 1, "value": "Пластик" }
 { "product_id": 5, "specification_id": 2, "value": "#FF5733" }
@@ -66,23 +68,23 @@ interface ProductSpecification {
 
 ### Specifications (справочник)
 
-| Метод | URL | Описание |
-|-------|-----|----------|
-| GET | `/specification` | Список всех спецификаций |
-| GET | `/specification/{id}` | Получить одну спецификацию |
-| POST | `/specification/create` | Создать новую спецификацию |
-| PATCH | `/specification/{id}` | Обновить спецификацию |
-| DELETE | `/specification/{id}` | Удалить спецификацию |
+| Метод  | URL                     | Описание                   |
+| ------ | ----------------------- | -------------------------- |
+| GET    | `/specification`        | Список всех спецификаций   |
+| GET    | `/specification/{id}`   | Получить одну спецификацию |
+| POST   | `/specification/create` | Создать новую спецификацию |
+| PATCH  | `/specification/{id}`   | Обновить спецификацию      |
+| DELETE | `/specification/{id}`   | Удалить спецификацию       |
 
 ### ProductSpecifications (значения товара)
 
-| Метод | URL | Описание |
-|-------|-----|----------|
-| GET | `/product-specification?product_id={id}` | Получить все характеристики товара |
-| POST | `/product-specification/create` | Добавить характеристику товару |
-| PATCH | `/product-specification/{id}` | Обновить значение характеристики |
-| DELETE | `/product-specification/{id}` | Удалить характеристику товара |
-| POST | `/product-specification/bulk` | Массовое создание/обновление |
+| Метод  | URL                                      | Описание                           |
+| ------ | ---------------------------------------- | ---------------------------------- |
+| GET    | `/product-specification?product_id={id}` | Получить все характеристики товара |
+| POST   | `/product-specification/create`          | Добавить характеристику товару     |
+| PATCH  | `/product-specification/{id}`            | Обновить значение характеристики   |
+| DELETE | `/product-specification/{id}`            | Удалить характеристику товара      |
+| POST   | `/product-specification/bulk`            | Массовое создание/обновление       |
 
 ---
 
@@ -93,11 +95,13 @@ interface ProductSpecification {
 **Назначение:** CRUD для справочника спецификаций (название + тип).
 
 **UI-элементы:**
+
 - Таблица спецификаций (desktop + mobile)
 - Фильтр по типу (text/color/number)
 - Модалка создания/редактирования
 
 **Форма создания/редактирования:**
+
 ```
 Название: [Материал____________]
 Тип:      [Выберите тип___▼    ]
@@ -111,6 +115,7 @@ interface ProductSpecification {
 **Назначение:** Добавление/редактирование характеристик直接在 странице товара.
 
 **User flow:**
+
 1. Админ открывает `/product/edit/[id]`
 2. Видит блок "Спецификации" в форме
 3. Нажимает "Добавить спецификацию"
@@ -118,6 +123,7 @@ interface ProductSpecification {
 5. Сохраняет товар
 
 **UI-элементы:**
+
 - Список спецификаций (имя → значение)
 - Кнопка "Добавить спецификацию"
 - Форма: select (имя) + input (значение, тип зависит от спецификации)
@@ -191,6 +197,6 @@ src/app/product/components/ProductFormSpecifications/
 
 ## Версионирование
 
-| Версия | Дата | Изменения |
-|--------|------|-----------|
-| 1.0 | 2026-05-11 | Начальная версия |
+| Версия | Дата       | Изменения        |
+| ------ | ---------- | ---------------- |
+| 1.0    | 2026-05-11 | Начальная версия |

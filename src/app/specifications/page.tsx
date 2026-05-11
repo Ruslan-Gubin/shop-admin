@@ -6,19 +6,19 @@ import { ErrorAlert } from "@/shared/ui/error-alert/ErrorAlert";
 import { Pagination } from "@/shared/ui/pagination/Pagination";
 import { UpdateToken } from "@/views/UpdateToken/UpdateToken";
 import {
-  createFeatureNameAction,
-  deleteFeatureNameAction,
+  createSpecificationAction,
+  deleteSpecificationAction,
   fetchFeatureName,
-  fetchFeatureNames,
+  fetchSpecifications,
   updateFeatureNameAction,
 } from "./action";
-import { FeatureNamesTableWrapper } from "./components/FeatureNamesTableWrapper/FeatureNamesTableWrapper";
+import { SpecificationTableWrapper } from "./components/SpecificationTableWrapper/SpecificationWrapper";
 
-export default async function FeatureNamesPage(req: {
+export default async function SpecificationsPage(req: {
   searchParams: Promise<{ page: string; name: string }>;
 }) {
   const searchParams = await req.searchParams;
-  const tableData = await fetchFeatureNames(searchParams.name, "10", searchParams.page);
+  const tableData = await fetchSpecifications(searchParams.name, "10", searchParams.page);
   const patch = "/feature-names";
   const limit = 10;
 
@@ -41,19 +41,17 @@ export default async function FeatureNamesPage(req: {
 
   return (
     <section className="page-wrapper">
-      <h2>
-        Справочник характеристик — названия характеристик для товаров.
-      </h2>
+      <h2>Справочник характеристик — названия характеристик для товаров.</h2>
       {tableData?.tokens && <UpdateToken tokens={tableData.tokens} />}
       {tableData.status === "error" && tableData.message && (
         <ErrorAlert message={tableData.message} />
       )}
       <section className="table-container">
-        <FeatureNamesTableWrapper
+        <SpecificationTableWrapper
           data={tableData?.data?.featureNames || []}
           name={searchParams.name || ""}
-          onDeleteItemAction={deleteFeatureNameAction}
-          createFeatureNameAction={createFeatureNameAction}
+          onDeleteItemAction={deleteSpecificationAction}
+          createFeatureNameAction={createSpecificationAction}
           updateFeatureNameAction={updateFeatureNameAction}
           fetchTableElementAction={fetchFeatureName}
           redirectPageAfterDeleteAction={redirectPageAfterDelete}

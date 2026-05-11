@@ -7,8 +7,7 @@ import { ModalContent } from "@/shared/ui/modal/modal-content/ModalContent";
 import { ModalFooter } from "@/shared/ui/modal/modal-footer/ModalFooter";
 import { ModalHeader } from "@/shared/ui/modal/modal-header/ModalHeader";
 import { notificationAdapter } from "@/stores/notification/adapter";
-import type { CreateFeatureNameFormFields } from "../../action";
-import styles from "./ModalFeatureNameForm.module.css";
+import type { CreateSpecificationFields } from "../../action";
 
 type Props = {
   onCloseModal: () => void;
@@ -16,20 +15,18 @@ type Props = {
   title: string;
   submitButtonText: string;
   onSubmitAction: (
-    prevState: CreateFeatureNameFormFields,
+    prevState: CreateSpecificationFields,
     formData: FormData,
-  ) => Promise<CreateFeatureNameFormFields>;
+  ) => Promise<CreateSpecificationFields>;
   initValue: {
     name: string;
-    slug: string;
     id: number | null;
   };
 };
 
-export const ModalFeatureNameForm = (props: Props) => {
+export const SpecificationModalForm = (props: Props) => {
   const [state, formAction, pending] = useActionState(props.onSubmitAction, {
     name: { value: props.initValue.name || "", error: "" },
-    slug: { value: props.initValue.slug || "", error: "" },
     id: props.initValue.id,
     message: "",
     status: "",
@@ -48,14 +45,6 @@ export const ModalFeatureNameForm = (props: Props) => {
     }
   }, [state]);
 
-  // Auto-generate slug from name
-  const generateSlug = (name: string): string => {
-    return name
-      .toLowerCase()
-      .replace(/\s+/g, "-")
-      .replace(/[^a-z0-9-]/g, "");
-  };
-
   return (
     <Modal active={props.isOpen} handleCloseAction={props.onCloseModal}>
       <form action={formAction}>
@@ -73,28 +62,18 @@ export const ModalFeatureNameForm = (props: Props) => {
                 placeholder="Название характеристики"
                 label="Название"
                 rightIcon={<CancelSvg />}
-                onChange={(e) => {
-                  const nameValue = e.target.value;
-                  if (!state.slug.value || state.slug.value === generateSlug(props.initValue.name || "")) {
-                    const slugInput = document.getElementById("slug_feature_input") as HTMLInputElement;
-                    if (slugInput) {
-                      slugInput.value = generateSlug(nameValue);
-                    }
-                  }
-                }}
               />
-              <Input
-                error={state.slug.error}
-                defaultValue={state.slug.value}
-                name="slug"
-                id="slug_feature_input"
-                variant="outlined"
-                variantSize="sm"
-                placeholder="slug"
-                label="Slug (URL)"
-                rightIcon={<CancelSvg />}
-              />
-              <p className={styles.slugHint}>Только латиница, цифры и дефис</p>
+              {/* <Input */}
+              {/*   error={state.slug.error} */}
+              {/*   defaultValue={state.slug.value} */}
+              {/*   name="slug" */}
+              {/*   id="slug_feature_input" */}
+              {/*   variant="outlined" */}
+              {/*   variantSize="sm" */}
+              {/*   placeholder="slug" */}
+              {/*   label="Slug (URL)" */}
+              {/*   rightIcon={<CancelSvg />} */}
+              {/* /> */}
             </div>
           </ModalBody>
 

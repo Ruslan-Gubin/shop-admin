@@ -11,30 +11,27 @@ import {
 import { getFormActionState } from "@/shared/services/get-form-action-state";
 import { resetNewStateValues } from "@/shared/services/reset-new-store-values";
 import { setNewStoreErrorFromServer } from "@/shared/services/set-new-store-error-from-server";
-import { createFeatureNameSchema } from "./schema";
+import { createSpecificationSchema } from "./schema";
 
-export interface FeatureNameModel {
+export interface SpecificationModel {
   id: number;
   name: string;
-  slug: string;
-  is_active: boolean;
-  sort_order: number;
+  type: "text" | "color" | "number";
   created_at: string;
   updated_at: string | null;
 }
 
 export type FetchFeatureNamesResponse = {
   paginationPage: string;
-  featureNames: FeatureNameModel[];
+  featureNames: SpecificationModel[];
   totalCount: number;
 };
 
-export const fetchFeatureNames = async (name: string, limit: string, page?: string) => {
+export const fetchSpecifications = async (name: string, limit: string, page?: string) => {
   return await fetchService.get<FetchFeatureNamesResponse>({
-    url: "feature-name",
+    url: "specifications",
     params: { limit, page: page ? String(page) : "1", name },
-    tags: ["Feature_Names"],
-    revalidate: 1000,
+    tags: ["Specifications"],
   });
 };
 
@@ -42,9 +39,9 @@ export const fetchFeatureName = async (id: string) => {
   const cookieStore = await cookies();
 
   return await fetchService
-    .get<FeatureNameModel>({
-      url: `feature-name/${id}`,
-      tags: [`Feature_Name_${id}`],
+    .get<SpecificationModel>({
+      url: `specifications/${id}`,
+      tags: [`Specifications_${id}`],
     })
     .then((response) => {
       if (response.tokens) {
@@ -55,14 +52,14 @@ export const fetchFeatureName = async (id: string) => {
     });
 };
 
-export const deleteFeatureNameAction = async (
+export const deleteSpecificationAction = async (
   id: number,
 ): Promise<{ status: "error" | "success"; message: string }> => {
   const cookieStore = await cookies();
 
   return fetchService
     .delete<null>({
-      url: `feature-name/${id}`,
+      url: `specifications/${id}`,
     })
     .then((response) => {
       if (response.tokens) {
@@ -71,37 +68,36 @@ export const deleteFeatureNameAction = async (
 
       if (response.status === "success") {
         deleteItemCookieAction(cookieStore, id);
-        revalidateTag("Feature_Names", "max");
+        revalidateTag("Specifications", "max");
       }
 
       return { status: response.status, message: response.message };
     });
 };
 
-export type CreateFeatureNameFormFields = {
+export type CreateSpecificationFields = {
   name: { value: string; error: string };
-  slug: { value: string; error: string };
   message: string;
   status: string;
   id: number | null;
 };
 
-export const createFeatureNameAction = async (
-  prevState: CreateFeatureNameFormFields,
+export const createSpecificationAction = async (
+  prevState: CreateSpecificationFields,
   formData: FormData,
-): Promise<CreateFeatureNameFormFields> => {
-  const validate = getFormActionState<CreateFeatureNameFormFields>(
+): Promise<CreateSpecificationFields> => {
+  const validate = getFormActionState<CreateSpecificationFields>(
     formData,
     prevState,
-    createFeatureNameSchema,
+    createSpecificationSchema,
   );
 
   if (validate.isValid) {
     const cookieStore = await cookies();
 
     await fetchService
-      .post<FeatureNameModel>({
-        url: "feature-name/create",
+      .post<SpecificationModel>({
+        url: "specifications/create",
         payload: validate.payload,
       })
       .then((response) => {
@@ -116,7 +112,7 @@ export const createFeatureNameAction = async (
           addItemCookieAction(cookieStore, response.data);
 
           resetNewStateValues(validate.newState);
-          revalidatePath("/feature-names");
+          revalidatePath("/specifications");
         } else {
           setNewStoreErrorFromServer(response.errors, validate.newState);
         }
@@ -130,13 +126,13 @@ export const createFeatureNameAction = async (
 };
 
 export const updateFeatureNameAction = async (
-  prevState: CreateFeatureNameFormFields,
+  prevState: CreateSpecificationFields,
   formData: FormData,
-): Promise<CreateFeatureNameFormFields> => {
-  const validate = getFormActionState<CreateFeatureNameFormFields>(
+): Promise<CreateSpecificationFields> => {
+  const validate = getFormActionState<CreateSpecificationFields>(
     formData,
     prevState,
-    createFeatureNameSchema,
+    createSpecificationSchema,
   );
 
   const id = validate.newState.id;
@@ -146,7 +142,7 @@ export const updateFeatureNameAction = async (
 
     await fetchService
       .patch<null>({
-        url: `feature-name/${id}`,
+        url: `specifications/${id}`,
         payload: validate.payload,
       })
       .then((response) => {
@@ -159,7 +155,7 @@ export const updateFeatureNameAction = async (
 
         if (response.status === "success") {
           updateItemCookieAction(cookieStore, id);
-          revalidateTag("Feature_Names", "max");
+          revalidateTag("Specifications", "max");
         } else {
           setNewStoreErrorFromServer(response.errors, validate.newState);
         }

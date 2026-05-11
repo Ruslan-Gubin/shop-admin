@@ -7,51 +7,48 @@ import { MainMobileTable } from "@/widgets/main-mobile-table/MainMobileTable";
 import { MainTable, type RenderTableOptions } from "@/widgets/main-table/MainTable";
 import { ModalDelete } from "@/widgets/modals/modal-delete/ModalDelete";
 import { TableControls } from "@/widgets/table-controls/TableControls";
-import type { CreateFeatureNameFormFields, FeatureNameModel } from "../../action";
-import { ModalFeatureNameForm } from "../modal-feature-name-form/ModalFeatureNameForm";
+import type { CreateSpecificationFields, SpecificationModel } from "../../action";
+import { SpecificationModalForm } from "../SpecificationModalForm/SpecificationModalForm";
 
 type Props = {
-  data: FeatureNameModel[];
+  data: SpecificationModel[];
   onDeleteItemAction: (id: number) => Promise<{ status: "error" | "success"; message: string }>;
   redirectPageAfterDeleteAction: () => void;
   name: string;
   createFeatureNameAction: (
-    prevState: CreateFeatureNameFormFields,
+    prevState: CreateSpecificationFields,
     formData: FormData,
-  ) => Promise<CreateFeatureNameFormFields>;
+  ) => Promise<CreateSpecificationFields>;
   updateFeatureNameAction: (
-    prevState: CreateFeatureNameFormFields,
+    prevState: CreateSpecificationFields,
     formData: FormData,
-  ) => Promise<CreateFeatureNameFormFields>;
+  ) => Promise<CreateSpecificationFields>;
   isLoadMoreDisabled: boolean;
   patch: string;
   searchParams: { [key: string]: string | string[] | undefined };
-  fetchTableElementAction: (id: string) => Promise<ResponseData<FeatureNameModel>>;
+  fetchTableElementAction: (id: string) => Promise<ResponseData<SpecificationModel>>;
 };
 
-export const FeatureNamesTableWrapper = (props: Props) => {
+export const SpecificationTableWrapper = (props: Props) => {
   const { isMobile, isMounted } = useWindowSize();
   const [submitLoading, transition] = useTransition();
   const [optionFormModal, setOptionFormModal] = useState<{
     id: number | null;
     isOpen: boolean;
     name: string;
-    slug: string;
     isDelete: boolean;
   }>({
     id: null,
     isOpen: false,
     name: "",
-    slug: "",
     isDelete: false,
   });
 
-  const handleOpenEditModal = (item: FeatureNameModel) =>
+  const handleOpenEditModal = (item: SpecificationModel) =>
     setOptionFormModal({
       id: item.id,
       isOpen: true,
       name: item.name,
-      slug: item.slug,
       isDelete: false,
     });
 
@@ -60,7 +57,6 @@ export const FeatureNamesTableWrapper = (props: Props) => {
       id: null,
       isOpen: true,
       name: "",
-      slug: "",
       isDelete: false,
     });
   };
@@ -70,7 +66,6 @@ export const FeatureNamesTableWrapper = (props: Props) => {
       id: null,
       isOpen: false,
       name: "",
-      slug: "",
       isDelete: false,
     });
 
@@ -79,7 +74,6 @@ export const FeatureNamesTableWrapper = (props: Props) => {
       id,
       isOpen: true,
       name: "",
-      slug: "",
       isDelete: true,
     });
 
@@ -102,20 +96,22 @@ export const FeatureNamesTableWrapper = (props: Props) => {
   const isEditModal = optionFormModal.name.length > 0 && typeof optionFormModal.id === "number";
   const modalTitle = isEditModal ? "Редактировать характеристику" : "Добавить характеристику";
   const submitButtonText = isEditModal ? "Редактировать" : "Добавить";
-  const onSubmitAction = isEditModal ? props.updateFeatureNameAction : props.createFeatureNameAction;
+  const onSubmitAction = isEditModal
+    ? props.updateFeatureNameAction
+    : props.createFeatureNameAction;
 
-  const tableOptions: RenderTableOptions<FeatureNameModel>[] = [
+  const tableOptions: RenderTableOptions<SpecificationModel>[] = [
     { key: "id" },
     { key: "name" },
-    { key: "slug" },
-    { key: "is_active", type: "boolean", typeConfig: { booleanLabels: ["Да", "Нет"] } },
-    { key: "sort_order" },
+    { key: "type" },
   ];
+
+  const headerRowLabels = ["ID", "Название", "Тип", "Дата создания"];
 
   return (
     <>
       {optionFormModal.isOpen && !optionFormModal.isDelete && (
-        <ModalFeatureNameForm
+        <SpecificationModalForm
           isOpen={optionFormModal.isOpen}
           onCloseModal={handleCloseFormModal}
           onSubmitAction={onSubmitAction}
@@ -123,7 +119,6 @@ export const FeatureNamesTableWrapper = (props: Props) => {
           submitButtonText={submitButtonText}
           initValue={{
             name: optionFormModal.name,
-            slug: optionFormModal.slug,
             id: optionFormModal.id,
           }}
         />
@@ -150,9 +145,9 @@ export const FeatureNamesTableWrapper = (props: Props) => {
             data={props.data}
             onEditAction={handleOpenEditModal}
             onDeleteAction={handleOpenDeleteModal}
-            headerRowLabels={["ID", "Название", "Slug", "Активна", "Порядок"]}
+            headerRowLabels={headerRowLabels}
             stickyActionColumn
-            gridTemplateColumns="65px minmax(150px, 220px) minmax(120px, 200px) minmax(100px, 140px) 80px 58px"
+            gridTemplateColumns="65px minmax(150px, 220px) minmax(120px, 200px) minmax(100px, 140px) 58px"
             tableOptions={tableOptions}
           />
         )}
@@ -164,8 +159,8 @@ export const FeatureNamesTableWrapper = (props: Props) => {
             onEditAction={handleOpenEditModal}
             onDeleteAction={handleOpenDeleteModal}
             tableOptions={tableOptions}
-            headerRowLabels={["ID", "Название", "Slug", "Активна", "Порядок"]}
-            headerRowWidth={["38px", "100px", "100px", "80px", "80px"]}
+            headerRowLabels={headerRowLabels}
+            headerRowWidth={["38px", "100px", "100px", "80px"]}
             searchParams={props.searchParams}
             isLoadMoreDisabled={props.isLoadMoreDisabled}
             patch={props.patch}

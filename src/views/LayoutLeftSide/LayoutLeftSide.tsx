@@ -63,7 +63,7 @@ export const LayoutLeftSide = () => {
     },
     {
       label: "Характеристики",
-      href: "/feature-names",
+      href: "/specifications",
       icon: <FeaturesSvg />,
       children: [],
     },
