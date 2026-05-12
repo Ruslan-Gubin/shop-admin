@@ -1,65 +1,84 @@
-import { useState } from "react";
+import Link from "next/link";
 import { DeleteSvg } from "@/app/category/components/category-item/svg/DeleteSvg";
+import type { SpecificationModel } from "@/app/specifications/action";
 import { CancelSvg } from "@/shared/svg/CancelSvg";
 import { Input } from "@/shared/ui/input-main/Input";
+import { FormInstruction } from "@/widgets/form-instruction/FormInstruction";
 import { FormSection } from "@/widgets/form-section/FormSection";
+import type { SpecificationValueItem } from "../../ProductForm";
+import { DropdownSearchWrapper } from "./DropdownSearchWrapper";
 import styles from "./ProductFormSpecifications.module.css";
 
 type Props = {
-  specifications: { label: string; value: string }[];
+  specifications: SpecificationModel[];
+  specificationValues: SpecificationValueItem[];
+  setSpecificationsValues: (updateValues: SpecificationValueItem[]) => void;
 };
 
 export const ProductFormSpecifications = (props: Props) => {
-  const [specifications, setSpecifications] = useState<{ label: string; value: string }[]>(
-    props.specifications,
-  );
-
-  const handleChangeValues = (index: number, type: "label" | "value", value: string) => {
-    for (let i = 0; i < specifications.length; i++) {
+  const handleChangeValues = (index: number, value: string) => {
+    for (let i = 0; i < props.specificationValues.length; i++) {
       if (index === i) {
-        if (type === "label") {
-          specifications[index].label = value;
-        } else {
-          specifications[index].value = value;
-        }
+        props.specificationValues[index].value = value;
       }
     }
 
-    const lastSpecifications = specifications.at(-1);
+    const lastSpecifications = props.specificationValues.at(-1);
+
     if (
       lastSpecifications &&
       lastSpecifications.label.length > 0 &&
       lastSpecifications.value.length > 0
     ) {
-      specifications.push({ label: "", value: "" });
+      props.specificationValues.push({ label: "", value: "", specificationId: null });
     }
 
-    setSpecifications([...specifications]);
+    props.setSpecificationsValues([...props.specificationValues]);
+  };
+
+  const onSelectSpecification = (index: number, specificationId: number | null, label: string) => {
+    for (let i = 0; i < props.specificationValues.length; i++) {
+      if (index === i) {
+        props.specificationValues[index].label = label;
+        props.specificationValues[index].specificationId = specificationId;
+      }
+    }
+
+    props.setSpecificationsValues([...props.specificationValues]);
   };
 
   const handleDeleteSpecification = (index: number) => {
-    setSpecifications((prev) => prev.filter((_, id) => id !== index));
+    props.setSpecificationsValues(props.specificationValues.filter((_, id) => id !== index));
   };
+
+  const selectedSpecifications = props.specificationValues
+    .map((el) => el.specificationId)
+    .filter((el) => typeof el === "number");
 
   return (
     <FormSection title="Характеристики">
+      <FormInstruction>
+        <span>Введите характеристику и значение. </span>
+        <span>
+          Чтобы добавить или редактировать характеристику, перейдите на страницу{" "}
+          <Link tabIndex={-1} href="/specifications" className="instruction-link">
+            характеристики
+          </Link>
+          .
+        </span>
+      </FormInstruction>
       <ul className={styles.specificationList}>
-        {specifications.map((specification, index) => (
+        {props.specificationValues.map((specification, index) => (
           <li key={index} className={styles.specificationItem}>
-            <Input
-              error={""}
-              value={specification.label}
-              name={`product_specification_name_${specification.label}_${index}`}
-              id={`product_specification_name_${specification.label}_${index}`}
-              variant="outlined"
-              variantSize="sm"
-              label="Характеристика"
-              rightIcon={<CancelSvg />}
-              onChange={(e) => handleChangeValues(index, "label", e.target.value)}
-              onClickRightIcon={() => handleChangeValues(index, "label", "")}
+            <DropdownSearchWrapper
+              label={specification.label || ""}
+              selectId={specification.specificationId}
+              selectedSpecifications={selectedSpecifications}
+              index={index}
+              onSelectSpecificationAction={onSelectSpecification}
+              specifications={props.specifications}
             />
             <Input
-              error={""}
               value={specification.value}
               name={`product_specification_value_${specification.label}_${index}`}
               id={`product_specification_value_${specification.label}_${index}`}
@@ -67,10 +86,10 @@ export const ProductFormSpecifications = (props: Props) => {
               variantSize="sm"
               label="Значение"
               rightIcon={<CancelSvg />}
-              onChange={(e) => handleChangeValues(index, "value", e.target.value)}
-              onClickRightIcon={() => handleChangeValues(index, "value", "")}
+              onChange={(e) => handleChangeValues(index, e.target.value)}
+              onClickRightIcon={() => handleChangeValues(index, "")}
             />
-            {specifications.length > 1 && (
+            {props.specificationValues.length > 1 && (
               <button
                 onClick={() => handleDeleteSpecification(index)}
                 type="button"

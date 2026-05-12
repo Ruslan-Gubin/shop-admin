@@ -104,14 +104,14 @@ export const ProductFormPrices = (props: Props) => {
         {isErrorRangeText ? (
           <span className={styles.rangeTextError}>
             Для этой закупочной цены не настроен{" "}
-            <Link href="/price-auto-fill" className={styles.instructionLink}>
+            <Link href="/price-auto-fill" className="instruction-link">
               диапазон.
             </Link>{" "}
           </span>
         ) : (
           <span>
             Можно ввести вручную или автозаполнить если настроен{" "}
-            <Link href="/price-auto-fill" className={styles.instructionLink}>
+            <Link href="/price-auto-fill" className="instruction-link">
               диапазон
             </Link>{" "}
             для закупочной цены.{" "}
@@ -119,7 +119,7 @@ export const ProductFormPrices = (props: Props) => {
         )}
         <span>
           Чтобы добавить новый тип цены, перейдите на страницу{" "}
-          <Link href="/price-types" className={styles.instructionLink}>
+          <Link href="/price-types" className="instruction-link">
             управления типами цен
           </Link>
           .

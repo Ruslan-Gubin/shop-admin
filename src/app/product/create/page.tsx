@@ -1,17 +1,20 @@
 import type { PriceTypeModel } from "@/app/price-types/action";
+import { createProductSpecificationAction, createSpecification } from "@/app/specifications/action";
 import { ErrorAlert } from "@/shared/ui/error-alert/ErrorAlert";
 import { UpdateToken } from "@/views/UpdateToken/UpdateToken";
 import { createProductPriceAction, fetchProductFormData } from "../action";
-import { ProductForm } from "../components/ProductForm/ProductForm";
+import { ProductForm, type SpecificationValueItem } from "../components/ProductForm/ProductForm";
 import { createProductAction, type ProductFormPayloadValues } from "./action";
 
 export default async function CreateProductPage() {
-  const [rangesData, priceTypesData, priceFill, categories] = await fetchProductFormData();
+  const [rangesData, priceTypesData, priceFill, categories, specificationsData] =
+    await fetchProductFormData();
 
   const priceTypes = priceTypesData.data?.priceTypes || [];
   const ranges = rangesData?.data || [];
   const priceFillData = priceFill?.data || [];
   const categoriesData = categories?.data || [];
+  const specifications = specificationsData?.data?.specifications || [];
 
   const getFillValuesAction = async (currentPrice: number) => {
     "use server";
@@ -70,8 +73,10 @@ export default async function CreateProductPage() {
   const submitAction = async (
     payload: ProductFormPayloadValues,
     typePriceValues: Record<string, string>,
+    specificationsValues: SpecificationValueItem[],
   ) => {
     "use server";
+    console.log(specificationsValues);
 
     let notification: { status: "error" | "success"; message: string } | null = null;
     let errors: Record<keyof ProductFormPayloadValues, string> | null = null;
@@ -83,28 +88,54 @@ export default async function CreateProductPage() {
 
       if (response.status === "success" && response.data) {
         const product_id = response.data.id;
-        const productPricesPayload = [];
 
         for (const key in typePriceValues) {
           const price =
             typePriceValues[key] && typePriceValues[key].length > 0 && Number(typePriceValues[key]);
           if (typeof price === "number" && !Number.isNaN(price)) {
-            productPricesPayload.push({
-              product_id,
-              price_type_id: Number(key),
-              price,
-            });
+            await createProductPriceAction({ product_id, price_type_id: Number(key), price }).then(
+              (response) => {
+                if (response.status === "error") {
+                  notification = {
+                    status: "error",
+                    message: "Не удалось добавить цену для товара",
+                  };
+                }
+              },
+            );
           }
         }
 
-        for (let i = 0; i < productPricesPayload.length; i++) {
-          const productPrice = await createProductPriceAction(productPricesPayload[i]);
-          if (productPrice.status === "error") {
-            notification = {
-              status: "error",
-              message: "Не удалось добавить цену для товара",
-            };
-            break;
+        for (let i = 0; i < specificationsValues.length; i++) {
+          const specificationValue = specificationsValues[i];
+
+          if (!specificationValue.value) continue;
+
+          if (specificationValue.specificationId) {
+            await createProductSpecificationAction({
+              product_id,
+              specification_id: specificationValue.specificationId,
+              value: specificationValue.value,
+            }).then((response) => {
+              if (response === "error") {
+                notification = {
+                  status: "error",
+                  message: "Не удалось добавить характеристику для товара",
+                };
+              }
+            });
+          } else if (!specificationValue.specificationId && specificationValue.label) {
+            await createSpecification({ name: specificationValue.label, type: "text" }).then(
+              (response) => {
+                if (typeof response === "number") {
+                  createProductSpecificationAction({
+                    product_id,
+                    specification_id: response,
+                    value: specificationValue.value,
+                  });
+                }
+              },
+            );
           }
         }
 
@@ -141,7 +172,7 @@ export default async function CreateProductPage() {
 
   return (
     <section className="page-wrapper">
-      {categories?.tokens && <UpdateToken tokens={categories.tokens} />}
+      {specificationsData?.tokens && <UpdateToken tokens={specificationsData.tokens} />}
       <h2>Создать товар</h2>
 
       {rangesData.status === "error" && rangesData.message && (
@@ -158,6 +189,8 @@ export default async function CreateProductPage() {
       )}
 
       <ProductForm
+        initialProductSpecificationValues={[{ specificationId: null, label: "", value: "" }]}
+        specifications={specifications}
         initialValues={initialValues}
         submitAction={submitAction}
         categories={categoriesData}

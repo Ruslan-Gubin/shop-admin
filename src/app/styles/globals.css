@@ -121,3 +121,6 @@ h3 {
   row-gap: var(--gap-info-block);
   padding-top: 4px;
 }
+.instruction-link {
+  color: #0075f2;
+}

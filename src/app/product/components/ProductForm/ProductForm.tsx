@@ -5,6 +5,7 @@ import { AddSvg } from "@/app/category/components/category-item/svg/AddSvg";
 import { EditSvg } from "@/app/category/components/category-item/svg/EditSvg";
 import type { PriceTypeModel } from "@/app/price-types/action";
 import type { ProductFormPayloadValues } from "@/app/product/create/action";
+import type { SpecificationModel } from "@/app/specifications/action";
 import { Button } from "@/shared/ui/button-main/Button";
 import { notificationAdapter } from "@/stores/notification/adapter";
 import { ProductFormAdditionally } from "./components/Additionally/ProductFormAdditionally";
@@ -15,12 +16,21 @@ import { ProductFormSpecifications } from "./components/Specifications/ProductFo
 import { ProductFormStocks } from "./components/Stocks/ProductFormStocks";
 import styles from "./ProductForm.module.css";
 
+export type SpecificationValueItem = {
+  specificationId: number | null;
+  label: string;
+  value: string;
+};
+
 type Props = {
+  initialProductSpecificationValues: SpecificationValueItem[];
+  specifications: SpecificationModel[];
   categories: CategoryModel[];
   variant: "create" | "edit";
   submitAction: (
     values: ProductFormPayloadValues,
     typePriceValues: Record<string, string>,
+    specificationsValues: SpecificationValueItem[],
   ) => Promise<{
     errors: Record<keyof ProductFormPayloadValues, string> | null;
     notification: {
@@ -30,13 +40,6 @@ type Props = {
     updateTypesPricesValues: Record<string, string> | null;
     updateValues: ProductFormPayloadValues | null;
   }>;
-  initValue?: {
-    name: string;
-    count: string;
-    price: string;
-    code: string;
-    id: number | null;
-  };
   priceTypes: PriceTypeModel[];
   initialPriceTypesValues: Record<string, string>;
   initialValues: ProductFormPayloadValues;
@@ -64,15 +67,17 @@ export const ProductForm = (props: Props) => {
     purchase_price: "",
   });
   const [typePriceValues, setTypePriceValues] = useState<Record<string, string>>({});
+  const [specificationValues, setSpecificationsValues] = useState<SpecificationValueItem[]>([]);
 
   useLayoutEffect(() => {
     setTypePriceValues(props.initialPriceTypesValues);
     setValues(props.initialValues);
+    setSpecificationsValues(props.initialProductSpecificationValues);
   }, []);
 
   const submitForm = () => {
     transition(() => {
-      props.submitAction(values, typePriceValues).then((response) => {
+      props.submitAction(values, typePriceValues, specificationValues).then((response) => {
         if (response.errors) {
           setErrors(response.errors);
         }
@@ -114,7 +119,11 @@ export const ProductForm = (props: Props) => {
         errors={errors}
         handleChangeValues={handleChangeValues}
       />
-      <ProductFormSpecifications specifications={[{ label: "", value: "" }]} />
+      <ProductFormSpecifications
+        specificationValues={specificationValues}
+        specifications={props.specifications}
+        setSpecificationsValues={setSpecificationsValues}
+      />
 
       <ProductFormPrices
         setTypePriceValues={setTypePriceValues}

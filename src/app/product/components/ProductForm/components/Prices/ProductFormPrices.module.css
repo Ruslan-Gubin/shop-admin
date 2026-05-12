@@ -39,10 +39,6 @@
   color: indianred;
 }
 
-.instructionLink {
-  color: #0075f2;
-}
-
 @media (max-width: 880px) {
   .root {
     padding: 20px;

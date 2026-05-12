@@ -28,7 +28,7 @@ export const ProductFormStocks = (props: Props) => {
         {props.warehouses.length > 0 && <span>Введите количество остатков. </span>}
         <span>
           Чтобы добавить новый склад, перейдите на страницу{" "}
-          <Link tabIndex={-1} href="/warehouses/create" className={styles.instructionLink}>
+          <Link tabIndex={-1} href="/warehouses/create" className="instruction-link">
             создать склад
           </Link>
           .

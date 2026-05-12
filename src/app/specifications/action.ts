@@ -8,34 +8,61 @@ import {
   updateItemCookieAction,
   updateTokensInAction,
 } from "@/shared/helpers/updateCookieAction";
-import { getFormActionState } from "@/shared/services/get-form-action-state";
+import { getFormActionState, getValidatePayload } from "@/shared/services/get-form-action-state";
 import { resetNewStateValues } from "@/shared/services/reset-new-store-values";
 import { setNewStoreErrorFromServer } from "@/shared/services/set-new-store-error-from-server";
-import { createSpecificationSchema } from "./schema";
+import { createProductSpecificationSchema, createSpecificationSchema } from "./schema";
 
-export interface SpecificationModel {
+export type SpecificationModel = {
   id: number;
   name: string;
   type: "text" | "color" | "number";
   created_at: string;
   updated_at: string | null;
-}
+};
 
-export type FetchFeatureNamesResponse = {
+export type ProductSpecificationModel = {
+  id: number;
+  product_id: number;
+  specification_id: number;
+  value: string;
+  created_at: Date;
+  updated_at: Date | null;
+  specification: SpecificationModel;
+};
+
+export type FetchSpecificationsResponse = {
   paginationPage: string;
-  featureNames: SpecificationModel[];
+  specifications: SpecificationModel[];
   totalCount: number;
 };
 
 export const fetchSpecifications = async (name: string, limit: string, page?: string) => {
-  return await fetchService.get<FetchFeatureNamesResponse>({
+  return await fetchService.get<FetchSpecificationsResponse>({
     url: "specifications",
     params: { limit, page: page ? String(page) : "1", name },
     tags: ["Specifications"],
   });
 };
 
-export const fetchFeatureName = async (id: string) => {
+export const fetchSpecificationsClient = async (name: string) => {
+  const cookieStore = await cookies();
+
+  return await fetchService
+    .get<FetchSpecificationsResponse>({
+      url: "specifications",
+      params: { limit: "100", page: "1", name },
+    })
+    .then((response) => {
+      if (response.tokens) {
+        updateTokensInAction(cookieStore, response.tokens);
+      }
+
+      return response.data?.specifications || [];
+    });
+};
+
+export const fetchSpecification = async (id: string) => {
   const cookieStore = await cookies();
 
   return await fetchService
@@ -77,6 +104,7 @@ export const deleteSpecificationAction = async (
 
 export type CreateSpecificationFields = {
   name: { value: string; error: string };
+  type: { value: string; error: string };
   message: string;
   status: string;
   id: number | null;
@@ -125,7 +153,7 @@ export const createSpecificationAction = async (
   return validate.newState;
 };
 
-export const updateFeatureNameAction = async (
+export const updateSpecificationAction = async (
   prevState: CreateSpecificationFields,
   formData: FormData,
 ): Promise<CreateSpecificationFields> => {
@@ -166,4 +194,57 @@ export const updateFeatureNameAction = async (
   }
 
   return validate.newState;
+};
+
+export const createSpecification = async (payload: {
+  name: string;
+  type: string;
+}): Promise<number | null> => {
+  const { isValid } = getValidatePayload(payload, createSpecificationSchema);
+
+  if (isValid) {
+    const cookieStore = await cookies();
+
+    return await fetchService
+      .post<SpecificationModel>({
+        url: "specifications/create",
+        payload: payload,
+      })
+      .then((response) => {
+        if (response.tokens) {
+          updateTokensInAction(cookieStore, response.tokens);
+        }
+
+        return typeof response.data?.id === "number" ? response.data?.id : null;
+      });
+  }
+
+  return null;
+};
+
+export const createProductSpecificationAction = async (payload: {
+  product_id: number;
+  specification_id: number;
+  value: string;
+}): Promise<"error" | "success"> => {
+  const { isValid } = getValidatePayload(payload, createProductSpecificationSchema);
+
+  if (isValid) {
+    const cookieStore = await cookies();
+
+    return await fetchService
+      .post<ProductSpecificationModel>({
+        url: "product-specifications/create",
+        payload: payload,
+      })
+      .then((response) => {
+        if (response.tokens) {
+          updateTokensInAction(cookieStore, response.tokens);
+        }
+
+        return response.status;
+      });
+  }
+
+  return "error";
 };

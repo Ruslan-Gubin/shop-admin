@@ -15,11 +15,11 @@ type Props = {
   onDeleteItemAction: (id: number) => Promise<{ status: "error" | "success"; message: string }>;
   redirectPageAfterDeleteAction: () => void;
   name: string;
-  createFeatureNameAction: (
+  createSpecificationAction: (
     prevState: CreateSpecificationFields,
     formData: FormData,
   ) => Promise<CreateSpecificationFields>;
-  updateFeatureNameAction: (
+  updateSpecificationAction: (
     prevState: CreateSpecificationFields,
     formData: FormData,
   ) => Promise<CreateSpecificationFields>;
@@ -36,11 +36,13 @@ export const SpecificationTableWrapper = (props: Props) => {
     id: number | null;
     isOpen: boolean;
     name: string;
+    type: string;
     isDelete: boolean;
   }>({
     id: null,
     isOpen: false,
     name: "",
+    type: "",
     isDelete: false,
   });
 
@@ -49,6 +51,7 @@ export const SpecificationTableWrapper = (props: Props) => {
       id: item.id,
       isOpen: true,
       name: item.name,
+      type: item.type,
       isDelete: false,
     });
 
@@ -57,6 +60,7 @@ export const SpecificationTableWrapper = (props: Props) => {
       id: null,
       isOpen: true,
       name: "",
+      type: "text",
       isDelete: false,
     });
   };
@@ -66,6 +70,7 @@ export const SpecificationTableWrapper = (props: Props) => {
       id: null,
       isOpen: false,
       name: "",
+      type: "",
       isDelete: false,
     });
 
@@ -74,6 +79,7 @@ export const SpecificationTableWrapper = (props: Props) => {
       id,
       isOpen: true,
       name: "",
+      type: "",
       isDelete: true,
     });
 
@@ -97,13 +103,18 @@ export const SpecificationTableWrapper = (props: Props) => {
   const modalTitle = isEditModal ? "Редактировать характеристику" : "Добавить характеристику";
   const submitButtonText = isEditModal ? "Редактировать" : "Добавить";
   const onSubmitAction = isEditModal
-    ? props.updateFeatureNameAction
-    : props.createFeatureNameAction;
+    ? props.updateSpecificationAction
+    : props.createSpecificationAction;
 
   const tableOptions: RenderTableOptions<SpecificationModel>[] = [
     { key: "id" },
     { key: "name" },
-    { key: "type" },
+    {
+      key: "type",
+      type: "translate",
+      typeConfig: { translateMap: { text: "Текст", color: "Цвет", number: "Число" } },
+    },
+    { key: "created_at", type: "date" },
   ];
 
   const headerRowLabels = ["ID", "Название", "Тип", "Дата создания"];
@@ -119,6 +130,7 @@ export const SpecificationTableWrapper = (props: Props) => {
           submitButtonText={submitButtonText}
           initValue={{
             name: optionFormModal.name,
+            type: optionFormModal.type,
             id: optionFormModal.id,
           }}
         />
@@ -147,7 +159,7 @@ export const SpecificationTableWrapper = (props: Props) => {
             onDeleteAction={handleOpenDeleteModal}
             headerRowLabels={headerRowLabels}
             stickyActionColumn
-            gridTemplateColumns="65px minmax(150px, 220px) minmax(120px, 200px) minmax(100px, 140px) 58px"
+            gridTemplateColumns="65px minmax(220px, 1fr) minmax(120px, 180px) minmax(170px, 220px) 58px"
             tableOptions={tableOptions}
           />
         )}

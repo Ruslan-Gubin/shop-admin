@@ -1,0 +1,183 @@
+.dropdown {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  font-size: 14px;
+  width: attr(data-width px);
+  user-select: none;
+}
+
+.selectValueButton {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid lightgray;
+  border-radius: 4px;
+  padding-right: 6px;
+  padding-left: 14px;
+  min-height: 32px;
+  max-height: 32px;
+}
+.selectValueButtonAction {
+  border-color: #757575;
+}
+
+.selectValueButton:disabled {
+  cursor: default;
+  border-bottom: none;
+}
+
+.values {
+  width: calc(100% - 32px);
+  display: flex;
+  position: relative;
+  align-items: flex-end;
+  height: 100%;
+}
+
+.input {
+  background-color: inherit;
+  outline: none;
+  font-size: 14px;
+  color: var(----text-color-main);
+  width: 100%;
+  height: 100%;
+}
+
+.arrowIcon {
+  width: 24px;
+  height: 24px;
+  min-width: 24px;
+  max-width: 24px;
+  min-height: 24px;
+}
+
+.arrowIconActive {
+  will-change: transform;
+  animation: rotateOpen 0.15s linear 0s 1 forwards;
+}
+
+@keyframes rotateOpen {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(-180deg);
+  }
+}
+
+.dropdownMenu {
+  width: 100%;
+  position: absolute;
+  overflow-y: auto;
+  max-height: attr(data-height px);
+  background-color: white;
+  border: 1px solid lightgray;
+  border-radius: 6px;
+  top: 76px;
+}
+
+.dropdownMenuActive {
+  z-index: 10;
+}
+
+.dropdownMenuItemButton {
+  padding: 8px 12px;
+  width: 100%;
+  color: var(----text-color-main);
+  font-size: 14px;
+  text-align: start;
+  text-wrap: balance;
+}
+
+.dropdownMenuItemButton:hover {
+  background-color: #f5fafe;
+}
+
+.dropdownMenuItemButton:focus {
+  box-shadow: 1px 1px 4px 1px #f9e0a4;
+  outline: none;
+}
+
+.dropdownMenuItemButton:active {
+  box-shadow: none;
+  outline: none;
+}
+
+.dropdownMenuItemButtonActive {
+  background-color: #f5fafe;
+}
+
+.dropdownMenuItemButtonActive:hover {
+  background-color: #f5fafe;
+}
+
+.dropdownMenuItemButtonText {
+  color: currentColor;
+}
+
+.label {
+  position: absolute;
+  color: #75787a;
+  font-size: 14px;
+  padding-inline: 8px;
+  background-color: white;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  max-width: 95%;
+  top: 50%;
+  transform: translateY(-50%);
+  transition: all 0.2s linear;
+}
+
+.labelActive {
+  font-size: 0.75em;
+  color: #171717;
+  background-color: white;
+  cursor: default;
+  left: -7px;
+  top: -7px;
+  transform: translateY(0%);
+}
+
+.selectValueButton:focus-within .label {
+  font-size: 0.75em;
+  color: #171717;
+  background-color: white;
+  cursor: default;
+  left: -7px;
+  top: -7px;
+  transform: translateY(0%);
+}
+
+@media (max-width: 639px) {
+  .selectValueButton {
+    min-height: 53px;
+  }
+
+  .label {
+    color: #7a7a7a;
+    font-size: 14px;
+    line-height: 16px;
+  }
+
+  .labelActive {
+    font-weight: 400;
+    font-size: 12px;
+    line-height: 14px;
+  }
+
+  .dropdownMenuItemButton {
+    font-size: 14px;
+    line-height: 16px;
+    padding: 12px 12px;
+  }
+
+  .input {
+    font-size: 15px;
+    line-height: 20px;
+  }
+}

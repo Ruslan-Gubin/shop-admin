@@ -8,9 +8,9 @@ import { UpdateToken } from "@/views/UpdateToken/UpdateToken";
 import {
   createSpecificationAction,
   deleteSpecificationAction,
-  fetchFeatureName,
+  fetchSpecification,
   fetchSpecifications,
-  updateFeatureNameAction,
+  updateSpecificationAction,
 } from "./action";
 import { SpecificationTableWrapper } from "./components/SpecificationTableWrapper/SpecificationWrapper";
 
@@ -18,16 +18,16 @@ export default async function SpecificationsPage(req: {
   searchParams: Promise<{ page: string; name: string }>;
 }) {
   const searchParams = await req.searchParams;
-  const tableData = await fetchSpecifications(searchParams.name, "10", searchParams.page);
-  const patch = "/feature-names";
   const limit = 10;
+  const tableData = await fetchSpecifications(searchParams.name, String(limit), searchParams.page);
+  const patch = "/specifications";
 
   const redirectPageAfterDelete = async () => {
     "use server";
     if (
       searchParams.page &&
       Number(searchParams.page) > 1 &&
-      tableData?.data?.featureNames.length === 1
+      tableData?.data?.specifications.length === 1
     ) {
       redirect(getUpdateQueryPageString(patch, searchParams, Number(searchParams.page) - 1));
     }
@@ -48,23 +48,23 @@ export default async function SpecificationsPage(req: {
       )}
       <section className="table-container">
         <SpecificationTableWrapper
-          data={tableData?.data?.featureNames || []}
+          data={tableData?.data?.specifications || []}
           name={searchParams.name || ""}
           onDeleteItemAction={deleteSpecificationAction}
-          createFeatureNameAction={createSpecificationAction}
-          updateFeatureNameAction={updateFeatureNameAction}
-          fetchTableElementAction={fetchFeatureName}
+          createSpecificationAction={createSpecificationAction}
+          updateSpecificationAction={updateSpecificationAction}
+          fetchTableElementAction={fetchSpecification}
           redirectPageAfterDeleteAction={redirectPageAfterDelete}
           isLoadMoreDisabled={isLoadMoreDisabled}
           patch={patch}
           searchParams={searchParams}
         />
-        {typeof tableData?.data?.totalCount === "number" && tableData?.data?.totalCount > 10 && (
+        {typeof tableData?.data?.totalCount === "number" && tableData?.data?.totalCount > limit && (
           <Pagination
             page={Number(tableData?.data?.paginationPage || 0)}
-            limit={10}
+            limit={limit}
             total={tableData?.data?.totalCount || 0}
-            patch="/feature-names"
+            patch={patch}
             searchParams={searchParams}
           />
         )}

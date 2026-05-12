@@ -8,6 +8,10 @@ import { setErrorFromServer } from "@/shared/services/set-new-store-error-from-s
 import type { CategoryModel } from "../category/action";
 import type { PriceFillModel, RangeModel } from "../price-auto-fill/action";
 import type { FetchPriceTypesResponse } from "../price-types/action";
+import type {
+  FetchSpecificationsResponse,
+  ProductSpecificationModel,
+} from "../specifications/action";
 import { createProductPriceSchema } from "./schema";
 
 export interface ProductModel {
@@ -40,7 +44,13 @@ export interface ProductPriceModel {
 
 export const fetchProductFormData = async () => {
   return await fetchService.fetchChain<
-    [RangeModel[], FetchPriceTypesResponse, PriceFillModel[], CategoryModel[]]
+    [
+      RangeModel[],
+      FetchPriceTypesResponse,
+      PriceFillModel[],
+      CategoryModel[],
+      FetchSpecificationsResponse,
+    ]
   >([
     {
       url: "price-ranges",
@@ -59,6 +69,11 @@ export const fetchProductFormData = async () => {
       url: "category/categories",
       tags: [`Categories`],
     },
+    {
+      url: "specifications",
+      params: { limit: "1000", page: "1", name: "" },
+      tags: [`Specifications`],
+    },
   ]);
 };
 
@@ -71,6 +86,8 @@ export const fetchProductFormEditData = async (id: string) => {
       PriceFillModel[],
       CategoryModel[],
       ProductPriceModel[],
+      ProductSpecificationModel[],
+      FetchSpecificationsResponse,
     ]
   >([
     {
@@ -97,6 +114,15 @@ export const fetchProductFormEditData = async (id: string) => {
     {
       url: `product-price/${id}`,
       tags: [`ProductPrices`],
+    },
+    {
+      url: `product-specifications/product/${id}`,
+      tags: [`ProductSpecifications`],
+    },
+    {
+      url: "specifications",
+      params: { limit: "1000", page: "1", name: "" },
+      tags: [`Specifications`],
     },
   ]);
 };

@@ -1,5 +1,6 @@
 "use server";
 import type { PriceTypeModel } from "@/app/price-types/action";
+import type { ProductSpecificationModel } from "@/app/specifications/action";
 import { ErrorAlert } from "@/shared/ui/error-alert/ErrorAlert";
 import { UpdateToken } from "@/views/UpdateToken/UpdateToken";
 import {
@@ -8,21 +9,31 @@ import {
   editProductPriceAction,
   fetchProductFormEditData,
 } from "../../action";
-import { ProductForm } from "../../components/ProductForm/ProductForm";
+import { ProductForm, type SpecificationValueItem } from "../../components/ProductForm/ProductForm";
 import type { ProductFormPayloadValues } from "../../create/action";
 import { updateProductAction } from "./action";
 import styles from "./EditProduct.module.css";
 
 export default async function ProductEditPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const [product, rangesData, priceTypesData, priceFill, categories, productPricesData] =
-    await fetchProductFormEditData(id);
+  const [
+    product,
+    rangesData,
+    priceTypesData,
+    priceFill,
+    categories,
+    productPricesData,
+    productSpecificationsData,
+    specificationsData,
+  ] = await fetchProductFormEditData(id);
 
   const productPrices = productPricesData.data || [];
   const priceTypes = priceTypesData.data?.priceTypes || [];
   const ranges = rangesData?.data || [];
   const priceFillData = priceFill?.data || [];
   const categoriesData = categories?.data || [];
+  const productSpecifications = productSpecificationsData?.data || [];
+  const specifications = specificationsData?.data?.specifications || [];
 
   const getFillValuesAction = async (currentPrice: number) => {
     "use server";
@@ -64,6 +75,28 @@ export default async function ProductEditPage({ params }: { params: Promise<{ id
 
   const initialPriceTypesValues = getInitialPriceValues(priceTypesData.data?.priceTypes || []);
 
+  const getInitialProductSpecificationValues = (
+    productSpecifications: ProductSpecificationModel[],
+  ) => {
+    const initial: SpecificationValueItem[] = [];
+
+    for (let i = 0; i < productSpecifications.length; i++) {
+      const currentProductSpecifications = productSpecifications[i];
+      initial.push({
+        specificationId: currentProductSpecifications.specification_id,
+        label: currentProductSpecifications.specification.name,
+        value: currentProductSpecifications.value,
+      });
+    }
+
+    initial.push({ specificationId: null, label: "", value: "" });
+
+    return initial;
+  };
+
+  const initialProductSpecificationValues =
+    getInitialProductSpecificationValues(productSpecifications);
+
   const initialValues = {
     name: product?.data?.name ? product.data.name : "",
     code: product?.data?.code ? product.data.code : "",
@@ -88,7 +121,6 @@ export default async function ProductEditPage({ params }: { params: Promise<{ id
 
     let notification: { status: "error" | "success"; message: string } | null = null;
     let errors: Record<keyof ProductFormPayloadValues, string> | null = null;
-    let updateTypesPricesValues: Record<string, string> | null = null;
 
     await updateProductAction(payload, id).then(async (response) => {
       errors = response.errors;
@@ -157,7 +189,7 @@ export default async function ProductEditPage({ params }: { params: Promise<{ id
       }
     });
 
-    return { errors, notification, updateTypesPricesValues, updateValues: null };
+    return { errors, notification, updateTypesPricesValues: null, updateValues: null };
   };
 
   return (
@@ -177,6 +209,9 @@ export default async function ProductEditPage({ params }: { params: Promise<{ id
       {categories.status === "error" && categories.message && (
         <ErrorAlert message={categories.message} />
       )}
+      {productSpecificationsData.status === "error" && productSpecificationsData.message && (
+        <ErrorAlert message={productSpecificationsData.message} />
+      )}
       {productPricesData.status === "error" && productPricesData.message && (
         <ErrorAlert message={productPricesData.message} />
       )}
@@ -184,6 +219,8 @@ export default async function ProductEditPage({ params }: { params: Promise<{ id
       <div className={styles.root}>
         {product?.data && (
           <ProductForm
+            initialProductSpecificationValues={initialProductSpecificationValues}
+            specifications={specifications}
             initialValues={initialValues}
             submitAction={submitAction}
             categories={categoriesData}

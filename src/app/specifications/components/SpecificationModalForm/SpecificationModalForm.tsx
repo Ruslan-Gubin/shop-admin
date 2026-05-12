@@ -6,6 +6,7 @@ import { ModalBody } from "@/shared/ui/modal/modal-body/ModalBody";
 import { ModalContent } from "@/shared/ui/modal/modal-content/ModalContent";
 import { ModalFooter } from "@/shared/ui/modal/modal-footer/ModalFooter";
 import { ModalHeader } from "@/shared/ui/modal/modal-header/ModalHeader";
+import { Select } from "@/shared/ui/select/Select";
 import { notificationAdapter } from "@/stores/notification/adapter";
 import type { CreateSpecificationFields } from "../../action";
 
@@ -20,6 +21,7 @@ type Props = {
   ) => Promise<CreateSpecificationFields>;
   initValue: {
     name: string;
+    type: string;
     id: number | null;
   };
 };
@@ -27,6 +29,7 @@ type Props = {
 export const SpecificationModalForm = (props: Props) => {
   const [state, formAction, pending] = useActionState(props.onSubmitAction, {
     name: { value: props.initValue.name || "", error: "" },
+    type: { value: props.initValue.type || "text", error: "" },
     id: props.initValue.id,
     message: "",
     status: "",
@@ -63,17 +66,19 @@ export const SpecificationModalForm = (props: Props) => {
                 label="Название"
                 rightIcon={<CancelSvg />}
               />
-              {/* <Input */}
-              {/*   error={state.slug.error} */}
-              {/*   defaultValue={state.slug.value} */}
-              {/*   name="slug" */}
-              {/*   id="slug_feature_input" */}
-              {/*   variant="outlined" */}
-              {/*   variantSize="sm" */}
-              {/*   placeholder="slug" */}
-              {/*   label="Slug (URL)" */}
-              {/*   rightIcon={<CancelSvg />} */}
-              {/* /> */}
+              <Select
+                label="Тип характеристики"
+                defaultValue={state.type.value}
+                error={state.type.error}
+                options={[
+                  { value: "text", label: "Текст" },
+                  { value: "color", label: "Цвет" },
+                  { value: "number", label: "Число" },
+                ]}
+                selectName="type"
+                selectId="type"
+                selectKey={state.type.value}
+              />
             </div>
           </ModalBody>
 

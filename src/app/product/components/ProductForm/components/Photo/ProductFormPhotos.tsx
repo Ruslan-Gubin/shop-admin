@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { FormInstruction } from "@/widgets/form-instruction/FormInstruction";
 import { FormSection } from "@/widgets/form-section/FormSection";
-import styles from "./ProductFormPhotos.module.css";
 
 type Props = {
   initPhotos: string[];
