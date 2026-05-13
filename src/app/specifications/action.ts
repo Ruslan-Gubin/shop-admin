@@ -248,3 +248,41 @@ export const createProductSpecificationAction = async (payload: {
 
   return "error";
 };
+
+export const updateProductSpecificationAction = async (
+  id: number,
+  value: string,
+): Promise<"error" | "success"> => {
+  const cookieStore = await cookies();
+
+  return await fetchService
+    .patch<ProductSpecificationModel>({
+      url: `product-specifications/${id}`,
+      payload: { value },
+    })
+    .then((response) => {
+      if (response.tokens) {
+        updateTokensInAction(cookieStore, response.tokens);
+      }
+
+      return response.status;
+    });
+};
+
+export const deleteProductSpecificationAction = async (
+  id: number,
+): Promise<"error" | "success"> => {
+  const cookieStore = await cookies();
+
+  return await fetchService
+    .delete<ProductSpecificationModel>({
+      url: `product-specifications/${id}`,
+    })
+    .then((response) => {
+      if (response.tokens) {
+        updateTokensInAction(cookieStore, response.tokens);
+      }
+
+      return response.status;
+    });
+};

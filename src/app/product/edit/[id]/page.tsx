@@ -1,17 +1,17 @@
 "use server";
+import { revalidatePath } from "next/cache";
 import type { PriceTypeModel } from "@/app/price-types/action";
 import type { ProductSpecificationModel } from "@/app/specifications/action";
 import { ErrorAlert } from "@/shared/ui/error-alert/ErrorAlert";
 import { UpdateToken } from "@/views/UpdateToken/UpdateToken";
-import {
-  createProductPriceAction,
-  deleteProductPriceAction,
-  editProductPriceAction,
-  fetchProductFormEditData,
-} from "../../action";
+import { fetchProductFormEditData } from "../../action";
 import { ProductForm, type SpecificationValueItem } from "../../components/ProductForm/ProductForm";
 import type { ProductFormPayloadValues } from "../../create/action";
-import { updateProductAction } from "./action";
+import {
+  updateProductAction,
+  updateProductPriceValues,
+  updateProductSpecifications,
+} from "./action";
 import styles from "./EditProduct.module.css";
 
 export default async function ProductEditPage({ params }: { params: Promise<{ id: string }> }) {
@@ -83,13 +83,19 @@ export default async function ProductEditPage({ params }: { params: Promise<{ id
     for (let i = 0; i < productSpecifications.length; i++) {
       const currentProductSpecifications = productSpecifications[i];
       initial.push({
+        listId: i + 1,
         specificationId: currentProductSpecifications.specification_id,
         label: currentProductSpecifications.specification.name,
         value: currentProductSpecifications.value,
       });
     }
 
-    initial.push({ specificationId: null, label: "", value: "" });
+    initial.push({
+      listId: productSpecifications.length + 1,
+      specificationId: null,
+      label: "",
+      value: "",
+    });
 
     return initial;
   };
@@ -116,6 +122,7 @@ export default async function ProductEditPage({ params }: { params: Promise<{ id
   const submitAction = async (
     payload: ProductFormPayloadValues,
     typePriceValues: Record<string, string>,
+    specificationsValues: SpecificationValueItem[],
   ) => {
     "use server";
 
@@ -128,54 +135,31 @@ export default async function ProductEditPage({ params }: { params: Promise<{ id
       const product_id = String(id);
 
       if (response.status === "success" && product_id) {
-        for (const key in typePriceValues) {
-          const price =
-            typePriceValues[key] && typePriceValues[key].length > 0 && Number(typePriceValues[key]);
+        await updateProductPriceValues(typePriceValues, productPrices, product_id).then(
+          (errorMessage) => {
+            if (errorMessage) {
+              notification = {
+                status: "error",
+                message: errorMessage,
+              };
+            }
+          },
+        );
 
-          const productPrice = productPrices.find((el) => el.price_type_id === Number(key));
-
-          if (!price && productPrice && productPrice.price) {
-            await deleteProductPriceAction(productPrice.id).then((response) => {
-              if (response === "error") {
-                notification = {
-                  status: "error",
-                  message: "Не удалось удалить цену для товара",
-                };
-              }
-            });
+        await updateProductSpecifications(
+          specificationsValues,
+          productSpecifications,
+          product_id,
+        ).then((errorMessage) => {
+          if (errorMessage) {
+            notification = {
+              status: "error",
+              message: errorMessage,
+            };
           }
+        });
 
-          if (typeof price === "number" && !Number.isNaN(price) && !productPrice) {
-            await createProductPriceAction({
-              product_id: Number(product_id),
-              price_type_id: Number(key),
-              price,
-            }).then((response) => {
-              if (response.status === "error") {
-                notification = {
-                  status: "error",
-                  message: "Не удалось добавить цену для товара",
-                };
-              }
-            });
-          }
-
-          if (
-            typeof price === "number" &&
-            !Number.isNaN(price) &&
-            productPrice &&
-            price !== productPrice.price
-          ) {
-            await editProductPriceAction(productPrice.id, price).then((response) => {
-              if (response === "error") {
-                notification = {
-                  status: "error",
-                  message: "Не изменить цену для товара",
-                };
-              }
-            });
-          }
-        }
+        revalidatePath("product/edit");
 
         notification = {
           status: "success",

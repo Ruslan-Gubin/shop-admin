@@ -19,7 +19,6 @@ type Props = {
 
 export const DropdownSearchWrapper = (props: Props) => {
   const debounceFn = useDebounce();
-  const [search, setSearch] = useState<string>(props.label);
   const [searchItems, setSearchItems] = useState<{ label: string; value: number }[]>([]);
 
   const options = props.specifications.map((el) => ({ value: el.id, label: el.name }));
@@ -28,12 +27,10 @@ export const DropdownSearchWrapper = (props: Props) => {
     const findOption = options.find((el) => el.value === value);
 
     if (findOption) {
-      setSearch(findOption.label);
       props.onSelectSpecificationAction(props.index, findOption.value, findOption.label);
     } else {
       const findSearchItem = searchItems.find((el) => el.value === value);
       if (findSearchItem) {
-        setSearch(findSearchItem.label);
         props.onSelectSpecificationAction(props.index, findSearchItem.value, findSearchItem.label);
       }
     }
@@ -50,7 +47,6 @@ export const DropdownSearchWrapper = (props: Props) => {
   };
 
   const handleChangeSearch = (value: string) => {
-    setSearch(value);
     props.onSelectSpecificationAction(props.index, null, value);
 
     if (value.length < 3) {
@@ -76,7 +72,7 @@ export const DropdownSearchWrapper = (props: Props) => {
       placeholder="Характеристика"
       onSelectMenu={handleSelectMenu}
       onChangeValue={handleChangeSearch}
-      inputValue={search}
+      inputValue={props.label}
     />
   );
 };

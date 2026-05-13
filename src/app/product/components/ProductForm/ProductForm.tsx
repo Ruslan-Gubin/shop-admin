@@ -17,6 +17,7 @@ import { ProductFormStocks } from "./components/Stocks/ProductFormStocks";
 import styles from "./ProductForm.module.css";
 
 export type SpecificationValueItem = {
+  listId: number;
   specificationId: number | null;
   label: string;
   value: string;
@@ -72,8 +73,11 @@ export const ProductForm = (props: Props) => {
   useLayoutEffect(() => {
     setTypePriceValues(props.initialPriceTypesValues);
     setValues(props.initialValues);
-    setSpecificationsValues(props.initialProductSpecificationValues);
   }, []);
+
+  useLayoutEffect(() => {
+    setSpecificationsValues(props.initialProductSpecificationValues);
+  }, [props.initialProductSpecificationValues]);
 
   const submitForm = () => {
     transition(() => {

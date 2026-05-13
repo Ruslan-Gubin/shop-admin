@@ -76,7 +76,6 @@ export default async function CreateProductPage() {
     specificationsValues: SpecificationValueItem[],
   ) => {
     "use server";
-    console.log(specificationsValues);
 
     let notification: { status: "error" | "success"; message: string } | null = null;
     let errors: Record<keyof ProductFormPayloadValues, string> | null = null;
@@ -189,7 +188,9 @@ export default async function CreateProductPage() {
       )}
 
       <ProductForm
-        initialProductSpecificationValues={[{ specificationId: null, label: "", value: "" }]}
+        initialProductSpecificationValues={[
+          { listId: 1, specificationId: null, label: "", value: "" },
+        ]}
         specifications={specifications}
         initialValues={initialValues}
         submitAction={submitAction}
