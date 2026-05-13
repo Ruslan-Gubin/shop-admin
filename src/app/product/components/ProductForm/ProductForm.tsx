@@ -161,7 +161,7 @@ export const ProductForm = (props: Props) => {
           disabled={pending}
         >
           {props.variant === "create" ? <AddSvg /> : <EditSvg />}
-          {props.variant === "create" ? "Добавить товар" : "Редактировать"}
+          {props.variant === "create" ? "Создать товар" : "Редактировать"}
         </Button>
       </div>
     </section>

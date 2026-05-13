@@ -103,7 +103,7 @@ export const ProductsTableWrapper = (props: Props) => {
         <TableControls
           addAction={{
             href: "/product/create",
-            text: "Добавить товар",
+            text: "Создать товар",
           }}
           name={props.name}
           queryKey="name"

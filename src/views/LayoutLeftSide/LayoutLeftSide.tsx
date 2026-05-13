@@ -28,7 +28,7 @@ export const LayoutLeftSide = () => {
       icon: <RegisterSvg />,
       children: [
         {
-          label: "Добавить товар",
+          label: "Создать товар",
           href: "/product/create",
           children: [],
           isHasLine: false,
