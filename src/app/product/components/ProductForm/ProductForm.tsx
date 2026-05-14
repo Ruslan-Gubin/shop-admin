@@ -13,7 +13,7 @@ import { ProductFormGeneralInfo } from "./components/GeneralInfo/ProductFormGene
 import { ProductFormPhotos } from "./components/Photo/ProductFormPhotos";
 import { ProductFormPrices } from "./components/Prices/ProductFormPrices";
 import { ProductFormSpecifications } from "./components/Specifications/ProductFormSpecifications";
-import { ProductFormStocks } from "./components/Stocks/ProductFormStocks";
+import { ProductFormStocks, type RemainsItem } from "./components/Stocks/ProductFormStocks";
 import styles from "./ProductForm.module.css";
 
 export type SpecificationValueItem = {
@@ -24,6 +24,7 @@ export type SpecificationValueItem = {
 };
 
 type Props = {
+  initialRemains: RemainsItem[];
   initialProductSpecificationValues: SpecificationValueItem[];
   specifications: SpecificationModel[];
   categories: CategoryModel[];
@@ -32,6 +33,7 @@ type Props = {
     values: ProductFormPayloadValues,
     typePriceValues: Record<string, string>,
     specificationsValues: SpecificationValueItem[],
+    remains: RemainsItem[],
   ) => Promise<{
     errors: Record<keyof ProductFormPayloadValues, string> | null;
     notification: {
@@ -40,6 +42,7 @@ type Props = {
     } | null;
     updateTypesPricesValues: Record<string, string> | null;
     updateValues: ProductFormPayloadValues | null;
+    updateRemains: RemainsItem[] | null;
   }>;
   priceTypes: PriceTypeModel[];
   initialPriceTypesValues: Record<string, string>;
@@ -69,10 +72,12 @@ export const ProductForm = (props: Props) => {
   });
   const [typePriceValues, setTypePriceValues] = useState<Record<string, string>>({});
   const [specificationValues, setSpecificationsValues] = useState<SpecificationValueItem[]>([]);
+  const [remains, setRemains] = useState<RemainsItem[]>([]);
 
   useLayoutEffect(() => {
     setTypePriceValues(props.initialPriceTypesValues);
     setValues(props.initialValues);
+    setRemains(props.initialRemains);
   }, []);
 
   useLayoutEffect(() => {
@@ -81,7 +86,7 @@ export const ProductForm = (props: Props) => {
 
   const submitForm = () => {
     transition(() => {
-      props.submitAction(values, typePriceValues, specificationValues).then((response) => {
+      props.submitAction(values, typePriceValues, specificationValues, remains).then((response) => {
         if (response.errors) {
           setErrors(response.errors);
         }
@@ -96,6 +101,10 @@ export const ProductForm = (props: Props) => {
 
         if (response.updateValues) {
           setValues(response.updateValues);
+        }
+
+        if (response.updateRemains) {
+          setRemains(response.updateRemains);
         }
       });
     });
@@ -137,18 +146,7 @@ export const ProductForm = (props: Props) => {
         getFillValuesAction={props.getFillValuesAction}
         priceTypes={props.priceTypes}
       />
-      <ProductFormStocks
-        warehouses={[
-          { id: 1, name: "Культурная 2" },
-          { id: 2, name: "Федьковича 67/2" },
-          { id: 3, name: "Железноводская 8" },
-        ]}
-        initialRemains={{
-          "1": "",
-          "2": "",
-          "3": "",
-        }}
-      />
+      <ProductFormStocks remains={remains} onChangeRemains={setRemains} />
       <ProductFormPhotos initPhotos={[]} />
 
       <div className={styles.actionForm}>
@@ -157,7 +155,7 @@ export const ProductForm = (props: Props) => {
           variant="solid"
           variantColor="green"
           onClick={submitForm}
-          type="submit"
+          type="button"
           disabled={pending}
         >
           {props.variant === "create" ? <AddSvg /> : <EditSvg />}

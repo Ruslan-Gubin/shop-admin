@@ -15,6 +15,7 @@
   border-radius: 4px;
   transition: outline 0.1s;
   z-index: 1;
+  cursor: pointer;
 }
 
 .checkbox:checked {

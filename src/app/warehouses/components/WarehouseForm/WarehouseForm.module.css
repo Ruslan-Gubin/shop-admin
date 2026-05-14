@@ -1,0 +1,11 @@
+.addForm {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  row-gap: var(--padding-content-block);
+}
+
+.actionForm {
+  display: flex;
+  justify-content: flex-end;
+}

@@ -11,6 +11,7 @@ import { PriceTypeSvg } from "./svg/PriceTypeSvg";
 import { PromotionsSvg } from "./svg/PromotionsSvg";
 import { RegisterSvg } from "./svg/RegisterSvg";
 import { UsersSvg } from "./svg/UsersSvg";
+import { WarehousesSvg } from "./svg/WarehousesSvg";
 
 export type NavigateListItem = {
   label: string;
@@ -30,6 +31,19 @@ export const LayoutLeftSide = () => {
         {
           label: "Создать товар",
           href: "/product/create",
+          children: [],
+          isHasLine: false,
+        },
+      ],
+    },
+    {
+      label: "Склады",
+      href: "/warehouses",
+      icon: <WarehousesSvg />,
+      children: [
+        {
+          label: "Создать склад",
+          href: "/warehouses/create",
           children: [],
           isHasLine: false,
         },

@@ -11,3 +11,18 @@
     grid-template-columns: 1fr;
   }
 }
+
+.pricesGridItem {
+  display: flex;
+  flex-direction: column;
+  row-gap: 12px;
+  font-size: 14px;
+
+  @media (max-width: 880px) {
+    /* grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); */
+  }
+
+  @media (max-width: 500px) {
+    /* grid-template-columns: 1fr; */
+  }
+}

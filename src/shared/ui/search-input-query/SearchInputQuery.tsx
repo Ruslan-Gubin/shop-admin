@@ -10,6 +10,7 @@ import { Input } from "@/shared/ui/input-main/Input";
 type Props = {
   queryKey: string;
   search: string;
+  inputSearchLabel?: string;
 };
 
 export const SearchInputQuery = (props: Props) => {
@@ -52,7 +53,7 @@ export const SearchInputQuery = (props: Props) => {
         defaultValue={props.search}
         onChange={(e) => handleSearch(e.target.value)}
         onClickRightIcon={() => handleSearch("")}
-        label="Поиск по названию"
+        label={props.inputSearchLabel ? props.inputSearchLabel : "Поиск по названию"}
       />
     </search>
   );

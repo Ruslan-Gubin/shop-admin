@@ -1,20 +1,40 @@
 import type { PriceTypeModel } from "@/app/price-types/action";
 import { createProductSpecificationAction, createSpecification } from "@/app/specifications/action";
+import { createProductStock, type WarehouseModel } from "@/app/warehouses/action";
 import { ErrorAlert } from "@/shared/ui/error-alert/ErrorAlert";
 import { UpdateToken } from "@/views/UpdateToken/UpdateToken";
 import { createProductPriceAction, fetchProductFormData } from "../action";
+import type { RemainsItem } from "../components/ProductForm/components/Stocks/ProductFormStocks";
 import { ProductForm, type SpecificationValueItem } from "../components/ProductForm/ProductForm";
 import { createProductAction, type ProductFormPayloadValues } from "./action";
 
 export default async function CreateProductPage() {
-  const [rangesData, priceTypesData, priceFill, categories, specificationsData] =
+  const [rangesData, priceTypesData, priceFill, categories, warehousesData, specificationsData] =
     await fetchProductFormData();
 
   const priceTypes = priceTypesData.data?.priceTypes || [];
   const ranges = rangesData?.data || [];
   const priceFillData = priceFill?.data || [];
   const categoriesData = categories?.data || [];
+  const warehouses = warehousesData?.data?.warehouses || [];
   const specifications = specificationsData?.data?.specifications || [];
+
+  const getInitialRemains = (warehouses: WarehouseModel[]) => {
+    const result: RemainsItem[] = [];
+
+    for (let i = 0; i < warehouses.length; i++) {
+      result.push({
+        id: warehouses[i].id,
+        name: warehouses[i].name,
+        quantity: "",
+        in_stock: false,
+      });
+    }
+
+    return result;
+  };
+
+  const initialRemains = getInitialRemains(warehouses);
 
   const getFillValuesAction = async (currentPrice: number) => {
     "use server";
@@ -74,6 +94,7 @@ export default async function CreateProductPage() {
     payload: ProductFormPayloadValues,
     typePriceValues: Record<string, string>,
     specificationsValues: SpecificationValueItem[],
+    remains: RemainsItem[],
   ) => {
     "use server";
 
@@ -81,6 +102,7 @@ export default async function CreateProductPage() {
     let errors: Record<keyof ProductFormPayloadValues, string> | null = null;
     let updateValues: ProductFormPayloadValues | null = null;
     let updateTypesPricesValues: Record<string, string> | null = null;
+    let updateRemains: RemainsItem[] | null = null;
 
     await createProductAction(payload).then(async (response) => {
       errors = response.errors;
@@ -131,10 +153,40 @@ export default async function CreateProductPage() {
                     product_id,
                     specification_id: response,
                     value: specificationValue.value,
+                  }).then((response) => {
+                    if (response === "error") {
+                      notification = {
+                        status: "error",
+                        message: "Не удалось добавить характеристику для товара",
+                      };
+                    }
                   });
                 }
               },
             );
+          }
+        }
+
+        for (let i = 0; i < remains.length; i++) {
+          const currentRemains = remains[i];
+          const quantity = Number(currentRemains.quantity);
+          if (
+            (typeof quantity === "number" && !Number.isNaN(quantity) && quantity > 0) ||
+            currentRemains.in_stock
+          ) {
+            await createProductStock({
+              quantity: quantity ? quantity : 0,
+              in_stock: currentRemains.in_stock,
+              product_id,
+              warehouse_id: currentRemains.id,
+            }).then((response) => {
+              if (response === "error") {
+                notification = {
+                  status: "error",
+                  message: "Не удалось добавить остаток на склад",
+                };
+              }
+            });
           }
         }
 
@@ -158,6 +210,7 @@ export default async function CreateProductPage() {
           purchase_price: "",
         };
         updateTypesPricesValues = initialPriceTypesValues;
+        updateRemains = initialRemains;
       } else {
         notification = {
           status: "error",
@@ -166,7 +219,7 @@ export default async function CreateProductPage() {
       }
     });
 
-    return { errors, notification, updateTypesPricesValues, updateValues };
+    return { errors, notification, updateTypesPricesValues, updateValues, updateRemains };
   };
 
   return (
@@ -191,6 +244,7 @@ export default async function CreateProductPage() {
         initialProductSpecificationValues={[
           { listId: 1, specificationId: null, label: "", value: "" },
         ]}
+        initialRemains={initialRemains}
         specifications={specifications}
         initialValues={initialValues}
         submitAction={submitAction}

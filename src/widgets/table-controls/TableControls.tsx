@@ -15,6 +15,7 @@ type Props = {
     onClick?: () => void;
   };
   customSearchInput?: React.ReactNode;
+  inputSearchLabel?: string;
 };
 
 export const TableControls = (props: Props) => {
@@ -23,7 +24,12 @@ export const TableControls = (props: Props) => {
       <div className={styles.searchInputContainer}>
         {props.customSearchInput && props.customSearchInput}
         {props.queryKey && (
-          <SearchInputQuery search={props.name || ""} queryKey={props.queryKey} key={props.name} />
+          <SearchInputQuery
+            inputSearchLabel={props.inputSearchLabel}
+            search={props.name || ""}
+            queryKey={props.queryKey}
+            key={props.name}
+          />
         )}
       </div>
       {props?.addAction?.href && (

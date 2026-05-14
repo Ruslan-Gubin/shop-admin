@@ -58,56 +58,6 @@
 
 ### Склады (Warehouses) + Product Stocks ✅ → `docs/warehouses.md`
 
-**Бизнес-логика:** Справочник складов для мультискладского учёта + остатки товаров.
-
-**Сущность:**
-
-```
-Warehouse {
-  id: number,
-  name: string,
-  address: string,
-  area: string,
-  city: string,
-  street: string,
-  house: string,
-  index: string,
-  office: string,
-  create_user_id: number,
-  description: string,
-  is_active: boolean,
-  default_warehouse: boolean,
-  is_public: boolean,
-  created_at: Date,
-  updated_at: Date,
-}
-```
-
----
-
-### Остатки на складах (Inventory) → `docs/inventory.md`
-
-**Бизнес-логика:** Связь товар ↔ склад ↔ количество.
-
-**Сущность:**
-
-```
-ProductStocks {
-  id: number,
-  warehouse_id: number,
-  product_id: number, //
-  quantity: number, // количество
-  reserved: number, // в резерве
-  available: number, // доступно
-  in_stock: boolean, // в наличии
-  accounting: boolean, // учет количества
-  create_at: Date,
-  updated_at: Date,
-}
-```
-
----
-
 ### Заказы (Orders) → `docs/orders.md`
 
 **Бизнес-логика:** Приём и управление заказами клиентов.
@@ -248,4 +198,4 @@ src/app/{module}/
 | 1.1    | 2026-05-11 | Характеристики товаров перенесены в Tier 1, добавлен документ `docs/product-features.md` |
 | 1.2    | 2026-05-13 | Specifications завершён: справочник характеристик + связь с товаром в форме              |
 | 1.3    | 2026-05-13 | Price Types + Price Auto-Fill объединены в `docs/price-modules.md`, старые файлы удалены |
-| 1.4    | 2026-05-13 | Склады + Product Stocks: начальная документация в `docs/warehouses.md`                  |
+| 1.4    | 2026-05-13 | Склады + Product Stocks: начальная документация в `docs/warehouses.md`                   |

@@ -231,6 +231,7 @@ export const PriceAutoFillTableWrapper = (props: Props) => {
           }}
           name={props.range}
           queryKey="range"
+          inputSearchLabel="Поиск по диапазону"
         />
         {isMounted && !isMobile && props.ranges && props.ranges.length > 0 && (
           <EditableTable
