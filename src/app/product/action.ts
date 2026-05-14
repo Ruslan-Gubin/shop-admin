@@ -12,7 +12,7 @@ import type {
   FetchSpecificationsResponse,
   ProductSpecificationModel,
 } from "../specifications/action";
-import type { FetchWarehousesResponse } from "../warehouses/action";
+import type { FetchWarehousesResponse, ProductStockModel } from "../warehouses/action";
 import { createProductPriceSchema } from "./schema";
 
 export interface ProductModel {
@@ -95,6 +95,8 @@ export const fetchProductFormEditData = async (id: string) => {
       ProductPriceModel[],
       ProductSpecificationModel[],
       FetchSpecificationsResponse,
+      FetchWarehousesResponse,
+      ProductStockModel[],
     ]
   >([
     {
@@ -130,6 +132,15 @@ export const fetchProductFormEditData = async (id: string) => {
       url: "specifications",
       params: { limit: "1000", page: "1", name: "" },
       tags: [`Specifications`],
+    },
+    {
+      url: "warehouses",
+      params: { limit: "100", page: "1" },
+      tags: [`Warehouses`],
+    },
+    {
+      url: `product-stock/product/${id}`,
+      tags: [`ProductStockProduct_${id}`],
     },
   ]);
 };

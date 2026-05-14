@@ -127,3 +127,45 @@ export const createProductStock = async (
 
   return "error";
 };
+
+export const updateProductStock = async (
+  payload: ProductStockPayload,
+  id: number,
+): Promise<"error" | "success"> => {
+  const { isValid } = getValidatePayload(payload, createProductStockSchema);
+
+  if (isValid) {
+    const cookieStore = await cookies();
+
+    return await fetchService
+      .patch<ProductStockModel>({
+        url: `product-stock/${id}`,
+        payload: payload,
+      })
+      .then((response) => {
+        if (response.tokens) {
+          updateTokensInAction(cookieStore, response.tokens);
+        }
+
+        return response.status;
+      });
+  }
+
+  return "error";
+};
+
+export const deleteProductStock = async (id: number): Promise<"error" | "success"> => {
+  const cookieStore = await cookies();
+
+  return await fetchService
+    .delete<null>({
+      url: `product-stock/${id}`,
+    })
+    .then((response) => {
+      if (response.tokens) {
+        updateTokensInAction(cookieStore, response.tokens);
+      }
+
+      return response.status;
+    });
+};

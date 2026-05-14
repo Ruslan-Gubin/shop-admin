@@ -2,15 +2,18 @@
 import { revalidatePath } from "next/cache";
 import type { PriceTypeModel } from "@/app/price-types/action";
 import type { ProductSpecificationModel } from "@/app/specifications/action";
+import type { ProductStockModel, WarehouseModel } from "@/app/warehouses/action";
 import { ErrorAlert } from "@/shared/ui/error-alert/ErrorAlert";
 import { UpdateToken } from "@/views/UpdateToken/UpdateToken";
 import { fetchProductFormEditData } from "../../action";
+import type { RemainsItem } from "../../components/ProductForm/components/Stocks/ProductFormStocks";
 import { ProductForm, type SpecificationValueItem } from "../../components/ProductForm/ProductForm";
 import type { ProductFormPayloadValues } from "../../create/action";
 import {
   updateProductAction,
   updateProductPriceValues,
   updateProductSpecifications,
+  updateProductStocks,
 } from "./action";
 import styles from "./EditProduct.module.css";
 
@@ -25,6 +28,8 @@ export default async function ProductEditPage({ params }: { params: Promise<{ id
     productPricesData,
     productSpecificationsData,
     specificationsData,
+    warehousesData,
+    productStocksData,
   ] = await fetchProductFormEditData(id);
 
   const productPrices = productPricesData.data || [];
@@ -33,7 +38,33 @@ export default async function ProductEditPage({ params }: { params: Promise<{ id
   const priceFillData = priceFill?.data || [];
   const categoriesData = categories?.data || [];
   const productSpecifications = productSpecificationsData?.data || [];
+  const warehouses = warehousesData?.data?.warehouses || [];
   const specifications = specificationsData?.data?.specifications || [];
+  const productStocks = productStocksData?.data || [];
+
+  const getInitialRemains = (warehouses: WarehouseModel[], productStocks: ProductStockModel[]) => {
+    const result: RemainsItem[] = [];
+
+    for (let i = 0; i < warehouses.length; i++) {
+      const productStock = productStocks.find((el) => el.warehouse_id === warehouses[i].id);
+      const quantity =
+        productStock && typeof productStock.quantity === "number"
+          ? String(productStock.quantity)
+          : "";
+      const in_stock = productStock ? Boolean(productStock.in_stock) : false;
+
+      result.push({
+        id: warehouses[i].id,
+        name: warehouses[i].name,
+        quantity,
+        in_stock,
+      });
+    }
+
+    return result;
+  };
+
+  const initialRemains = getInitialRemains(warehouses, productStocks);
 
   const getFillValuesAction = async (currentPrice: number) => {
     "use server";
@@ -123,6 +154,7 @@ export default async function ProductEditPage({ params }: { params: Promise<{ id
     payload: ProductFormPayloadValues,
     typePriceValues: Record<string, string>,
     specificationsValues: SpecificationValueItem[],
+    remains: RemainsItem[],
   ) => {
     "use server";
 
@@ -159,6 +191,15 @@ export default async function ProductEditPage({ params }: { params: Promise<{ id
           }
         });
 
+        await updateProductStocks(remains, productStocks, product_id).then((errorMessage) => {
+          if (errorMessage) {
+            notification = {
+              status: "error",
+              message: errorMessage,
+            };
+          }
+        });
+
         revalidatePath("product/edit");
 
         notification = {
@@ -173,12 +214,18 @@ export default async function ProductEditPage({ params }: { params: Promise<{ id
       }
     });
 
-    return { errors, notification, updateTypesPricesValues: null, updateValues: null };
+    return {
+      errors,
+      notification,
+      updateTypesPricesValues: null,
+      updateValues: null,
+      updateRemains: null,
+    };
   };
 
   return (
     <section className="page-wrapper">
-      {productPricesData?.tokens && <UpdateToken tokens={productPricesData.tokens} />}
+      {productStocksData?.tokens && <UpdateToken tokens={productStocksData.tokens} />}
       <h2>Редактировать товар</h2>
       {product.status === "error" && product.message && <ErrorAlert message={product.message} />}
       {rangesData.status === "error" && rangesData.message && (
@@ -199,10 +246,20 @@ export default async function ProductEditPage({ params }: { params: Promise<{ id
       {productPricesData.status === "error" && productPricesData.message && (
         <ErrorAlert message={productPricesData.message} />
       )}
+      {specificationsData.status === "error" && specificationsData.message && (
+        <ErrorAlert message={specificationsData.message} />
+      )}
+      {warehousesData.status === "error" && warehousesData.message && (
+        <ErrorAlert message={warehousesData.message} />
+      )}
+      {productStocksData.status === "error" && productStocksData.message && (
+        <ErrorAlert message={productStocksData.message} />
+      )}
 
       <div className={styles.root}>
         {product?.data && (
           <ProductForm
+            initialRemains={initialRemains}
             initialProductSpecificationValues={initialProductSpecificationValues}
             specifications={specifications}
             initialValues={initialValues}

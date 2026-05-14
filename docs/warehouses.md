@@ -1,314 +1,272 @@
-# Модуль: Склады и Остатки (Warehouses & Product Stocks)
+# Модуль "Склады"
 
-## Контекст
+## Общее описание
 
-**Цель:** Справочник складов для мультискладского учёта + остатки товаров по складам.
-**Бизнес-модель:** E-commerce с доставкой, розница/маркетплейс, несколько складов.
+Модуль управления складами позволяет создавать, редактировать и удалять склады, а также управлять остатками товаров на каждом складе.
 
----
+## Структура URL
 
-## Структура данных
+| Роут | Описание |
+|------|----------|
+| `/warehouses` | Список складов (таблица с поиском и пагинацией) |
+| `/warehouses/create` | Создание нового склада |
+| `/warehouses/edit/[id]` | Редактирование существующего склада |
 
-### Warehouse (Склад)
+## Модель данных
 
-````typescript
-interface WarehouseModel {
-  id: number;
-  name: string;              // Название склада
-  address: string;           // Полный адрес
-  area: string;              // Район
-## Контекст
-
-**Цель:** Справочник складов для мультискладского учёта + остатки товаров по складам.
-**Бизнес-модель:** E-commerce с доставкой, розница/маркетплейс, несколько складов.
-
----
-
-## Структура данных
-
-### Warehouse (Склад)
+### WarehouseModel
 
 ```typescript
-interface WarehouseModel {
+type WarehouseModel = {
   id: number;
-  name: string;              // Название склада
-  address: string;           // Полный адрес
-  area: string;              // Район
-  city: string;               // Город
-  street: string;             // Улица
-  house: string;              // Дом
-  index: string;              // Почтовый индекс
-  office: string;             // Офис/квартира
-  create_user_id: number;     // ID создателя
-  description: string;         // Описание
-  is_active: boolean;          // Активен
-  default_warehouse: boolean;  // Склад по умолчанию
-  is_public: boolean;         // Публичный (видим клиентам)
-  created_at: Date;
-  updated_at: Date | null;
-}
-````
-
-**Поля:**
-
-| Поле                | Тип     | Описание                                        |
-| ------------------- | ------- | ----------------------------------------------- |
-| `id`                | number  | Уникальный идентификатор                        |
-| `name`              | string  | Название ("Склад Москва", "Филиал Центральный") |
-| `address`           | string  | Полный адрес (формируется из частей)            |
-| `area`              | string  | Район                                           |
-| `city`              | string  | Город                                           |
-| `street`            | string  | Улица                                           |
-| `house`             | string  | Дом                                             |
-| `index`             | string  | Почтовый индекс                                 |
-| `office`            | string  | Офис/квартира                                   |
-| `create_user_id`    | number  | ID пользователя, создавшего склад               |
-| `description`       | string  | Описание склада                                 |
-| `is_active`         | boolean | Активен (можно использовать)                    |
-| `default_warehouse` | boolean | Склад по умолчанию (для новых товаров)          |
-| `is_public`         | boolean | Публичный (виден клиентам)                      |
-| `created_at`        | Date    | Дата создания                                   |
-| `updated_at`        | Date    | Дата обновления                                 |
-
-**Логика полей:**
-
-- `default_warehouse: true` — только один склад может быть по умолчанию
-- `is_public: true` — склад отображается клиентам при выборе доставки
-- `is_active: false` — склад暂时 не используется (soft disable)
-  city: string; // Город
-  street: string; // Улица
-  house: string; // Дом
-  index: string; // Почтовый индекс
-  office: string; // Офис/квартира
-  create_user_id: number; // ID создателя
-  description: string; // Описание
-  is_active: boolean; // Активен
-  default_warehouse: boolean; // Склад по умолчанию
-  is_public: boolean; // Публичный (видим клиентам)
-  created_at: Date;
-  updated_at: Date | null;
-  }
-
-````
-
-**Поля:**
-
-| Поле             | Тип      | Описание                                      |
-| ---------------- | -------- | --------------------------------------------- |
-| `id`             | number   | Уникальный идентификатор                      |
-| `name`           | string   | Название ("Склад Москва", "Филиал Центральный") |
-| `address`        | string   | Полный адрес (формируется из частей)           |
-| `area`           | string   | Район                                         |
-| `city`           | string   | Город                                         |
-| `street`         | string   | Улица                                         |
-| `house`          | string   | Дом                                           |
-| `index`          | string   | Почтовый индекс                               |
-| `office`         | string   | Офис/квартира                                 |
-| `create_user_id` | number   | ID пользователя, создавшего склад             |
-| `description`    | string   | Описание склада                               |
-| `is_active`      | boolean  | Активен (можно использовать)                   |
-| `default_warehouse` | boolean | Склад по умолчанию (для новых товаров)      |
-| `is_public`      | boolean  | Публичный (виден клиентам)                    |
-| `created_at`     | Date     | Дата создания                                 |
-| `updated_at`     | Date     | Дата обновления                               |
-
-**Логика полей:**
-
-- `default_warehouse: true` — только один склад может быть по умолчанию
-- `is_public: true` — склад отображается клиентам при выборе доставки
-- `is_active: false` — склад暂时 не используется (soft disable)
-
----
-
-### ProductStock (Остатки товара на складе)
-
-```typescript
-interface ProductStockModel {
-  id: number;
-  warehouse_id: number;   // FK → Warehouse
-  product_id: number;     // FK → Product
-  quantity: number;        // Общее количество
-  reserved: number;        // В резерве (зарезервировано в заказах)
-  available: number;       // Доступно (quantity - reserved)
-  in_stock: boolean;       // В наличии (доступно > 0)
-  accounting: boolean;     // Включить учёт количества
-  created_at: Date;
-  updated_at: Date | null;
-}
-````
-
-**Поля:**
-
-| Поле           | Тип     | Описание                                   |
-| -------------- | ------- | ------------------------------------------ |
-| `id`           | number  | Уникальный идентификатор                   |
-| `warehouse_id` | number  | FK → Warehouse                             |
-| `product_id`   | number  | FK → Product                               |
-| `quantity`     | number  | Общее количество товара на складе          |
-| `reserved`     | number  | Зарезервировано (в обработке заказов)      |
-| `available`    | number  | Доступно для продажи (quantity - reserved) |
-| `in_stock`     | boolean | В наличии (available > 0)                  |
-| `accounting`   | boolean | Включить учёт количества для этого товара  |
-| `created_at`   | Date    | Дата создания                              |
-| `updated_at`   | Date    | Дата обновления                            |
-
-**Логика полей:**
-
-- `available = quantity - reserved`
-- `in_stock = available > 0`
-- `accounting: false` — товар не отслеживается по количеству (бесконечный остаток)
-
-**Примеры:**
-
-```json
-// Товар в наличии
-{
-  "id": 1,
-  "warehouse_id": 1,
-  "product_id": 100,
-  "quantity": 50,
-  "reserved": 10,
-  "available": 40,
-  "in_stock": true,
-  "accounting": true
-}
-
-// Товар в резерве (ожидает отгрузки)
-{
-  "id": 2,
-  "warehouse_id": 1,
-  "product_id": 101,
-  "quantity": 20,
-  "reserved": 20,
-  "available": 0,
-  "in_stock": false,
-  "accounting": true
-}
-
-// Товар без учёта количества
-{
-  "id": 3,
-  "warehouse_id": 1,
-  "product_id": 102,
-  "quantity": 0,
-  "reserved": 0,
-  "available": 0,
-  "in_stock": true,
-  "accounting": false
-}
+  name: string;                    // Название склада
+  address: string;                 // Полный адрес
+  area: string;                    // Район
+  city: string;                    // Город
+  street: string;                  // Улица
+  house: string;                   // Дом
+  index: string;                   // Почтовый индекс
+  office: string;                  // Офис/Квартира
+  description: string;             // Описание
+  create_user_id: number;          // ID создателя
+  is_active: boolean;              // Активен (по умолчанию true)
+  default_warehouse: boolean;      // Склад по умолчанию
+  is_public: boolean;               // Публичный (виден клиентам, по умолчанию true)
+  created_at: string;
+  updated_at: string | null;
+};
 ```
 
----
+### WarehousePayload (для создания/обновления)
 
-## API эндпоинты
+```typescript
+type WarehousePayload = {
+  name: string;
+  address: string;
+  area: string;
+  city: string;
+  street: string;
+  house: string;
+  index: string;
+  office: string;
+  description: string;
+  is_active: boolean;
+  default_warehouse: boolean;
+  is_public: boolean;
+};
+```
 
-### Warehouses (склады)
+## Валидация (Zod Schema)
 
-| Метод  | URL                  | Параметры                      | Описание         |
-| ------ | -------------------- | ------------------------------ | ---------------- |
-| GET    | `/warehouses`        | `name`, `limit`, `page`        | Список складов   |
-| GET    | `/warehouses/{id}`   | —                              | Один склад по ID |
-| POST   | `/warehouses/create` | `{ name, address, city, ... }` | Создать склад    |
-| PATCH  | `/warehouses/{id}`   | `{ name?, is_active?, ... }`   | Обновить склад   |
-| DELETE | `/warehouses/{id}`   | —                              | Удалить склад    |
+### createWarehouseSchema
 
-### Product Stocks (остатки)
+| Поле | Правила |
+|------|---------|
+| `name` | Обязательно, 2-100 символов |
+| `address` | Максимум 200 символов |
+| `area` | Максимум 100 символов |
+| `city` | Максимум 100 символов |
+| `street` | Максимум 200 символов |
+| `house` | Максимум 50 символов |
+| `index` | Максимум 20 символов |
+| `office` | Максимум 50 символов |
+| `description` | Максимум 1000 символов |
+| `is_active` | boolean |
+| `default_warehouse` | boolean |
+| `is_public` | boolean |
 
-| Метод  | URL                              | Параметры                           | Описание             |
-| ------ | -------------------------------- | ----------------------------------- | -------------------- |
-| GET    | `/product-stocks`                | `warehouse_id`, `product_id`        | Остатки (фильтрация) |
-| GET    | `/product-stocks/product/{id}`   | —                                   | Остатки товара       |
-| GET    | `/product-stocks/warehouse/{id}` | —                                   | Остатки склада       |
-| POST   | `/product-stocks/create`         | `{ warehouse_id, product_id, ... }` | Создать остаток      |
-| PATCH  | `/product-stocks/{id}`           | `{ quantity?, reserved?, ... }`     | Обновить остаток     |
-| DELETE | `/product-stocks/{id}`           | —                                   | Удалить остаток      |
+## API Endpoints (fetchService)
 
----
+| Метод | URL | Описание |
+|-------|-----|----------|
+| `GET` | `warehouses` | Получить список складов (params: limit, page, name) |
+| `GET` | `warehouses/${id}` | Получить один склад по ID |
+| `POST` | `warehouses/create` | Создать новый склад |
+| `PATCH` | `warehouses/${id}` | Обновить склад |
+| `DELETE` | `warehouses/${id}` | Удалить склад |
 
-## UI / Компоненты
+## Компоненты
 
-### `/warehouses` — Справочник складов
+### 1. WarehousesTableWrapper
 
-**Функциональность:**
+**Путь:** `src/app/warehouses/components/WarehousesTableWrapper/WarehousesTableWrapper.tsx`
 
-- Таблица складов (desktop + mobile)
-- Фильтрация по названию, статусу (активные/неактивные)
-- Создание/редактирование/удаление
-- Флаг "Склад по умолчанию"
-- Флаг "Публичный"
+Обёртка таблицы с модальным окном удаления.
+
+**Props:**
+```typescript
+type Props = {
+  warehouses: WarehouseModel[];
+  onDeleteItemAction: (id: number) => Promise<{ status: "error" | "success"; message: string }>;
+  redirectPageAfterDeleteAction: () => void;
+  name: string;
+  isLoadMoreDisabled: boolean;
+  patch: string;
+  searchParams: { [key: string]: string | string[] | undefined };
+  fetchTableElementAction: (id: string) => Promise<ResponseData<WarehouseModel>>;
+};
+```
+
+**Функционал:**
+- Отображение данных в таблице (Desktop) или мобильной таблице (Mobile)
+- Редактирование по клику на строку → редирект на `/warehouses/edit/${id}`
+- Удаление с подтверждением через модальное окно
+- Поиск по названию
 - Пагинация
 
-**Форма модалки:**
+**Колонки таблицы:**
+| ID | Название | Адрес | Город | Активен | Публичный | Склад по умолчанию | Действия |
+|----|----------|-------|-------|---------|-----------|---------------------|----------|
+| id | name | address | city | boolean (Да/Нет) | boolean (Да/Нет) | boolean (Да/Нет) | Edit/Delete |
 
-```
-Название:        [___________________________]
-Город:           [___________________________]
-Улица:           [___________________________]
-Дом:             [___________________________]
-Офис:            [___________________________]
-Индекс:          [___________________________]
-Район:           [___________________________]
-Описание:        [___________________________]
+**Grid layout:** `65px minmax(150px, 1fr) minmax(120px, 180px) minmax(100px, 150px) 100px 100px 170px 58px`
 
-[✓] Активен
-[✓] Склад по умолчанию
-[✓] Публичный (виден клиентам)
-```
+### 2. WarehouseForm
 
----
+**Путь:** `src/app/warehouses/components/WarehouseForm/WarehouseForm.tsx`
 
-### Блок остатков в форме товара
+Форма создания/редактирования склада.
 
-**Расположение:** Форма редактирования/создания товара
-
-**UI таблица остатков:**
-
-| Склад           | Кол-во | Зарезервировано | Доступно | В наличии | Учёт |
-| --------------- | ------ | --------------- | -------- | --------- | ---- |
-| Москва          | [50]   | 10              | 40       | ✓         | [✓]  |
-| Санкт-Петербург | [30]   | 5               | 25       | ✓         | [✓]  |
-| Екатеринбург    | [0]    | 0               | 0        | ✗         | [✓]  |
-
-**Колонки:**
-
-- Склад — название склада
-- Кол-во — общее количество (editable)
-- Зарезервировано — readonly (системное поле)
-- Доступно — readonly (calculated: quantity - reserved)
-- В наличии — readonly (checkbox: available > 0)
-- Учёт — checkbox (включить/выключить учёт количества)
-
-**Функциональность:**
-
-- Редактирование количества inline
-- Включение/выключение учёта
-- Автоматический расчёт available и in_stock
-
----
-
-## Файловая структура (план)
-
-```
-src/app/warehouses/
-├── page.tsx                                        # Server Component
-├── action.ts                                       # Server Actions (CRUD)
-├── schema.ts                                       # Zod схемы валидации
-└── components/
-    ├── WarehousesTableWrapper/
-    │   └── WarehousesTableWrapper.tsx              # Client Component
-    └── modal-warehouse-form/
-        └── ModalWarehouseForm.tsx                 # Модалка формы
-
-src/app/product/components/ProductForm/components/Stocks/
-├── ProductFormStocks.tsx                          # Блок остатков в форме
-└── ProductFormStocks.module.css
+**Props:**
+```typescript
+type Props = {
+  submitAction: (payload: WarehousePayload) => Promise<{
+    errors: Record<keyof WarehousePayload, string> | null;
+    notification: { status: "error" | "success"; message: string } | null;
+    updateValues: WarehousePayload | null;
+  }>;
+  initValues: WarehousePayload;
+  initErrors: Record<keyof WarehousePayload, string>;
+  variant: "create" | "edit";
+};
 ```
 
----
+**Поля формы:**
+| Поле | Тип | Обязательно | Описание |
+|------|-----|-------------|----------|
+| Название | Input | Да | 2-100 символов |
+| Полный адрес | Input | Нет | До 200 символов |
+| Город | Input | Нет | До 100 символов |
+| Улица | Input | Нет | До 200 символов |
+| Дом | Input | Нет | До 50 символов |
+| Офис/Квартира | Input | Нет | До 50 символов |
+| Почтовый индекс | Input | Нет | До 20 символов |
+| Район | Input | Нет | До 100 символов |
+| Описание | Input | Нет | До 1000 символов |
+| Активен | Checkbox | Нет | По умолчанию true |
+| Публичный (виден клиентам) | Checkbox | Нет | По умолчанию true |
+| Склад по умолчанию | Checkbox | Нет | По умолчанию false |
 
-## Версионирование
+**Начальные значения (create):**
+```typescript
+{
+  name: "",
+  address: "",
+  area: "",
+  city: "",
+  street: "",
+  house: "",
+  index: "",
+  office: "",
+  description: "",
+  is_active: true,
+  default_warehouse: false,
+  is_public: true,
+}
+```
 
-| Версия | Дата       | Изменения                   |
-| ------ | ---------- | --------------------------- |
-| 1.0    | 2026-05-13 | Начальная версия (набросок) |
+## Экшены (Server Actions)
 
+### 1. fetchWarehouses
+
+```typescript
+fetchWarehouses(limit: string, page?: string, name?: string): Promise<FetchWarehousesResponse>
+```
+
+**Response:**
+```typescript
+{
+  paginationPage: string;
+  warehouses: WarehouseModel[];
+  totalCount: number;
+}
+```
+
+### 2. fetchWarehouse
+
+```typescript
+fetchWarehouse(id: string): Promise<ResponseData<WarehouseModel>>
+```
+
+### 3. createWarehouseAction
+
+```typescript
+createWarehouseAction(payload: WarehousePayload): Promise<{
+  status: "error" | "success";
+  errors: Record<keyof WarehousePayload, string>;
+  data: WarehouseModel | null;
+}>
+```
+
+### 4. updateWarehouseAction
+
+```typescript
+updateWarehouseAction(payload: WarehousePayload, id: string): Promise<{
+  status: "error" | "success";
+  errors: Record<keyof WarehousePayload, string>;
+}>
+```
+
+### 5. deleteWarehouseAction
+
+```typescript
+deleteWarehouseAction(id: number): Promise<{ status: "error" | "success"; message: string }>
+```
+
+**Особенности:**
+- Инвалидирует тег `Warehouses`
+- Удаляет cookie после успешного удаления
+- Редиректит на предыдущую страницу если удалён последний элемент
+
+## Интеграция с Product Stock
+
+Модуль складов связан с товарами через остатки (`product-stock`):
+
+| Экшен | URL | Описание |
+|-------|-----|----------|
+| `createProductStock` | `product-stock/create` | Создать остаток товара на складе |
+| `updateProductStock` | `product-stock/${id}` | Обновить остаток |
+| `deleteProductStock` | `product-stock/${id}` | Удалить остаток |
+
+**ProductStockModel:**
+```typescript
+type ProductStockModel = {
+  id: number;
+  warehouse_id: number;
+  product_id: number;
+  quantity: number;
+  reserved: number;
+  available: number;
+  in_stock: boolean;
+  accounting: boolean;
+  created_at: string;
+  updated_at: string | null;
+};
+```
+
+## Связь с навигацией
+
+Модуль доступен из меню:
+- **Склады** `/warehouses` — иконка `WarehousesSvg`
+- **Создать склад** `/warehouses/create` — дочерний пункт меню
+
+## Кэширование
+
+- Тег `Warehouses` — для инвалидации списка складов
+- Тег `Warehouses_${id}` — для инвалидации конкретного склада
+
+## Примечания
+
+1. При удалении последнего склада на странице происходит редирект на предыдущую страницу
+2. Редактирование товара (`product/edit`) триггерит revalidatePath после успешного обновления склада
+3. Все операции используют fetchService с автоматическим обновлением токенов

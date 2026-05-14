@@ -236,6 +236,9 @@ export default async function CreateProductPage() {
       {priceFill.status === "error" && priceFill.message && (
         <ErrorAlert message={priceFill.message} />
       )}
+      {warehousesData.status === "error" && warehousesData.message && (
+        <ErrorAlert message={warehousesData.message} />
+      )}
       {categories.status === "error" && categories.message && (
         <ErrorAlert message={categories.message} />
       )}

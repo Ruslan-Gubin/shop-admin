@@ -21,6 +21,13 @@ import {
 import type { SpecificationValueItem } from "../../components/ProductForm/ProductForm";
 import type { ProductFormPayload, ProductFormPayloadValues } from "../../create/action";
 import { createProductSchema } from "../../create/schema";
+import {
+  createProductStock,
+  deleteProductStock,
+  ProductStockModel,
+  updateProductStock,
+} from "@/app/warehouses/action";
+import { RemainsItem } from "../../components/ProductForm/components/Stocks/ProductFormStocks";
 
 export const fetchProduct = async (id: string) => {
   return await fetchService.get<ProductModel>({
@@ -196,6 +203,66 @@ export const updateProductSpecifications = async (
       await deleteProductSpecificationAction(productSpecification.id).then((response) => {
         if (response === "error") {
           errorMessage = "Не удалось удалить характеристику для товара";
+        }
+      });
+    }
+  }
+
+  return errorMessage;
+};
+
+export const updateProductStocks = async (
+  remains: RemainsItem[],
+  productStocks: ProductStockModel[],
+  product_id: string,
+) => {
+  let errorMessage = "";
+
+  for (let i = 0; i < remains.length; i++) {
+    const currentRemains = remains[i];
+    const quantity = Number(currentRemains.quantity);
+    const productStock = productStocks.find((el) => el.warehouse_id === currentRemains.id);
+
+    if (
+      !productStock &&
+      ((typeof quantity === "number" && !Number.isNaN(quantity) && quantity > 0) ||
+        currentRemains.in_stock)
+    ) {
+      await createProductStock({
+        quantity: quantity ? quantity : 0,
+        in_stock: currentRemains.in_stock,
+        product_id: Number(product_id),
+        warehouse_id: currentRemains.id,
+      }).then((response) => {
+        if (response === "error") {
+          errorMessage = "Не удалось добавить остаток на склад";
+        }
+      });
+    }
+
+    if (
+      productStock &&
+      (productStock.quantity !== quantity || productStock.in_stock !== currentRemains.in_stock)
+    ) {
+      await updateProductStock(
+        {
+          quantity: quantity ? quantity : productStock.quantity,
+          in_stock: currentRemains.in_stock,
+          product_id: productStock.product_id,
+          warehouse_id: productStock.warehouse_id,
+        },
+        productStock.id,
+      ).then((response) => {
+        if (response === "error") {
+          errorMessage = "Не удалось изменить остаток";
+        }
+      });
+    }
+
+    if (productStock && !quantity && !currentRemains.in_stock) {
+      await deleteProductStock(productStock.id).then((response) => {
+        if (response === "error") {
+          errorMessage = "Не удалось удалить остаток";
         }
       });
     }
