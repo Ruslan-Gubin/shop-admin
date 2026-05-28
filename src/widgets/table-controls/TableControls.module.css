@@ -2,6 +2,12 @@
   display: flex;
   column-gap: 24px;
   align-items: center;
+
+  @media (max-width: 500px) {
+    flex-direction: column-reverse;
+    row-gap: 12px;
+    align-items: flex-end;
+  }
 }
 .searchInputContainer {
   width: 100%;

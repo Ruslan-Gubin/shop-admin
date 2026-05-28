@@ -10,6 +10,7 @@ import { PriceAutoFillSvg } from "./svg/PriceAutoFillSvg";
 import { PriceTypeSvg } from "./svg/PriceTypeSvg";
 import { PromotionsSvg } from "./svg/PromotionsSvg";
 import { RegisterSvg } from "./svg/RegisterSvg";
+import { SearchSvg } from "./svg/SearchSvg";
 import { UsersSvg } from "./svg/UsersSvg";
 import { WarehousesSvg } from "./svg/WarehousesSvg";
 
@@ -79,6 +80,12 @@ export const LayoutLeftSide = () => {
       label: "Характеристики",
       href: "/specifications",
       icon: <FeaturesSvg />,
+      children: [],
+    },
+    {
+      label: "Поисковые запросы",
+      href: "/search-queries",
+      icon: <SearchSvg />,
       children: [],
     },
     {

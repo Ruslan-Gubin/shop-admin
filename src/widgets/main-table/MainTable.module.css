@@ -146,3 +146,11 @@
   border-radius: 50%;
   object-fit: cover;
 }
+
+.buttonHidden {
+  opacity: 0;
+  cursor: default;
+  & svg {
+    visibility: hidden;
+  }
+}

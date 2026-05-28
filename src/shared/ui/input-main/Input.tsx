@@ -53,6 +53,7 @@ export const Input = ({
         <button
           disabled={!onClickLeftIcon}
           type="button"
+          className={styles.leftIconButton}
           onClick={onClickLeftIcon && onClickLeftIcon}
         >
           {leftIcon}

@@ -253,6 +253,7 @@ export const MainMobileTable = <T extends { id: number }>(props: Props<T>) => {
           actions={
             <>
               <button
+                className={!props.onEditAction ? styles.buttonHidden : ""}
                 type="button"
                 onClick={() => props.onEditAction?.(item)}
                 aria-label="Редактировать"
@@ -260,6 +261,7 @@ export const MainMobileTable = <T extends { id: number }>(props: Props<T>) => {
                 <EditSvg fill="#727280" />
               </button>
               <button
+                className={!props.onDeleteAction ? styles.buttonHidden : ""}
                 type="button"
                 onClick={() => props.onDeleteAction?.(item.id)}
                 aria-label="Удалить"
