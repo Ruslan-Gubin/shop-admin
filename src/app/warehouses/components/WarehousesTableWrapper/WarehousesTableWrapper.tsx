@@ -74,8 +74,8 @@ export const WarehousesTableWrapper = (props: Props) => {
   const tableOptions: RenderTableOptions<WarehouseModel>[] = [
     { key: "id" },
     { key: "name" },
-    { key: "address" },
-    { key: "city" },
+    { key: "address", nextKey: "name" },
+    { key: "address", nextKey: "place" },
     { key: "is_active", type: "boolean", typeConfig: { booleanLabels: ["Да", "Нет"] } },
     { key: "is_public", type: "boolean", typeConfig: { booleanLabels: ["Да", "Нет"] } },
     { key: "default_warehouse", type: "boolean", typeConfig: { booleanLabels: ["Да", "Нет"] } },

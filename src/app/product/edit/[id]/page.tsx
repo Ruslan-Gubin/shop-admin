@@ -46,7 +46,10 @@ export default async function ProductEditPage({ params }: { params: Promise<{ id
     const result: RemainsItem[] = [];
 
     for (let i = 0; i < warehouses.length; i++) {
-      const productStock = productStocks.find((el) => el.warehouse_id === warehouses[i].id);
+      const productStock = productStocks.find(
+        (el) => el.warehouse && el.warehouse.id === warehouses[i].id,
+      );
+
       const quantity =
         productStock && typeof productStock.quantity === "number"
           ? String(productStock.quantity)

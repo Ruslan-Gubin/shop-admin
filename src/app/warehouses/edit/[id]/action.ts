@@ -3,8 +3,16 @@ import { fetchService } from "@/shared/fetch-api";
 import { updateTokensInAction } from "@/shared/helpers/updateCookieAction";
 import { getValidatePayload } from "@/shared/services/get-form-action-state";
 import { setErrorFromServer } from "@/shared/services/set-new-store-error-from-server";
+import type { WarehouseModel } from "../../action";
 import type { WarehousePayload } from "../../create/action";
 import { createWarehouseSchema } from "../../create/schema";
+
+export const fetchWarehouseEditPage = async (id: string) => {
+  return await fetchService.get<WarehouseModel>({
+    url: `warehouses/${id}`,
+    tags: [`Warehouses_${id}`],
+  });
+};
 
 export const updateWarehouseAction = async (
   payload: WarehousePayload,

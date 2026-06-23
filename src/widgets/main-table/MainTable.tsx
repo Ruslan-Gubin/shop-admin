@@ -8,6 +8,7 @@ type CellType = "date" | "shortDate" | "boolean" | "badge" | "avatar" | "transla
 
 export type RenderTableOptions<T> = {
   key: keyof T;
+  nextKey?: string;
   type?: CellType;
   typeConfig?: {
     booleanLabels?: string[];
@@ -60,9 +61,16 @@ export const MainTable = <T extends { id: number }>(props: Props<T>) => {
             className={styles.dataRow}
           >
             {props.tableOptions.map((cell) => (
-              <td key={cell.key as string} className={styles.dataCell}>
+              <td
+                key={`${cell.key as string} ${cell.nextKey as string}`}
+                className={styles.dataCell}
+              >
                 {!cell.type && typeof cell.key === "string" && (
-                  <p className={styles.textOverflowLine}>{(item[cell.key] as string) || "---"}</p>
+                  <p className={styles.textOverflowLine}>
+                    {cell.nextKey
+                      ? (item[cell.key][cell.nextKey] as string) || "---"
+                      : (item[cell.key] as string) || "---"}
+                  </p>
                 )}
 
                 {cell.type === "translate" &&

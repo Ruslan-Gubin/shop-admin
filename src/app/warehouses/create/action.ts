@@ -6,19 +6,27 @@ import { setErrorFromServer } from "@/shared/services/set-new-store-error-from-s
 import type { WarehouseModel } from "../action";
 import { createWarehouseSchema } from "./schema";
 
+export const fetchDefaultWarehouse = async () => {
+  return await fetchService.get<WarehouseModel>({
+    url: "warehouses/default",
+    tags: ["WarehousesDefault"],
+  });
+};
+
 export type WarehousePayload = {
   name: string;
-  address: string;
-  area: string;
-  city: string;
-  street: string;
-  house: string;
-  index: string;
-  office: string;
   description: string;
   is_active: boolean;
   default_warehouse: boolean;
   is_public: boolean;
+  address_name: string;
+  place: string;
+  lng: number;
+  lat: number;
+  entrance: string;
+  flat: string;
+  floor: string;
+  intercom: string;
 };
 
 export const createWarehouseAction = async (
@@ -36,7 +44,7 @@ export const createWarehouseAction = async (
     return await fetchService
       .post<WarehouseModel>({
         url: "warehouses/create",
-        payload: payload,
+        payload,
       })
       .then((response) => {
         if (response.tokens) {

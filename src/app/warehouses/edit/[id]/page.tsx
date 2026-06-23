@@ -1,11 +1,12 @@
 "use server";
 import { revalidatePath } from "next/cache";
+import { fetchReverseAction } from "@/app/action";
+import { CONFIG_APP } from "@/shared/config/config";
 import { ErrorAlert } from "@/shared/ui/error-alert/ErrorAlert";
 import { UpdateToken } from "@/views/UpdateToken/UpdateToken";
-import { fetchWarehouse } from "../../action";
 import { WarehouseForm } from "../../components/WarehouseForm/WarehouseForm";
 import type { WarehousePayload } from "../../create/action";
-import { updateWarehouseAction } from "./action";
+import { fetchWarehouseEditPage, updateWarehouseAction } from "./action";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -13,20 +14,26 @@ type Props = {
 
 export default async function EditWarehousePage(props: Props) {
   const { id } = await props.params;
-  const warehouseData = await fetchWarehouse(id);
+  const warehouseData = await fetchWarehouseEditPage(id);
 
   const warehouse = warehouseData.data;
 
+  const defaultCenter =
+    warehouse?.address?.lng && warehouse?.address?.lat
+      ? { lng: warehouse.address.lng, lat: warehouse.address.lat }
+      : { lng: 37.80358599891716, lat: 48.013597598505555 };
+
   const initValue: WarehousePayload = {
     name: warehouse?.name || "",
-    address: warehouse?.address || "",
-    area: warehouse?.area || "",
-    city: warehouse?.city || "",
-    street: warehouse?.street || "",
-    house: warehouse?.house || "",
-    index: warehouse?.index || "",
-    office: warehouse?.office || "",
     description: warehouse?.description || "",
+    address_name: warehouse?.address?.name || "",
+    entrance: warehouse?.address?.entrance || "",
+    flat: warehouse?.address?.flat || "",
+    floor: warehouse?.address?.floor || "",
+    intercom: warehouse?.address?.intercom || "",
+    place: warehouse?.address?.place || "",
+    lng: warehouse?.address?.lng || 0,
+    lat: warehouse?.address?.lat || 0,
     is_active: warehouse ? warehouse.is_active : false,
     default_warehouse: warehouse ? warehouse.default_warehouse : false,
     is_public: warehouse ? warehouse.is_public : false,
@@ -64,21 +71,26 @@ export default async function EditWarehousePage(props: Props) {
       <h2>Редактировать склад</h2>
       {!warehouseData.data && <ErrorAlert message={warehouseData.message || "Склад не найден"} />}
       <WarehouseForm
+        mapStyle={CONFIG_APP.MAPBOX_STYLE}
+        mapToken={CONFIG_APP.MAPBOX_ACCESS_TOKEN}
+        fetchReverseAction={fetchReverseAction}
+        initCenter={defaultCenter}
         submitAction={submitAction}
         initValues={initValue}
         initErrors={{
           name: "",
-          address: "",
-          area: "",
-          city: "",
-          default_warehouse: "",
-          house: "",
-          index: "",
           description: "",
+          default_warehouse: "",
           is_active: "",
           is_public: "",
-          office: "",
-          street: "",
+          address_name: "",
+          entrance: "",
+          flat: "",
+          floor: "",
+          intercom: "",
+          lat: "",
+          lng: "",
+          place: "",
         }}
         variant="edit"
       />

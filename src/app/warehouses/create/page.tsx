@@ -1,18 +1,28 @@
 "use server";
+import { fetchReverseAction } from "@/app/action";
+import { CONFIG_APP } from "@/shared/config/config";
+import { UpdateToken } from "@/views/UpdateToken/UpdateToken";
 import { WarehouseForm } from "../components/WarehouseForm/WarehouseForm";
-import { createWarehouseAction, type WarehousePayload } from "./action";
+import { createWarehouseAction, fetchDefaultWarehouse, type WarehousePayload } from "./action";
 
 export default async function CreateWarehousePage() {
+  const defaultWarehouse = await fetchDefaultWarehouse();
+  const defaultCenter =
+    defaultWarehouse?.data?.address?.lng && defaultWarehouse?.data?.address?.lat
+      ? { lng: defaultWarehouse.data.address.lng, lat: defaultWarehouse.data.address.lat }
+      : { lng: 37.80358599891716, lat: 48.013597598505555 };
+
   const initValue: WarehousePayload = {
     name: "",
-    address: "",
-    area: "",
-    city: "",
-    street: "",
-    house: "",
-    index: "",
-    office: "",
     description: "",
+    address_name: "",
+    entrance: "",
+    flat: "",
+    floor: "",
+    intercom: "",
+    place: "",
+    lng: 0,
+    lat: 0,
     is_active: true,
     default_warehouse: false,
     is_public: true,
@@ -47,28 +57,35 @@ export default async function CreateWarehousePage() {
   };
 
   return (
-    <section className="page-wrapper">
-      <h2>Создать склад</h2>
-      <WarehouseForm
-        submitAction={submitAction}
-        initValues={initValue}
-        variant="create"
-        initErrors={{
-          name: "",
-          address: "",
-          area: "",
-          city: "",
-          default_warehouse: "",
-          house: "",
-          index: "",
-          description: "",
-          is_active: "",
-          is_public: "",
-          office: "",
-          street: "",
-        }}
-      />
-    </section>
+    <>
+      {defaultWarehouse?.tokens && <UpdateToken tokens={defaultWarehouse.tokens} />}
+      <section className="page-wrapper">
+        <h2>Создать склад</h2>
+        <WarehouseForm
+          initCenter={defaultCenter}
+          fetchReverseAction={fetchReverseAction}
+          mapStyle={CONFIG_APP.MAPBOX_STYLE}
+          mapToken={CONFIG_APP.MAPBOX_ACCESS_TOKEN}
+          submitAction={submitAction}
+          initValues={initValue}
+          variant="create"
+          initErrors={{
+            name: "",
+            description: "",
+            default_warehouse: "",
+            is_active: "",
+            is_public: "",
+            address_name: "",
+            entrance: "",
+            flat: "",
+            floor: "",
+            intercom: "",
+            lat: "",
+            lng: "",
+            place: "",
+          }}
+        />
+      </section>
+    </>
   );
 }
-

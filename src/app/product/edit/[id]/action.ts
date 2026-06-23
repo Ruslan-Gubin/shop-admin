@@ -7,6 +7,12 @@ import {
   type ProductSpecificationModel,
   updateProductSpecificationAction,
 } from "@/app/specifications/action";
+import {
+  createProductStock,
+  deleteProductStock,
+  type ProductStockModel,
+  updateProductStock,
+} from "@/app/warehouses/action";
 import { fetchService } from "@/shared/fetch-api";
 import { updateTokensInAction } from "@/shared/helpers/updateCookieAction";
 import { getValidatePayload } from "@/shared/services/get-form-action-state";
@@ -18,16 +24,10 @@ import {
   type ProductModel,
   type ProductPriceModel,
 } from "../../action";
+import type { RemainsItem } from "../../components/ProductForm/components/Stocks/ProductFormStocks";
 import type { SpecificationValueItem } from "../../components/ProductForm/ProductForm";
 import type { ProductFormPayload, ProductFormPayloadValues } from "../../create/action";
 import { createProductSchema } from "../../create/schema";
-import {
-  createProductStock,
-  deleteProductStock,
-  ProductStockModel,
-  updateProductStock,
-} from "@/app/warehouses/action";
-import { RemainsItem } from "../../components/ProductForm/components/Stocks/ProductFormStocks";
 
 export const fetchProduct = async (id: string) => {
   return await fetchService.get<ProductModel>({
@@ -221,7 +221,7 @@ export const updateProductStocks = async (
   for (let i = 0; i < remains.length; i++) {
     const currentRemains = remains[i];
     const quantity = Number(currentRemains.quantity);
-    const productStock = productStocks.find((el) => el.warehouse_id === currentRemains.id);
+    const productStock = productStocks.find((el) => el.warehouse.id === currentRemains.id);
 
     if (
       !productStock &&
@@ -248,8 +248,8 @@ export const updateProductStocks = async (
         {
           quantity: quantity ? quantity : productStock.quantity,
           in_stock: currentRemains.in_stock,
-          product_id: productStock.product_id,
-          warehouse_id: productStock.warehouse_id,
+          product_id: productStock.product.id,
+          warehouse_id: productStock.warehouse.id,
         },
         productStock.id,
       ).then((response) => {

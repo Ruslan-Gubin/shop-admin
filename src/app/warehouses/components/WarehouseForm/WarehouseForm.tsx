@@ -6,6 +6,7 @@ import { CancelSvg } from "@/shared/svg/CancelSvg";
 import { Button } from "@/shared/ui/button-main/Button";
 import { Checkbox } from "@/shared/ui/checkbox/Checkbox";
 import { Input } from "@/shared/ui/input-main/Input";
+import { type AddressItem, MapBox } from "@/shared/ui/mapbox/Mapbox";
 import { notificationAdapter } from "@/stores/notification/adapter";
 import type { WarehousePayload } from "../../create/action";
 import styles from "./WarehouseForm.module.css";
@@ -21,17 +22,33 @@ type Props = {
   }>;
   initValues: WarehousePayload;
   initErrors: Record<keyof WarehousePayload, string>;
+  initCenter: { lng: number; lat: number };
   variant: "create" | "edit";
+  mapToken: string;
+  mapStyle: string;
+  fetchReverseAction: (
+    lng: number,
+    lat: number,
+  ) => Promise<{
+    lng: number;
+    lat: number;
+    name: string;
+    place: string;
+  }>;
 };
 
 export const WarehouseForm = (props: Props) => {
   const [pending, transition] = useTransition();
   const [values, setValues] = useState<WarehousePayload>(props.initValues);
   const [errors, setErrors] = useState<Record<keyof WarehousePayload, string>>(props.initErrors);
+  const [active, setActive] = useState<{ lng: number; lat: number }>({ lng: 0, lat: 0 });
 
   useLayoutEffect(() => {
     setValues(props.initValues);
     setErrors(props.initErrors);
+    if (props.initValues.lng && props.initValues.lat) {
+      setActive({ lng: props.initValues.lng, lat: props.initValues.lat });
+    }
   }, []);
 
   const handleChangeValues = (field: string, value: string | boolean) => {
@@ -56,6 +73,38 @@ export const WarehouseForm = (props: Props) => {
     });
   };
 
+  const markers =
+    typeof values.lng === "number" && typeof values.lat === "number"
+      ? ([
+          {
+            type: "pickup",
+            name: values.address_name,
+            lng: values.lng,
+            lat: values.lat,
+            place: values.place,
+            entrance: "",
+            flat: "",
+            floor: "",
+            intercom: "",
+          },
+        ] as AddressItem[])
+      : ([] as AddressItem[]);
+
+  const handleClickMap = (lng: number, lat: number) => {
+    if (typeof lng === "number" && typeof lat === "number") {
+      props.fetchReverseAction(lng, lat).then((response) => {
+        setValues((prev) => ({
+          ...prev,
+          lng: response.lng,
+          lat: response.lat,
+          place: response.place,
+          address_name: response.name,
+        }));
+        setActive({ lng: response.lng, lat: response.lat });
+      });
+    }
+  };
+
   return (
     <section className={styles.addForm}>
       <Input
@@ -71,93 +120,6 @@ export const WarehouseForm = (props: Props) => {
         onClickRightIcon={() => handleChangeValues("name", "")}
       />
       <Input
-        error={errors.address}
-        value={values.address}
-        name="warehouse_address"
-        id="warehouse_address"
-        variant="outlined"
-        variantSize="sm"
-        label="Полный адрес"
-        rightIcon={<CancelSvg />}
-        onChange={(e) => handleChangeValues("address", e.target.value)}
-        onClickRightIcon={() => handleChangeValues("address", "")}
-      />
-      <Input
-        error={errors.city}
-        value={values.city}
-        name="warehouse_city"
-        id="warehouse_city"
-        variant="outlined"
-        variantSize="sm"
-        label="Город"
-        rightIcon={<CancelSvg />}
-        onChange={(e) => handleChangeValues("city", e.target.value)}
-        onClickRightIcon={() => handleChangeValues("city", "")}
-      />
-      <Input
-        error={errors.street}
-        value={values.street}
-        name="warehouse_street"
-        id="warehouse_street"
-        variant="outlined"
-        variantSize="sm"
-        label="Улица"
-        rightIcon={<CancelSvg />}
-        onChange={(e) => handleChangeValues("street", e.target.value)}
-        onClickRightIcon={() => handleChangeValues("street", "")}
-      />
-      <Input
-        error={errors.house}
-        value={values.house}
-        name="warehouse_house"
-        id="warehouse_house"
-        variant="outlined"
-        variantSize="sm"
-        label="Дом"
-        rightIcon={<CancelSvg />}
-        onChange={(e) => handleChangeValues("house", e.target.value)}
-        onClickRightIcon={() => handleChangeValues("house", "")}
-      />
-      <Input
-        error={errors.office}
-        value={values.office}
-        name="warehouse_office"
-        id="warehouse_office"
-        variant="outlined"
-        variantSize="sm"
-        label="Офис/Квартира"
-        rightIcon={<CancelSvg />}
-        onChange={(e) => handleChangeValues("office", e.target.value)}
-        onClickRightIcon={() => handleChangeValues("office", "")}
-      />
-
-      <Input
-        error={errors.index}
-        value={values.index}
-        name="warehouse_index"
-        id="warehouse_index"
-        variant="outlined"
-        variantSize="sm"
-        label="Почтовый индекс"
-        rightIcon={<CancelSvg />}
-        onChange={(e) => handleChangeValues("index", e.target.value)}
-        onClickRightIcon={() => handleChangeValues("index", "")}
-      />
-
-      <Input
-        error={errors.area}
-        value={values.area}
-        name="warehouse_area"
-        id="warehouse_area"
-        variant="outlined"
-        variantSize="sm"
-        label="Район"
-        rightIcon={<CancelSvg />}
-        onChange={(e) => handleChangeValues("area", e.target.value)}
-        onClickRightIcon={() => handleChangeValues("area", "")}
-      />
-
-      <Input
         error={errors.description}
         value={values.description}
         name="warehouse_description"
@@ -169,6 +131,97 @@ export const WarehouseForm = (props: Props) => {
         onChange={(e) => handleChangeValues("description", e.target.value)}
         onClickRightIcon={() => handleChangeValues("description", "")}
       />
+      <div className={styles.mapContainer}>
+        <div className={styles.mapContainerInputs}>
+          <Input
+            error={errors.address_name}
+            value={values.address_name}
+            name="warehouse_city"
+            id="warehouse_city"
+            variant="outlined"
+            variantSize="sm"
+            label="Адрес"
+            rightIcon={<CancelSvg />}
+            onChange={(e) => handleChangeValues("address_name", e.target.value)}
+            onClickRightIcon={() => handleChangeValues("address_name", "")}
+          />
+          <Input
+            error={errors.place}
+            value={values.place}
+            name="warehouse_place"
+            id="warehouse_place"
+            variant="outlined"
+            variantSize="sm"
+            label="Место"
+            rightIcon={<CancelSvg />}
+            onChange={(e) => handleChangeValues("place", e.target.value)}
+            onClickRightIcon={() => handleChangeValues("place", "")}
+          />
+          <Input
+            error={errors.flat}
+            value={values.flat}
+            name="warehouse_flat"
+            id="warehouse_flat"
+            variant="outlined"
+            variantSize="sm"
+            label="Квартира"
+            rightIcon={<CancelSvg />}
+            onChange={(e) => handleChangeValues("flat", e.target.value)}
+            onClickRightIcon={() => handleChangeValues("flat", "")}
+          />
+          <Input
+            error={errors.entrance}
+            value={values.entrance}
+            name="warehouse_entrance"
+            id="warehouse_entrance"
+            variant="outlined"
+            variantSize="sm"
+            label="Подъезд"
+            rightIcon={<CancelSvg />}
+            onChange={(e) => handleChangeValues("entrance", e.target.value)}
+            onClickRightIcon={() => handleChangeValues("entrance", "")}
+          />
+          <Input
+            error={errors.intercom}
+            value={values.intercom}
+            name="warehouse_intercom"
+            id="warehouse_intercom"
+            variant="outlined"
+            variantSize="sm"
+            label="Домофон"
+            rightIcon={<CancelSvg />}
+            onChange={(e) => handleChangeValues("intercom", e.target.value)}
+            onClickRightIcon={() => handleChangeValues("intercom", "")}
+          />
+          <Input
+            error={errors.floor}
+            value={values.floor}
+            name="warehouse_floor"
+            id="warehouse_floor"
+            variant="outlined"
+            variantSize="sm"
+            label="Этаж"
+            rightIcon={<CancelSvg />}
+            onChange={(e) => handleChangeValues("floor", e.target.value)}
+            onClickRightIcon={() => handleChangeValues("floor", "")}
+          />
+        </div>
+
+        <div className={styles.mapWrapper}>
+          <MapBox
+            onClickMap={handleClickMap}
+            active={active}
+            initCenter={props.initCenter}
+            markers={markers}
+            initZoom={15}
+            mapboxAccessToken={props.mapToken}
+            mapStyle={props.mapStyle}
+            width={"100%"}
+            height={"100%"}
+            hasFullScreen
+          />
+        </div>
+      </div>
 
       <Checkbox
         onChange={() => handleChangeValues("is_active", !values.is_active)}
@@ -196,7 +249,7 @@ export const WarehouseForm = (props: Props) => {
           variantColor="green"
           onClick={submitForm}
           type="button"
-          disabled={pending}
+          disabled={pending || values.lng < 1 || values.lat < 1}
         >
           {props.variant === "create" ? <AddSvg /> : <EditSvg />}
           {props.variant === "create" ? "Создать склад" : "Редактировать"}

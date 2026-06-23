@@ -19,7 +19,7 @@ export interface ProductModel {
   id: number;
   name: string;
   code: string;
-  brand_id: string; //TODO change number
+  brand_id: string; //TODO change number or null
   category_id: number;
   description: string;
   country: string;
@@ -32,6 +32,9 @@ export interface ProductModel {
   purchase_price: number;
   created_at: string;
   updated_at: string | null;
+  accounting: boolean;
+  available: number;
+  price_list: { price: number; minQuantity: number }[];
 }
 
 export interface ProductPriceModel {

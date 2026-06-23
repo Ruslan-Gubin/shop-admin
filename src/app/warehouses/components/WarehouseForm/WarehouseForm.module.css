@@ -1,5 +1,4 @@
 .addForm {
-  width: 100%;
   display: flex;
   flex-direction: column;
   row-gap: var(--padding-content-block);
@@ -8,4 +7,34 @@
 .actionForm {
   display: flex;
   justify-content: flex-end;
+}
+
+.mapContainer {
+  display: flex;
+  column-gap: var(--padding-content-block);
+
+  @media (max-width: 500px) {
+    flex-direction: column-reverse;
+    row-gap: var(--padding-content-block);
+  }
+}
+
+.mapContainerInputs {
+  display: flex;
+  flex-direction: column;
+  row-gap: var(--padding-content-block);
+  width: 30%;
+
+  @media (max-width: 500px) {
+    width: 100%;
+  }
+}
+
+.mapWrapper {
+  width: 70%;
+
+  @media (max-width: 500px) {
+    width: 100%;
+    height: 268px;
+  }
 }
