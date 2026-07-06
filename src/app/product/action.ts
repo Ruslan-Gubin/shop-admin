@@ -34,6 +34,9 @@ export interface ProductModel {
   updated_at: string | null;
   accounting: boolean;
   available: number;
+  rating: number;
+  review_count: number;
+  views: number;
   price_list: { price: number; minQuantity: number }[];
 }
 

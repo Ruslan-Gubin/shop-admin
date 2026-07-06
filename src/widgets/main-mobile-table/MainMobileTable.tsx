@@ -1,19 +1,16 @@
 import { useRouter } from "next/navigation";
 import { useEffectEvent, useLayoutEffect, useState } from "react";
-import { DeleteSvg } from "@/app/category/components/category-item/svg/DeleteSvg";
-import { EditSvg } from "@/app/category/components/category-item/svg/EditSvg";
 import { getIsValidCurrentPage } from "@/shared/helpers/getIsValidCurrentPage";
 import { getUpdateQueryPageString } from "@/shared/helpers/getUpdateQueryPageString";
 import type { ResponseData } from "@/shared/types/response";
 import { Details } from "@/shared/ui/details/Details";
 import { LoadMoreObserver } from "@/shared/ui/load-more-observer/LoadMoreObserver";
 import type { RenderTableOptions } from "@/widgets/main-table/MainTable";
+import { ActionsMenu } from "../actions-menu/ActionsMenu";
 import styles from "./MainMobileTable.module.css";
 
 interface Props<T> {
   data: T[];
-  onEditAction?: (item: T) => void;
-  onDeleteAction?: (id: number) => void;
   tableOptions: RenderTableOptions<T>[];
   headerRowLabels: string[];
   titleKey: keyof T;
@@ -22,6 +19,7 @@ interface Props<T> {
   patch: string;
   searchParams: { [key: string]: string | string[] | undefined };
   fetchTableElementAction: (id: string) => Promise<ResponseData<T>>;
+  actions?: { label: string; action: (item: T) => void }[];
 }
 
 const shortDateFormat = new Intl.DateTimeFormat("ru-RU", {
@@ -250,26 +248,7 @@ export const MainMobileTable = <T extends { id: number }>(props: Props<T>) => {
               ))}
             </ul>
           }
-          actions={
-            <>
-              <button
-                className={!props.onEditAction ? styles.buttonHidden : ""}
-                type="button"
-                onClick={() => props.onEditAction?.(item)}
-                aria-label="Редактировать"
-              >
-                <EditSvg fill="#727280" />
-              </button>
-              <button
-                className={!props.onDeleteAction ? styles.buttonHidden : ""}
-                type="button"
-                onClick={() => props.onDeleteAction?.(item.id)}
-                aria-label="Удалить"
-              >
-                <DeleteSvg fill="#727280" />
-              </button>
-            </>
-          }
+          actions={<>{props.actions && <ActionsMenu actions={props.actions} item={item} />}</>}
         />
       ))}
       <LoadMoreObserver

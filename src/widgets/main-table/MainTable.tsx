@@ -1,7 +1,6 @@
 "use client";
-import { DeleteSvg } from "@/app/category/components/category-item/svg/DeleteSvg";
-import { EditSvg } from "@/app/category/components/category-item/svg/EditSvg";
 import { Badge } from "@/shared/ui/badge/Badge";
+import { ActionsMenu } from "../actions-menu/ActionsMenu";
 import styles from "./MainTable.module.css";
 
 type CellType = "date" | "shortDate" | "boolean" | "badge" | "avatar" | "translate";
@@ -24,18 +23,15 @@ const shortDateFormat = new Intl.DateTimeFormat("ru-RU", {
 
 interface Props<T> {
   data: T[];
-  onEditAction?: (item: T) => void;
-  onDeleteAction?: (id: number) => void;
   stickyFirstColumn?: boolean;
   stickyActionColumn?: boolean;
   headerRowLabels: string[];
   gridTemplateColumns: string;
   tableOptions: RenderTableOptions<T>[];
+  actions?: { label: string; action: (item: T) => void }[];
 }
 
 export const MainTable = <T extends { id: number }>(props: Props<T>) => {
-  const isHasAction = !!props.onEditAction || !!props.onDeleteAction;
-
   return (
     <table
       className={`${styles.table} ${props.stickyActionColumn ? styles.stickyActionColumn : ""} ${props.stickyFirstColumn ? styles.stickyFirstColumn : ""}`}
@@ -50,7 +46,7 @@ export const MainTable = <T extends { id: number }>(props: Props<T>) => {
               <p className={styles.textOverflowLine}>{el}</p>
             </th>
           ))}
-          {isHasAction && <th className={styles.headerCell}></th>}
+          {props.actions && <th className={styles.headerCell}></th>}
         </tr>
       </thead>
       <tbody>
@@ -111,22 +107,9 @@ export const MainTable = <T extends { id: number }>(props: Props<T>) => {
                 )}
               </td>
             ))}
-            {isHasAction && (
+            {props.actions && (
               <td className={styles.actionButtons}>
-                <button
-                  className={!props.onEditAction ? styles.buttonHidden : ""}
-                  type="button"
-                  onClick={() => props.onEditAction?.(item)}
-                >
-                  <EditSvg fill="#727280" />
-                </button>
-                <button
-                  className={!props.onDeleteAction ? styles.buttonHidden : ""}
-                  type="button"
-                  onClick={() => props.onDeleteAction?.(item.id)}
-                >
-                  <DeleteSvg fill="#727280" />
-                </button>
+                <ActionsMenu actions={props.actions} item={item} />
               </td>
             )}
           </tr>

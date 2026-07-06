@@ -127,11 +127,3 @@
   font-weight: 500;
   color: #c5221f;
 }
-
-.buttonHidden {
-  opacity: 0;
-  cursor: default;
-  & svg {
-    visibility: hidden;
-  }
-}

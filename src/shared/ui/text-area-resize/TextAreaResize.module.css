@@ -82,6 +82,7 @@
   overflow: hidden;
   max-width: calc(100% - 24px);
   color: var(--text-color-placeholder);
+  cursor: text;
 
   @media (max-width: 880px) {
     top: 9px;

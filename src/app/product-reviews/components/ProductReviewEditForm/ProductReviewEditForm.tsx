@@ -5,11 +5,11 @@ import { Button } from "@/shared/ui/button-main/Button";
 import { TextAreaResize } from "@/shared/ui/text-area-resize/TextAreaResize";
 import { notificationAdapter } from "@/stores/notification/adapter";
 import { ModalDelete } from "@/widgets/modals/modal-delete/ModalDelete";
-import type { QuestionModel } from "../../action";
-import styles from "./ProductQuestionEditForm.module.css";
+import type { ReviewModel } from "../../action";
+import styles from "./ProductReviewEditForm.module.css";
 
 type Props = {
-  question: QuestionModel;
+  review: ReviewModel;
   submitAction: (payload: { answer: string }) => Promise<{
     errors: Record<string, string> | null;
     notification: { status: "error" | "success"; message: string } | null;
@@ -19,7 +19,7 @@ type Props = {
   initValues: { answer: string };
 };
 
-export const ProductQuestionEditForm = (props: Props) => {
+export const ProductReviewEditForm = (props: Props) => {
   const [submitLoading, transition] = useTransition();
   const [deleteLoading, deleteTransition] = useTransition();
   const [errors, setErrors] = useState(props.initErrors);
@@ -48,62 +48,96 @@ export const ProductQuestionEditForm = (props: Props) => {
   const handleDelete = () => {
     deleteTransition(() => {
       props.deleteAction().then(() => {
-        notificationAdapter.add("Вопрос удален", "success");
+        notificationAdapter.add("Отзыв удален", "success");
       });
     });
   };
+
+  const ratingArray = [1, 2, 3, 4, 5];
 
   return (
     <>
       <ModalDelete
         submit={handleDelete}
-        title="Действительно хотите удалить вопрос?"
+        title="Действительно хотите удалить отзыв?"
         isOpen={showDeleteModal}
         onClose={() => setShowDeleteModal(false)}
         disabled={deleteLoading}
         showSubTitle={true}
       />
 
-      <h2>Редактировать вопрос</h2>
+      <h2>Редактировать отзыв</h2>
 
       <section className={styles.productInfo}>
         <h3>Информация о товаре</h3>
-        {props.question?.product?.code && (
+        {props.review?.product?.code && (
           <p>
-            <strong>Штрих-код:</strong> {props.question.product.code}
+            <strong>Штрих-код:</strong> {props.review.product.code}
           </p>
         )}
-        {props.question?.product?.name && (
+        {props.review?.product?.name && (
           <p>
-            <strong>Название:</strong> {props.question.product.name}
+            <strong>Название:</strong> {props.review.product.name}
           </p>
         )}
-        {props.question?.product?.description && (
+        {props.review?.product?.description && (
           <p>
-            <strong>Описание:</strong> {props.question.product.description}
+            <strong>Описание:</strong> {props.review.product.description}
           </p>
         )}
 
-        {props.question.create_user_id && (
-          <Link href={`/users/info/${props.question.create_user_id}`}>
+        {props.review.create_user_id && (
+          <Link href={`/users/info/${props.review.create_user_id}`}>
             <Button variant="link" variantColor="blue">
               Информация о пользователе
             </Button>
           </Link>
         )}
 
-        {props.question?.product?.id && (
-          <Link href={`/product/info/${props.question.product.id}`}>
+        {props.review?.product?.id && (
+          <Link href={`/product/info/${props.review.product.id}`}>
             <Button variant="link" variantColor="blue">
-              Перейти к каточке товара
+              Перейти к карточке товара
             </Button>
           </Link>
         )}
       </section>
 
-      <section className={styles.questionSection}>
-        <h3>Вопрос</h3>
-        <p>{props.question.question}</p>
+      <section className={styles.reviewSection}>
+        <h3>Отзыв</h3>
+        {props.review.rating && (
+          <ul className={styles.ratingList}>
+            {ratingArray.slice(0, props.review.rating).map((item) => (
+              <li key={item}>⭐</li>
+            ))}
+          </ul>
+        )}
+
+        {props.review.dignities && (
+          <div className={styles.fieldBlock}>
+            <p>
+              <strong>Достоинства: </strong> {props.review.dignities}
+            </p>
+          </div>
+        )}
+
+        {props.review.disadvantages && (
+          <div className={styles.fieldBlock}>
+            <p>
+              <strong>Недостатки: </strong>
+              {props.review.disadvantages}
+            </p>
+          </div>
+        )}
+
+        {props.review.comment && (
+          <div className={styles.fieldBlock}>
+            <p>
+              <strong>Комментарий: </strong>
+              {props.review.comment}
+            </p>
+          </div>
+        )}
       </section>
 
       <form ref={formRef} action={handleSubmit} className={styles.form}>
@@ -119,7 +153,7 @@ export const ProductQuestionEditForm = (props: Props) => {
 
         <div className={styles.actions}>
           <Button type="submit" variantColor="green" disabled={submitLoading}>
-            {submitLoading ? "Сохранение..." : "Сохранить"}
+            Сохранить
           </Button>
           <Button
             type="button"
@@ -128,7 +162,7 @@ export const ProductQuestionEditForm = (props: Props) => {
             onClick={() => setShowDeleteModal(true)}
             disabled={deleteLoading}
           >
-            Удалить вопрос
+            Удалить отзыв
           </Button>
         </div>
       </form>

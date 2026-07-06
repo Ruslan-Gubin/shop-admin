@@ -7,21 +7,21 @@ import { notificationAdapter } from "@/stores/notification/adapter";
 import { MainMobileTable } from "@/widgets/main-mobile-table/MainMobileTable";
 import { MainTable, type RenderTableOptions } from "@/widgets/main-table/MainTable";
 import { ModalDelete } from "@/widgets/modals/modal-delete/ModalDelete";
-import { TableControls } from "@/widgets/table-controls/TableControls";
-import type { ProductModel } from "../../action";
+import type { ReviewModel } from "../../action";
+
+type ReviewModelWithAnswered = ReviewModel & { is_answered: boolean };
 
 type Props = {
-  products: ProductModel[];
+  reviews: ReviewModel[];
   onDeleteItemAction: (id: number) => Promise<{ status: "error" | "success"; message: string }>;
   redirectPageAfterDeleteAction: () => void;
-  fetchTableElementAction: (id: string) => Promise<ResponseData<ProductModel>>;
-  name: string;
   isLoadMoreDisabled: boolean;
   patch: string;
   searchParams: { [key: string]: string | string[] | undefined };
+  fetchTableElementAction: (id: string) => Promise<ResponseData<ReviewModel>>;
 };
 
-export const ProductsTableWrapper = (props: Props) => {
+export const ProductReviewsTableWrapper = (props: Props) => {
   const router = useRouter();
   const { isMobile, isMounted } = useWindowSize();
   const [submitLoading, transition] = useTransition();
@@ -35,9 +35,9 @@ export const ProductsTableWrapper = (props: Props) => {
     isDelete: false,
   });
 
-  const handleOpenDeleteModal = (item: ProductModel) =>
+  const handleOpenDeleteModal = (id: number) =>
     setOptionFormModal({
-      id: item.id,
+      id,
       isOpen: true,
       isDelete: true,
     });
@@ -65,89 +65,81 @@ export const ProductsTableWrapper = (props: Props) => {
     }
   };
 
-  const handleEditRouter = (item: ProductModel) => {
+  const handleEditRouter = (item: ReviewModelWithAnswered) => {
     if (item.id) {
-      router.push(`/product/edit/${item.id}`);
+      router.push(`/product-reviews/edit/${item.id}`);
     }
   };
 
-  const handleInfoRouter = (item: ProductModel) => {
-    if (item.id) {
-      router.push(`/product/info/${item.id}`);
+  const data = props.reviews.map((item) => ({
+    ...item,
+    is_answered: item.answer.length > 0,
+  }));
+
+  const fetchTableElementActionWithAnswered = async (
+    id: string,
+  ): Promise<ResponseData<ReviewModelWithAnswered>> => {
+    const result = await props.fetchTableElementAction(id);
+    if (result.status === "success" && result.data) {
+      return {
+        ...result,
+        data: { ...result.data, is_answered: result.data.answer.length > 0 },
+      };
     }
+    return result as ResponseData<ReviewModelWithAnswered>;
   };
 
-  const tableOptions: RenderTableOptions<ProductModel>[] = [
+  const tableOptions: RenderTableOptions<ReviewModelWithAnswered>[] = [
     { key: "id" },
-    { key: "name" },
-    { key: "description" },
-    { key: "product_type" },
-    { key: "code" },
-    { key: "created_at", type: "date" },
+    { key: "dignities" },
+    { key: "disadvantages" },
+    { key: "comment" },
+    { key: "is_answered", type: "boolean", typeConfig: { booleanLabels: ["Да", "Нет"] } },
   ];
 
-  const headerRowLabels = [
-    "ID",
-    "Название",
-    "Описание",
-    "Вид товара",
-    "Штриховой код",
-    "Дата регистрации",
-  ];
+  const headerRowLabels = ["ID", "Достоинства", "Недостатки", "Комментарий", "Отвечен"];
 
   return (
     <>
       <ModalDelete
         submit={submitDelete}
-        title="Действительно хотите удалить товар?"
+        title="Действительно хотите удалить отзыв?"
         isOpen={optionFormModal.isOpen && optionFormModal.isDelete}
         onClose={handleCloseFormModal}
         disabled={submitLoading}
         showSubTitle={true}
       />
       <div className="table-container">
-        <TableControls
-          addAction={{
-            href: "/product/create",
-            text: "Создать товар",
-          }}
-          name={props.name}
-          queryKey="name"
-        />
-        {isMounted && !isMobile && props.products && props.products.length > 0 && (
+        {isMounted && !isMobile && data && data.length > 0 && (
           <MainTable
-            data={props.products}
+            data={data}
+            onEditAction={handleEditRouter}
+            onDeleteAction={handleOpenDeleteModal}
             headerRowLabels={headerRowLabels}
-            stickyActionColumn={true}
+            stickyActionColumn
             stickyFirstColumn
-            gridTemplateColumns="65px minmax(150px, 1fr) minmax(150px, 240px) minmax(110px, 150px) minmax(130px, 150px) 160px 32px"
+            gridTemplateColumns="65px minmax(150px, 1fr) minmax(150px, 1fr) minmax(200px, 1fr) 110px 58px"
             tableOptions={tableOptions}
-            actions={[
-              { label: "Подробнее", action: handleInfoRouter },
-              { label: "Редактировать", action: handleEditRouter },
-              { label: "Удалить", action: handleOpenDeleteModal },
-            ]}
           />
         )}
 
-        {isMounted && isMobile && props.products && props.products.length > 0 && (
+        {isMounted && isMobile && data && data.length > 0 && (
           <MainMobileTable
-            titleKey="name"
-            data={props.products}
+            titleKey="comment"
+            data={data}
+            onEditAction={handleEditRouter}
+            onDeleteAction={handleOpenDeleteModal}
             tableOptions={tableOptions}
             headerRowLabels={headerRowLabels}
-            headerRowWidth={["38px", "140px", "100px", "80px", "100px", "120px"]}
+            headerRowWidth={["38px", "120px", "120px", "150px", "90px"]}
             searchParams={props.searchParams}
             isLoadMoreDisabled={props.isLoadMoreDisabled}
             patch={props.patch}
-            fetchTableElementAction={props.fetchTableElementAction}
-            actions={[
-              { label: "Подробнее", action: handleInfoRouter },
-              { label: "Редактировать", action: handleEditRouter },
-              { label: "Удалить", action: handleOpenDeleteModal },
-            ]}
+            fetchTableElementAction={fetchTableElementActionWithAnswered}
           />
         )}
+
+        {isMounted && data && data.length === 0 && <p>Нет отзывов к товарам</p>}
       </div>
     </>
   );
