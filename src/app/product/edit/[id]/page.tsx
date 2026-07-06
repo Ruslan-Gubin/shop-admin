@@ -17,8 +17,10 @@ import {
 } from "./action";
 import styles from "./EditProduct.module.css";
 
-export default async function ProductEditPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
+export default async function ProductEditPage(searchParams: { params: Promise<{ id: string }> }) {
+  const params = await searchParams.params;
+  const id = params.id;
+
   const [
     product,
     rangesData,

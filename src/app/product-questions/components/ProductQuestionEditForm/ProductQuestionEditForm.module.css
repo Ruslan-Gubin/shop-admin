@@ -1,0 +1,49 @@
+.productInfo {
+  display: flex;
+  flex-direction: column;
+  row-gap: 8px;
+  padding: 16px;
+  border: 1px solid #cecece;
+  border-radius: var(--border-radius-main);
+  background-color: var(--background-content-color);
+}
+
+.productInfo p {
+  margin: 0;
+  font-size: 14px;
+}
+
+.questionSection {
+  display: flex;
+  flex-direction: column;
+  row-gap: 8px;
+  padding: 16px;
+  border: 1px solid #cecece;
+  border-radius: var(--border-radius-main);
+  background-color: var(--background-content-color);
+}
+
+.questionSection p {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  row-gap: var(--gap-info-block);
+}
+
+.fieldGroup {
+  display: flex;
+  flex-direction: column;
+  row-gap: 4px;
+}
+
+.actions {
+  display: flex;
+  column-gap: 12px;
+  align-items: center;
+}

@@ -9,6 +9,7 @@ import { FeaturesSvg } from "./svg/FeaturesSvg";
 import { PriceAutoFillSvg } from "./svg/PriceAutoFillSvg";
 import { PriceTypeSvg } from "./svg/PriceTypeSvg";
 import { PromotionsSvg } from "./svg/PromotionsSvg";
+import { QuestionSvg } from "./svg/QuestionSvg";
 import { RegisterSvg } from "./svg/RegisterSvg";
 import { SearchSvg } from "./svg/SearchSvg";
 import { UsersSvg } from "./svg/UsersSvg";
@@ -49,6 +50,13 @@ export const LayoutLeftSide = () => {
           isHasLine: false,
         },
       ],
+    },
+    {
+      label: "Вопросы к товарам",
+      href: "/product-questions",
+      icon: <QuestionSvg />,
+      isHasLine: false,
+      children: [],
     },
     {
       label: "Список пользователей",

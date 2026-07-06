@@ -1,0 +1,111 @@
+.inputContainer {
+  border-radius: var(--border-radius-main);
+  border: 1px solid #cecece;
+  text-align: start;
+  position: relative;
+  width: 100%;
+  min-height: 46px;
+  padding-inline: 16px;
+  padding-block: 11px;
+  cursor: default;
+
+  @media (max-width: 880px) {
+    min-height: 42px;
+    padding-block: 9px;
+  }
+
+  @media (max-width: 500px) {
+    min-height: 38px;
+    padding-block: 7px;
+    padding-inline: 12px;
+  }
+}
+
+.inputContainer:focus-within {
+  border: 1px solid #757575;
+}
+
+.textareaElement {
+  width: 100%;
+  max-height: 406px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  color: #14212e;
+  outline: none;
+  line-height: 19px;
+  padding-block: 1px;
+
+  scrollbar-width: thin;
+  scrollbar-gutter: stable;
+  scrollbar-color: #f6f6f9 transparent;
+  transition: scrollbar-color 0.2s ease;
+  cursor: text;
+
+  &:hover {
+    scrollbar-color: #cbcbcb transparent;
+  }
+
+  h1 {
+    background-color: #f9fafb;
+  }
+}
+
+.inputContainer:disabled {
+  opacity: 0.6;
+}
+
+.inputContainerError {
+  border: 1px solid #ff6262;
+  background-color: #f4f4f4;
+}
+
+.inputContainerError:focus-within {
+  border: 1px solid #ff6262;
+}
+
+.input::placeholder {
+  color: #727272;
+}
+
+.input:disabled {
+  background-color: transparent;
+  color: #727272;
+}
+
+.label {
+  position: absolute;
+  line-height: 22px;
+  left: 16px;
+  top: 11px;
+  text-wrap: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  max-width: calc(100% - 24px);
+  color: var(--text-color-placeholder);
+
+  @media (max-width: 880px) {
+    top: 9px;
+  }
+
+  @media (max-width: 500px) {
+    top: 7px;
+    left: 12px;
+  }
+}
+
+.errorText {
+  color: #ff4444;
+  font-size: 14px;
+  position: absolute;
+  top: -20px;
+  left: 0;
+  width: 100%;
+  text-wrap: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+
+  @media (max-width: 500px) {
+    top: -16px;
+    font-size: 12px;
+  }
+}
