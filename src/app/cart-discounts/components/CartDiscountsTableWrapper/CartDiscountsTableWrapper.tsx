@@ -89,9 +89,9 @@ export const CartDiscountsTableWrapper = (props: Props) => {
       isDelete: false,
     });
 
-  const handleOpenDeleteModal = (id: number) =>
+  const handleOpenDeleteModal = (item: CartDiscountModel) =>
     setOptionFormModal({
-      id,
+      id: item.id,
       isOpen: true,
       name: "",
       min_sum: "",
@@ -182,12 +182,14 @@ export const CartDiscountsTableWrapper = (props: Props) => {
         {isMounted && !isMobile && props.data && props.data.length > 0 && (
           <MainTable
             data={props.data}
-            onEditAction={handleOpenEditModal}
-            onDeleteAction={handleOpenDeleteModal}
             headerRowLabels={["ID", "Название", "Мин. сумма", "Скидка (%)", "Доступно", "Активна"]}
             stickyActionColumn
-            gridTemplateColumns="65px minmax(200px, 1fr) minmax(120px, 160px) minmax(120px, 160px) minmax(120px, 160px) minmax(120px, 160px) 58px"
+            gridTemplateColumns="65px minmax(200px, 1fr) minmax(120px, 160px) minmax(120px, 160px) minmax(120px, 160px) minmax(120px, 160px) 32px"
             tableOptions={tableOptions}
+            actions={[
+              { label: "Редактировать", action: handleOpenEditModal },
+              { label: "Удалить", action: handleOpenDeleteModal },
+            ]}
           />
         )}
 
@@ -195,8 +197,6 @@ export const CartDiscountsTableWrapper = (props: Props) => {
           <MainMobileTable
             titleKey="name"
             data={props.data}
-            onEditAction={handleOpenEditModal}
-            onDeleteAction={handleOpenDeleteModal}
             tableOptions={tableOptions}
             headerRowLabels={["ID", "Название", "Мин. сумма", "Скидка (%)", "Доступно", "Активна"]}
             headerRowWidth={["38px", "140px", "100px", "80px", "100px", "100px"]}
@@ -204,6 +204,10 @@ export const CartDiscountsTableWrapper = (props: Props) => {
             isLoadMoreDisabled={props.isLoadMoreDisabled}
             patch={props.patch}
             fetchTableElementAction={props.fetchTableElementAction}
+            actions={[
+              { label: "Редактировать", action: handleOpenEditModal },
+              { label: "Удалить", action: handleOpenDeleteModal },
+            ]}
           />
         )}
       </div>

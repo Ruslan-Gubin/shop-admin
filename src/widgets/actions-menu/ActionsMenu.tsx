@@ -40,25 +40,23 @@ export const ActionsMenu = <T extends { id: number }>(props: Props<T>) => {
         <DotsSvg fill="#727280" />
       </button>
 
-      {isOpen && (
-        <ul className={styles.menu}>
-          {props.actions.map((item) => (
-            <li key={item.label} role="none">
-              <button
-                type="button"
-                role="menuitem"
-                className={styles.menuItem}
-                onClick={() => {
-                  setIsOpen(false);
-                  item.action(props.item);
-                }}
-              >
-                {item.label}
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
+      <ul className={isOpen ? `${styles.menu} ${styles.menuActive}` : styles.menu}>
+        {props.actions.map((item) => (
+          <li key={item.label} role="none">
+            <button
+              type="button"
+              role="menuitem"
+              className={styles.menuItem}
+              onClick={() => {
+                setIsOpen(false);
+                item.action(props.item);
+              }}
+            >
+              {item.label}
+            </button>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 };

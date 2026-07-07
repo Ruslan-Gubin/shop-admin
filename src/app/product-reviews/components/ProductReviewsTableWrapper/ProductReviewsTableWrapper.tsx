@@ -9,8 +9,6 @@ import { MainTable, type RenderTableOptions } from "@/widgets/main-table/MainTab
 import { ModalDelete } from "@/widgets/modals/modal-delete/ModalDelete";
 import type { ReviewModel } from "../../action";
 
-type ReviewModelWithAnswered = ReviewModel & { is_answered: boolean };
-
 type Props = {
   reviews: ReviewModel[];
   onDeleteItemAction: (id: number) => Promise<{ status: "error" | "success"; message: string }>;
@@ -35,9 +33,9 @@ export const ProductReviewsTableWrapper = (props: Props) => {
     isDelete: false,
   });
 
-  const handleOpenDeleteModal = (id: number) =>
+  const handleOpenDeleteModal = (item: ReviewModel) =>
     setOptionFormModal({
-      id,
+      id: item.id,
       isOpen: true,
       isDelete: true,
     });
@@ -65,36 +63,18 @@ export const ProductReviewsTableWrapper = (props: Props) => {
     }
   };
 
-  const handleEditRouter = (item: ReviewModelWithAnswered) => {
+  const handleEditRouter = (item: ReviewModel) => {
     if (item.id) {
       router.push(`/product-reviews/edit/${item.id}`);
     }
   };
 
-  const data = props.reviews.map((item) => ({
-    ...item,
-    is_answered: item.answer.length > 0,
-  }));
-
-  const fetchTableElementActionWithAnswered = async (
-    id: string,
-  ): Promise<ResponseData<ReviewModelWithAnswered>> => {
-    const result = await props.fetchTableElementAction(id);
-    if (result.status === "success" && result.data) {
-      return {
-        ...result,
-        data: { ...result.data, is_answered: result.data.answer.length > 0 },
-      };
-    }
-    return result as ResponseData<ReviewModelWithAnswered>;
-  };
-
-  const tableOptions: RenderTableOptions<ReviewModelWithAnswered>[] = [
+  const tableOptions: RenderTableOptions<ReviewModel>[] = [
     { key: "id" },
     { key: "dignities" },
     { key: "disadvantages" },
     { key: "comment" },
-    { key: "is_answered", type: "boolean", typeConfig: { booleanLabels: ["Да", "Нет"] } },
+    { key: "is_answer", type: "boolean", typeConfig: { booleanLabels: ["Да", "Нет"] } },
   ];
 
   const headerRowLabels = ["ID", "Достоинства", "Недостатки", "Комментарий", "Отвечен"];
@@ -110,36 +90,38 @@ export const ProductReviewsTableWrapper = (props: Props) => {
         showSubTitle={true}
       />
       <div className="table-container">
-        {isMounted && !isMobile && data && data.length > 0 && (
+        {isMounted && !isMobile && props.reviews && props.reviews.length > 0 && (
           <MainTable
-            data={data}
-            onEditAction={handleEditRouter}
-            onDeleteAction={handleOpenDeleteModal}
+            data={props.reviews}
             headerRowLabels={headerRowLabels}
             stickyActionColumn
             stickyFirstColumn
-            gridTemplateColumns="65px minmax(150px, 1fr) minmax(150px, 1fr) minmax(200px, 1fr) 110px 58px"
+            gridTemplateColumns="65px minmax(150px, 1fr) minmax(150px, 1fr) minmax(200px, 1fr) 110px 32px"
             tableOptions={tableOptions}
+            actions={[
+              { label: "Редактировать", action: handleEditRouter },
+              { label: "Удалить", action: handleOpenDeleteModal },
+            ]}
           />
         )}
 
-        {isMounted && isMobile && data && data.length > 0 && (
+        {isMounted && isMobile && props.reviews && props.reviews.length > 0 && (
           <MainMobileTable
             titleKey="comment"
-            data={data}
-            onEditAction={handleEditRouter}
-            onDeleteAction={handleOpenDeleteModal}
+            data={props.reviews}
             tableOptions={tableOptions}
             headerRowLabels={headerRowLabels}
             headerRowWidth={["38px", "120px", "120px", "150px", "90px"]}
             searchParams={props.searchParams}
             isLoadMoreDisabled={props.isLoadMoreDisabled}
             patch={props.patch}
-            fetchTableElementAction={fetchTableElementActionWithAnswered}
+            fetchTableElementAction={props.fetchTableElementAction}
+            actions={[
+              { label: "Редактировать", action: handleEditRouter },
+              { label: "Удалить", action: handleOpenDeleteModal },
+            ]}
           />
         )}
-
-        {isMounted && data && data.length === 0 && <p>Нет отзывов к товарам</p>}
       </div>
     </>
   );

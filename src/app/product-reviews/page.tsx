@@ -5,20 +5,17 @@ import { getUpdateQueryPageString } from "@/shared/helpers/getUpdateQueryPageStr
 import { ErrorAlert } from "@/shared/ui/error-alert/ErrorAlert";
 import { Pagination } from "@/shared/ui/pagination/Pagination";
 import { UpdateToken } from "@/views/UpdateToken/UpdateToken";
-import {
-  deleteProductReviewAction,
-  fetchProductReview,
-  fetchProductReviews,
-} from "./action";
+import { deleteProductReviewAction, fetchProductReview, fetchProductReviews } from "./action";
 import { ProductReviewsTableWrapper } from "./components/ProductReviewsTableWrapper/ProductReviewsTableWrapper";
 
-export default async function ProductReviewsPage(req: {
-  searchParams: Promise<{ page: string }>;
-}) {
+export default async function ProductReviewsPage(req: { searchParams: Promise<{ page: string }> }) {
   const searchParams = await req.searchParams;
   const limit = 10;
   const patch = "/product-reviews";
   const tableData = await fetchProductReviews(String(limit), searchParams.page);
+
+  const reviews =
+    tableData.data?.reviews.map((el) => ({ ...el, is_answer: el.answer.length > 0 })) || [];
 
   const redirectPageAfterDelete = async () => {
     "use server";
@@ -44,9 +41,11 @@ export default async function ProductReviewsPage(req: {
       {tableData.status === "error" && tableData.message && (
         <ErrorAlert message={tableData.message} />
       )}
+
+      {reviews && reviews.length === 0 && <p>Нет отзывов к товарам</p>}
       <section className="table-container">
         <ProductReviewsTableWrapper
-          reviews={tableData?.data?.reviews || []}
+          reviews={reviews}
           onDeleteItemAction={deleteProductReviewAction}
           redirectPageAfterDeleteAction={redirectPageAfterDelete}
           isLoadMoreDisabled={isLoadMoreDisabled}

@@ -9,8 +9,6 @@ import { MainTable, type RenderTableOptions } from "@/widgets/main-table/MainTab
 import { ModalDelete } from "@/widgets/modals/modal-delete/ModalDelete";
 import type { QuestionModel } from "../../action";
 
-type QuestionModelWithAnswered = QuestionModel & { is_answered: boolean };
-
 type Props = {
   questions: QuestionModel[];
   onDeleteItemAction: (id: number) => Promise<{ status: "error" | "success"; message: string }>;
@@ -35,9 +33,9 @@ export const ProductQuestionsTableWrapper = (props: Props) => {
     isDelete: false,
   });
 
-  const handleOpenDeleteModal = (id: number) =>
+  const handleOpenDeleteModal = (item: QuestionModel) =>
     setOptionFormModal({
-      id,
+      id: item.id,
       isOpen: true,
       isDelete: true,
     });
@@ -65,34 +63,16 @@ export const ProductQuestionsTableWrapper = (props: Props) => {
     }
   };
 
-  const handleEditRouter = (item: QuestionModelWithAnswered) => {
+  const handleEditRouter = (item: QuestionModel) => {
     if (item.id) {
       router.push(`/product-questions/edit/${item.id}`);
     }
   };
 
-  const data = props.questions.map((item) => ({
-    ...item,
-    is_answered: item.answer.length > 0,
-  }));
-
-  const fetchTableElementActionWithAnswered = async (
-    id: string,
-  ): Promise<ResponseData<QuestionModelWithAnswered>> => {
-    const result = await props.fetchTableElementAction(id);
-    if (result.status === "success" && result.data) {
-      return {
-        ...result,
-        data: { ...result.data, is_answered: result.data.answer.length > 0 },
-      };
-    }
-    return result as ResponseData<QuestionModelWithAnswered>;
-  };
-
-  const tableOptions: RenderTableOptions<QuestionModelWithAnswered>[] = [
+  const tableOptions: RenderTableOptions<QuestionModel>[] = [
     { key: "id" },
     { key: "question" },
-    { key: "is_answered", type: "boolean", typeConfig: { booleanLabels: ["Да", "Нет"] } },
+    { key: "is_answer", type: "boolean", typeConfig: { booleanLabels: ["Да", "Нет"] } },
     { key: "created_at", type: "date" },
   ];
 
@@ -109,36 +89,38 @@ export const ProductQuestionsTableWrapper = (props: Props) => {
         showSubTitle={true}
       />
       <div className="table-container">
-        {isMounted && !isMobile && data && data.length > 0 && (
+        {isMounted && !isMobile && props.questions && props.questions.length > 0 && (
           <MainTable
-            data={data}
-            onEditAction={handleEditRouter}
-            onDeleteAction={handleOpenDeleteModal}
+            data={props.questions}
             headerRowLabels={headerRowLabels}
             stickyActionColumn
             stickyFirstColumn
-            gridTemplateColumns="65px minmax(200px, 1fr) 110px 160px 58px"
+            gridTemplateColumns="65px minmax(200px, 1fr) 110px 160px 32px"
             tableOptions={tableOptions}
+            actions={[
+              { label: "Редактировать", action: handleEditRouter },
+              { label: "Удалить", action: handleOpenDeleteModal },
+            ]}
           />
         )}
 
-        {isMounted && isMobile && data && data.length > 0 && (
+        {isMounted && isMobile && props.questions && props.questions.length > 0 && (
           <MainMobileTable
             titleKey="question"
-            data={data}
-            onEditAction={handleEditRouter}
-            onDeleteAction={handleOpenDeleteModal}
+            data={props.questions}
             tableOptions={tableOptions}
             headerRowLabels={headerRowLabels}
             headerRowWidth={["38px", "150px", "90px", "120px"]}
             searchParams={props.searchParams}
             isLoadMoreDisabled={props.isLoadMoreDisabled}
             patch={props.patch}
-            fetchTableElementAction={fetchTableElementActionWithAnswered}
+            fetchTableElementAction={props.fetchTableElementAction}
+            actions={[
+              { label: "Редактировать", action: handleEditRouter },
+              { label: "Удалить", action: handleOpenDeleteModal },
+            ]}
           />
         )}
-
-        {isMounted && data && data.length === 0 && <p>Нет вопросов к товарам</p>}
       </div>
     </>
   );

@@ -15,6 +15,7 @@ export type QuestionModel = {
   created_at: string;
   update_at: string | null;
   product: ProductModel;
+  is_answer?: boolean;
 };
 
 export type FetchProductQuestionsResponse = {

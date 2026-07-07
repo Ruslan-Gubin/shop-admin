@@ -203,7 +203,7 @@ export const CategoryItem = (props: Props) => {
               )
             }
           >
-            <AddSvg />
+            <AddSvg fill="#727280" />
           </button>
           <button
             title="Редактировать"
@@ -217,7 +217,7 @@ export const CategoryItem = (props: Props) => {
               )
             }
           >
-            <EditSvg />
+            <EditSvg fill="#727280" />
           </button>
           <button
             title="Удалить"
@@ -225,7 +225,7 @@ export const CategoryItem = (props: Props) => {
             type="button"
             onClick={() => props.onOpenDeleteModal(props.category.id, props.category.parent_id)}
           >
-            <DeleteSvg />
+            <DeleteSvg fill="#727280" />
           </button>
         </div>
       </li>

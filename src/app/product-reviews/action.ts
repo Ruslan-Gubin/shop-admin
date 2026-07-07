@@ -18,6 +18,7 @@ export type ReviewModel = {
   rating: number;
   created_at: string;
   updated_at: string | null;
+  is_answer?: boolean;
 };
 
 export type FetchProductReviewsResponse = {

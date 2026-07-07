@@ -15,6 +15,29 @@
 }
 
 .menu {
+  display: none;
+
+  @media (max-width: 880px) {
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    text-align: start;
+    padding-block: 16px;
+    width: 100%;
+    background-color: white;
+    height: max-content;
+    align-items: center;
+    border-radius: 8px 8px 0px 0px;
+    transition: transform 0.2s linear;
+    transform: translateY(110%);
+  }
+}
+
+.menuActive {
+  display: flex;
+  flex-direction: column;
   position: absolute;
   bottom: 0;
   z-index: 2;
@@ -28,11 +51,14 @@
 
   @media (max-width: 880px) {
     position: fixed;
-    right: 0;
     left: 0;
-    text-align: start;
-    align-items: flex-start;
-    padding-block: 16px;
+    bottom: 0;
+    width: 100%;
+    height: max-content;
+    border-radius: 8px 8px 0px 0px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    transform: translateY(0%);
+    transition: transform 0.2s linear;
   }
 }
 

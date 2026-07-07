@@ -84,8 +84,8 @@ export const PromotionsTableWrapper = (props: Props) => {
   const handleOpenAddNewItemModal = () =>
     setOptionFormModal({ ...initOptionFormModal, isOpen: true });
   const handleCloseFormModal = () => setOptionFormModal(initOptionFormModal);
-  const handleOpenDeleteModal = (id: number) =>
-    setOptionFormModal({ ...initOptionFormModal, id, isOpen: true, isDelete: true });
+  const handleOpenDeleteModal = (item: PromotionModel) =>
+    setOptionFormModal({ ...initOptionFormModal, id: item.id, isOpen: true, isDelete: true });
 
   const submitDelete = () => {
     if (optionFormModal.isDelete && optionFormModal.isOpen) {
@@ -158,8 +158,6 @@ export const PromotionsTableWrapper = (props: Props) => {
         {isMounted && !isMobile && props.data && props.data.length > 0 && (
           <MainTable
             data={props.data}
-            onEditAction={handleOpenEditModal}
-            onDeleteAction={handleOpenDeleteModal}
             headerRowLabels={[
               "ID",
               "Название",
@@ -170,8 +168,12 @@ export const PromotionsTableWrapper = (props: Props) => {
               "Активна",
             ]}
             stickyActionColumn
-            gridTemplateColumns="65px minmax(160px, 1fr) minmax(160px, 200px) 110px minmax(140px, 160px) minmax(140px, 160px) 90px 58px"
+            gridTemplateColumns="65px minmax(160px, 1fr) minmax(160px, 200px) 110px minmax(140px, 160px) minmax(140px, 160px) 90px 32px"
             tableOptions={tableOptions}
+            actions={[
+              { label: "Редактировать", action: handleOpenEditModal },
+              { label: "Удалить", action: handleOpenDeleteModal },
+            ]}
           />
         )}
 
@@ -179,8 +181,6 @@ export const PromotionsTableWrapper = (props: Props) => {
           <MainMobileTable
             titleKey="name"
             data={props.data}
-            onEditAction={handleOpenEditModal}
-            onDeleteAction={handleOpenDeleteModal}
             tableOptions={tableOptions}
             headerRowLabels={[
               "ID",
@@ -196,6 +196,10 @@ export const PromotionsTableWrapper = (props: Props) => {
             isLoadMoreDisabled={props.isLoadMoreDisabled}
             patch={props.patch}
             fetchTableElementAction={props.fetchTableElementAction}
+            actions={[
+              { label: "Редактировать", action: handleOpenEditModal },
+              { label: "Удалить", action: handleOpenDeleteModal },
+            ]}
           />
         )}
       </div>

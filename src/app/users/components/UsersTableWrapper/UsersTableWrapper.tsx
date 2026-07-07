@@ -35,9 +35,9 @@ export const UsersTableWrapper = (props: Props) => {
     isDelete: false,
   });
 
-  const handleOpenDeleteModal = (id: number) =>
+  const handleOpenDeleteModal = (item: UserModel) =>
     setOptionFormModal({
-      id,
+      id: item.id,
       isOpen: true,
       isDelete: true,
     });
@@ -104,12 +104,14 @@ export const UsersTableWrapper = (props: Props) => {
         {isMounted && !isMobile && props.users && props.users.length > 0 && (
           <MainTable
             data={props.users}
-            onEditAction={handleEditRouter}
-            onDeleteAction={handleOpenDeleteModal}
             headerRowLabels={headerRowLabels}
             stickyActionColumn
-            gridTemplateColumns="65px minmax(120px, 192px) minmax(120px, 192px) 192px minmax(100px, 160px) minmax(160px, 1fr) 58px"
+            gridTemplateColumns="65px minmax(120px, 192px) minmax(120px, 192px) 192px minmax(100px, 160px) minmax(160px, 1fr) 32px"
             tableOptions={tableOptions}
+            actions={[
+              { label: "Редактировать", action: handleEditRouter },
+              { label: "Удалить", action: handleOpenDeleteModal },
+            ]}
           />
         )}
 
@@ -117,8 +119,6 @@ export const UsersTableWrapper = (props: Props) => {
           <MainMobileTable
             titleKey="name"
             data={props.users}
-            onEditAction={handleEditRouter}
-            onDeleteAction={handleOpenDeleteModal}
             tableOptions={tableOptions}
             headerRowLabels={headerRowLabels}
             headerRowWidth={["38px", "100px", "100px", "80px", "100px", "120px"]}
@@ -126,6 +126,10 @@ export const UsersTableWrapper = (props: Props) => {
             isLoadMoreDisabled={props.isLoadMoreDisabled}
             patch={props.patch}
             fetchTableElementAction={props.fetchTableElementAction}
+            actions={[
+              { label: "Редактировать", action: handleEditRouter },
+              { label: "Удалить", action: handleOpenDeleteModal },
+            ]}
           />
         )}
       </div>

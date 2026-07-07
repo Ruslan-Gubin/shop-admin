@@ -35,9 +35,9 @@ export const WarehousesTableWrapper = (props: Props) => {
     isDelete: false,
   });
 
-  const handleOpenDeleteModal = (id: number) =>
+  const handleOpenDeleteModal = (item: WarehouseModel) =>
     setOptionFormModal({
-      id,
+      id: item.id,
       isOpen: true,
       isDelete: true,
     });
@@ -80,6 +80,7 @@ export const WarehousesTableWrapper = (props: Props) => {
     { key: "is_public", type: "boolean", typeConfig: { booleanLabels: ["Да", "Нет"] } },
     { key: "default_warehouse", type: "boolean", typeConfig: { booleanLabels: ["Да", "Нет"] } },
   ];
+  console.log(props.warehouses);
 
   const headerRowLabels = [
     "ID",
@@ -113,13 +114,15 @@ export const WarehousesTableWrapper = (props: Props) => {
         {isMounted && !isMobile && props.warehouses && props.warehouses.length > 0 && (
           <MainTable
             data={props.warehouses}
-            onEditAction={handleEditRouter}
-            onDeleteAction={handleOpenDeleteModal}
             headerRowLabels={headerRowLabels}
             stickyActionColumn
             stickyFirstColumn
-            gridTemplateColumns="65px minmax(150px, 1fr) minmax(120px, 180px) minmax(100px, 150px) 100px 100px 170px 58px"
+            gridTemplateColumns="65px minmax(150px, 1fr) minmax(120px, 180px) minmax(100px, 150px) 100px 100px 170px 32px"
             tableOptions={tableOptions}
+            actions={[
+              { label: "Редактировать", action: handleEditRouter },
+              { label: "Удалить", action: handleOpenDeleteModal },
+            ]}
           />
         )}
 
@@ -127,8 +130,6 @@ export const WarehousesTableWrapper = (props: Props) => {
           <MainMobileTable
             titleKey="name"
             data={props.warehouses}
-            onEditAction={handleEditRouter}
-            onDeleteAction={handleOpenDeleteModal}
             tableOptions={tableOptions}
             headerRowLabels={headerRowLabels}
             headerRowWidth={["38px", "150px", "150px", "100px", "80px", "80px", "120px"]}
@@ -136,6 +137,10 @@ export const WarehousesTableWrapper = (props: Props) => {
             isLoadMoreDisabled={props.isLoadMoreDisabled}
             patch={props.patch}
             fetchTableElementAction={props.fetchTableElementAction}
+            actions={[
+              { label: "Редактировать", action: handleEditRouter },
+              { label: "Удалить", action: handleOpenDeleteModal },
+            ]}
           />
         )}
       </div>

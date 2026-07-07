@@ -124,7 +124,7 @@ export const MainMobileTable = <T extends { id: number }>(props: Props<T>) => {
           headerContent={
             <ul className={styles.cartHeaderList}>
               {props.tableOptions.map((cell, index) => (
-                <li key={String(cell.key)}>
+                <li key={`${cell.key as string} ${cell.nextKey as string}`}>
                   <div
                     style={{
                       minWidth: props.headerRowWidth[index],
@@ -142,7 +142,11 @@ export const MainMobileTable = <T extends { id: number }>(props: Props<T>) => {
 
                     <div className={styles.headerListValue}>
                       {!cell.type && typeof cell.key === "string" && (
-                        <p>{(item[cell.key] as string) || "---"}</p>
+                        <p>
+                          {cell.nextKey
+                            ? (item[cell.key][cell.nextKey] as string) || "---"
+                            : (item[cell.key] as string) || "---"}
+                        </p>
                       )}
 
                       {cell.type === "translate" &&
@@ -196,13 +200,20 @@ export const MainMobileTable = <T extends { id: number }>(props: Props<T>) => {
           content={
             <ul className={styles.cardBody}>
               {props.tableOptions.map((cell) => (
-                <li key={String(cell.key)} className={styles.cellRow}>
+                <li
+                  key={`${cell.key as string} ${cell.nextKey as string}`}
+                  className={styles.cellRow}
+                >
                   <span className={styles.cellLabel}>
                     {props.headerRowLabels[props.tableOptions.indexOf(cell)]}
                   </span>
                   <div className={styles.cellValue}>
                     {!cell.type && typeof cell.key === "string" && (
-                      <p>{(item[cell.key] as string) || "---"}</p>
+                      <p>
+                        {cell.nextKey
+                          ? (item[cell.key][cell.nextKey] as string) || "---"
+                          : (item[cell.key] as string) || "---"}
+                      </p>
                     )}
 
                     {cell.type === "translate" &&

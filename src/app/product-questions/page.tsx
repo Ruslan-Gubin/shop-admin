@@ -5,11 +5,7 @@ import { getUpdateQueryPageString } from "@/shared/helpers/getUpdateQueryPageStr
 import { ErrorAlert } from "@/shared/ui/error-alert/ErrorAlert";
 import { Pagination } from "@/shared/ui/pagination/Pagination";
 import { UpdateToken } from "@/views/UpdateToken/UpdateToken";
-import {
-  deleteProductQuestionAction,
-  fetchProductQuestion,
-  fetchProductQuestions,
-} from "./action";
+import { deleteProductQuestionAction, fetchProductQuestion, fetchProductQuestions } from "./action";
 import { ProductQuestionsTableWrapper } from "./components/ProductQuestionsTableWrapper/ProductQuestionsTableWrapper";
 
 export default async function ProductQuestionsPage(req: {
@@ -31,6 +27,9 @@ export default async function ProductQuestionsPage(req: {
     }
   };
 
+  const questions =
+    tableData.data?.questions.map((el) => ({ ...el, is_answer: el.answer.length > 0 })) || [];
+
   const isLoadMoreDisabled = getIsLoadMoreDisabled(
     tableData.data?.paginationPage,
     tableData.data?.totalCount,
@@ -44,9 +43,10 @@ export default async function ProductQuestionsPage(req: {
       {tableData.status === "error" && tableData.message && (
         <ErrorAlert message={tableData.message} />
       )}
+      {questions && questions.length === 0 && <p>Нет вопросов к товарам</p>}
       <section className="table-container">
         <ProductQuestionsTableWrapper
-          questions={tableData?.data?.questions || []}
+          questions={questions}
           onDeleteItemAction={deleteProductQuestionAction}
           redirectPageAfterDeleteAction={redirectPageAfterDelete}
           isLoadMoreDisabled={isLoadMoreDisabled}

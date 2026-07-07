@@ -51,9 +51,9 @@ export const SearchQueriesTableWrapper = (props: Props) => {
     isOpen: false,
   });
 
-  const handleOpenDeleteModal = (id: number) =>
+  const handleOpenDeleteModal = (item: SearchModel) =>
     setDeleteModal({
-      id,
+      id: item.id,
       isOpen: true,
     });
 
@@ -124,11 +124,11 @@ export const SearchQueriesTableWrapper = (props: Props) => {
         {isMounted && !isMobile && processedData.length > 0 && (
           <MainTable
             data={processedData}
-            onDeleteAction={(id) => handleOpenDeleteModal(id)}
             headerRowLabels={headerRowLabels}
             stickyActionColumn
-            gridTemplateColumns="65px minmax(200px, 1fr) minmax(110px, 120px) minmax(110px, 120px) 180px 170px 58px"
+            gridTemplateColumns="65px minmax(200px, 1fr) minmax(110px, 120px) minmax(110px, 120px) 180px 170px 32px"
             tableOptions={tableOptions}
+            actions={[{ label: "Удалить", action: handleOpenDeleteModal }]}
           />
         )}
 
@@ -136,7 +136,6 @@ export const SearchQueriesTableWrapper = (props: Props) => {
           <MainMobileTable
             titleKey="text"
             data={processedData}
-            onDeleteAction={(id) => handleOpenDeleteModal(id)}
             tableOptions={tableOptions}
             headerRowLabels={headerRowLabels}
             headerRowWidth={["38px", "100px", "60px", "80px", "120px", "120px", "80px"]}
@@ -146,6 +145,7 @@ export const SearchQueriesTableWrapper = (props: Props) => {
             fetchTableElementAction={async () => {
               return { data: null, status: "error", message: "", errors: [], tokens: null };
             }}
+            actions={[{ label: "Удалить", action: handleOpenDeleteModal }]}
           />
         )}
       </div>

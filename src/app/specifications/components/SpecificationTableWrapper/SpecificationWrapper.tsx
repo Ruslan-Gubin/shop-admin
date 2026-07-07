@@ -74,9 +74,9 @@ export const SpecificationTableWrapper = (props: Props) => {
       isDelete: false,
     });
 
-  const handleOpenDeleteModal = (id: number) =>
+  const handleOpenDeleteModal = (item: SpecificationModel) =>
     setOptionFormModal({
-      id,
+      id: item.id,
       isOpen: true,
       name: "",
       type: "",
@@ -155,12 +155,15 @@ export const SpecificationTableWrapper = (props: Props) => {
         {isMounted && !isMobile && props.data && props.data.length > 0 && (
           <MainTable
             data={props.data}
-            onEditAction={handleOpenEditModal}
-            onDeleteAction={handleOpenDeleteModal}
             headerRowLabels={headerRowLabels}
+            stickyFirstColumn
             stickyActionColumn
-            gridTemplateColumns="65px minmax(220px, 1fr) minmax(120px, 180px) minmax(170px, 220px) 58px"
+            gridTemplateColumns="65px minmax(220px, 1fr) minmax(120px, 180px) minmax(170px, 220px) 32px"
             tableOptions={tableOptions}
+            actions={[
+              { label: "Редактировать", action: handleOpenEditModal },
+              { label: "Удалить", action: handleOpenDeleteModal },
+            ]}
           />
         )}
 
@@ -168,8 +171,6 @@ export const SpecificationTableWrapper = (props: Props) => {
           <MainMobileTable
             titleKey="name"
             data={props.data}
-            onEditAction={handleOpenEditModal}
-            onDeleteAction={handleOpenDeleteModal}
             tableOptions={tableOptions}
             headerRowLabels={headerRowLabels}
             headerRowWidth={["38px", "100px", "100px", "80px"]}
@@ -177,6 +178,10 @@ export const SpecificationTableWrapper = (props: Props) => {
             isLoadMoreDisabled={props.isLoadMoreDisabled}
             patch={props.patch}
             fetchTableElementAction={props.fetchTableElementAction}
+            actions={[
+              { label: "Редактировать", action: handleOpenEditModal },
+              { label: "Удалить", action: handleOpenDeleteModal },
+            ]}
           />
         )}
       </div>

@@ -84,9 +84,9 @@ export const PriceTypesTableWrapper = (props: Props) => {
       isDelete: false,
     });
 
-  const handleOpenDeleteModal = (id: number) =>
+  const handleOpenDeleteModal = (item: PriceTypeModel) =>
     setOptionFormModal({
-      id,
+      id: item.id,
       isOpen: true,
       name: "",
       description: "",
@@ -162,12 +162,14 @@ export const PriceTypesTableWrapper = (props: Props) => {
         {isMounted && !isMobile && props.data && props.data.length > 0 && (
           <MainTable
             data={props.data}
-            onEditAction={handleOpenEditModal}
-            onDeleteAction={handleOpenDeleteModal}
             headerRowLabels={["ID", "Название", "Описание", "От количества", "Публичный"]}
             stickyActionColumn
-            gridTemplateColumns="65px minmax(150px, 220px) minmax(120px, 1fr) minmax(120px, 140px) minmax(120px, 140px) 58px"
+            gridTemplateColumns="65px minmax(150px, 220px) minmax(120px, 1fr) minmax(120px, 140px) minmax(120px, 140px) 32px"
             tableOptions={tableOptions}
+            actions={[
+              { label: "Редактировать", action: handleOpenEditModal },
+              { label: "Удалить", action: handleOpenDeleteModal },
+            ]}
           />
         )}
 
@@ -175,8 +177,6 @@ export const PriceTypesTableWrapper = (props: Props) => {
           <MainMobileTable
             titleKey="name"
             data={props.data}
-            onEditAction={handleOpenEditModal}
-            onDeleteAction={handleOpenDeleteModal}
             tableOptions={tableOptions}
             headerRowLabels={["ID", "Название", "Описание", "От количества", "Публичный"]}
             headerRowWidth={["38px", "100px", "100px", "80px", "100px"]}
@@ -184,6 +184,10 @@ export const PriceTypesTableWrapper = (props: Props) => {
             isLoadMoreDisabled={props.isLoadMoreDisabled}
             patch={props.patch}
             fetchTableElementAction={props.fetchTableElementAction}
+            actions={[
+              { label: "Редактировать", action: handleOpenEditModal },
+              { label: "Удалить", action: handleOpenDeleteModal },
+            ]}
           />
         )}
       </div>
