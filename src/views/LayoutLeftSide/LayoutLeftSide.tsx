@@ -6,6 +6,7 @@ import { NavigateMenu } from "./NavigateMenu/NavigateMenu";
 import { CartDiscountsSvg } from "./svg/CartDiscountsSvg";
 import { CategorySvg } from "./svg/CategorySvg";
 import { FeaturesSvg } from "./svg/FeaturesSvg";
+import { OrdersSvg } from "./svg/OrdersSvg";
 import { PriceAutoFillSvg } from "./svg/PriceAutoFillSvg";
 import { PriceTypeSvg } from "./svg/PriceTypeSvg";
 import { PromotionsSvg } from "./svg/PromotionsSvg";
@@ -38,6 +39,13 @@ export const LayoutLeftSide = () => {
           isHasLine: false,
         },
       ],
+    },
+    {
+      label: "Заказы",
+      href: "/orders",
+      icon: <OrdersSvg />,
+      isHasLine: false,
+      children: [],
     },
     {
       label: "Склады",

@@ -31,7 +31,8 @@ export const baseFetch = async (args: BaseFetchArgs) => {
   _config.signal = signal.signal;
   const _url = fetchUrl(url, params);
 
-  if (tags && tags?.length > 0 && _config.next) {
+  if (tags && tags?.length > 0) {
+    _config.next = {};
     _config.next.tags = tags;
     if (revalidate) {
       _config.next.revalidate = revalidate;

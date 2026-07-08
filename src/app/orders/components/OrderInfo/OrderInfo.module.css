@@ -1,0 +1,21 @@
+.root {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  row-gap: var(--padding-content-block);
+}
+
+.fieldLabel {
+  font-weight: 500;
+}
+
+.fieldValue {
+  font-size: 14px;
+  color: var(--text-color-main);
+}
+
+.mainContentContainer {
+  display: flex;
+  flex-direction: column;
+  row-gap: 8px;
+}

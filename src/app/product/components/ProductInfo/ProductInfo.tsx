@@ -3,7 +3,6 @@ import { priceFormatter } from "@/shared/helpers/formatPrice";
 import { FormSection } from "@/widgets/form-section/FormSection";
 import type { ProductModel } from "../../action";
 import styles from "./ProductInfo.module.css";
-import { argv0 } from "process";
 
 type Props = {
   product: ProductModel;
