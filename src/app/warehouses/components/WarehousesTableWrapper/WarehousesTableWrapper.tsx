@@ -80,7 +80,6 @@ export const WarehousesTableWrapper = (props: Props) => {
     { key: "is_public", type: "boolean", typeConfig: { booleanLabels: ["Да", "Нет"] } },
     { key: "default_warehouse", type: "boolean", typeConfig: { booleanLabels: ["Да", "Нет"] } },
   ];
-  console.log(props.warehouses);
 
   const headerRowLabels = [
     "ID",

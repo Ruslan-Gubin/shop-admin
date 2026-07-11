@@ -2,29 +2,25 @@
 
 ## Общее описание
 
-Модуль управления заказами позволяет создавать, просматривать и управлять заказами клиентов.
+Модуль управления заказами: список заказов (с пагинацией и поиском) и страница редактирования заказа с информацией о доставке, товарах и статусе.
 
-## Модель данных
+---
 
-### OrderModel
+## Структура
 
-```typescript
-type OrderModel = {
-  id: number;
-  create_user_id: number; // Покупатель (кто создал заказ)
-  order_number: string; // Номер заказа
-  comment: string; // Комментарий
-  status: OrderStatus; // Статус заказа
-  rejected_reason: string;
-  default: ""; // Причина отклонения/отмены
-  discount: number;
-  default: 0; // Скидка (% от суммы)
-  created_at: Date;
-  updated_at: Date | null;
-};
-```
+| Роут                      | Описание                                                |
+| ------------------------- | ------------------------------------------------------- |
+| `/orders`                 | Список заказов (таблица с пагинацией, поиск по номеру)  |
+| `/orders/edit/[id]`       | Редактирование заказа (просмотр деталей, смена статуса) |
+| `/orders/transfer/create` | Создание перемещения (план)                             |
+
+---
+
+## Модели данных
 
 ### OrderStatus
+
+Файл: `src/app/orders/action.ts:7`
 
 ```typescript
 type OrderStatus =
@@ -39,23 +35,213 @@ type OrderStatus =
   | "cancelled_customer"; // Отменён клиентом
 ```
 
-### OrderItemModel (промежуточная таблица)
+### OrderPaymentMethod
 
 ```typescript
-type OrderItemModel = {
+type OrderPaymentMethod = "cash" | "card";
+```
+
+### OrderMethodReceipt
+
+```typescript
+type OrderMethodReceipt = "courier" | "pickup";
+```
+
+### OrderModel
+
+Файл: `src/app/orders/action.ts:21`
+
+```typescript
+type OrderModel = {
   id: number;
-  order_id: number; // Ссылка на заказ
-  product_id: number; // Ссылка на товар
-  quantity: number; // Количество
-  price: number; // Цена за единицу (фиксируется в момент заказа)
+  order_number: string; // Номер заказа
+  status: OrderStatus; // Статус
+  payment_method: OrderPaymentMethod;
+  method_receipt: OrderMethodReceipt; // courier | pickup
+
+  // Покупатель
+  create_user_id: number;
+  phone: string;
+  phoneCode: string;
+  recipient_name: string;
+  comment: string;
+
+  // Даты
+  date_from: string | null; // Ожидаемая дата получения
+  date_to: string | null;
+  created_at: string;
+  updated_at: string | null;
+
+  // Финансы
+  subtotal: number;
+  discount_quantity: number;
+  discount_name: string;
+  discount_percent: number;
+  discount_total: number;
+  total: number | string;
+
+  // Отмена
+  rejected_reason: string;
+
+  // Адрес (склад для pickup / адрес для courier)
+  address: AddressItem | null;
+
+  // Главный склад (план — добавить)
+  // warehouse_id: number;
+};
+```
+
+### OrderProductModel
+
+Файл: `src/app/orders/edit/[id]/action.ts:29`
+
+Снимок товара на момент создания заказа. Хранит фиксированную копию данных, чтобы изменения в каталоге не влияли на уже оформленный заказ.
+
+```typescript
+type OrderProductModel = {
+  id: number;
+  order_id: number;
+  product_id: number; // ID товара в каталоге (для ссылки)
+  name: string;
+  code: string; // Штрих-код
+  price: number; // Цена за единицу на момент заказа
+  quantity: number; // Количество в заказе
+
+  // Характеристики товара (snapshot)
+  description: string;
+  country: string;
+  equipment: string;
+  product_type: string;
+  height: number;
+  width: number;
+  length: number;
+  weight: number;
+
+  created_at: string;
+  updated_at: string;
+
+  // Резервы товара по складам
+  reservations: {
+    quantity: number; // Сколько зарезервировано
+    stock_id: number; // ID остатка (product-stock)
+    // warehouse_id: number; // ← план: ID склада (добавить)
+  }[];
 };
 ```
 
 ---
 
+## API Endpoints
+
+### GET `/orders`
+
+Параметры: `limit`, `page`, `order_number`
+
+Ответ:
+
+```typescript
+{
+  paginationPage: string;
+  orders: OrderModel[];
+  totalCount: number;
+}
+```
+
+### GET `/orders/{id}`
+
+Ответ: [`ResponseData<OrderModel>`]()
+
+### GET `/order-product/order/{id}`
+
+Ответ: [`ResponseData<OrderProductModel[]>`]()
+
+Возвращает список товаров с резервами для конкретного заказа.
+
+---
+
+## Компонентная структура
+
+### Список заказов (`/orders`)
+
+```
+src/app/orders/page.tsx (server component)
+└── OrdersTableWrapper (client component)
+    ├── TableControls — поиск по номеру заказа
+    ├── MainTable / MainMobileTable — десктопная / мобильная версия
+    └── Pagination
+
+Колонки таблицы:
+| Номер заказа | Статус | Телефон | Сумма | Оплата | Способ получения | Дата создания |
+```
+
+### Редактирование заказа (`/orders/edit/[id]`)
+
+```
+src/app/orders/edit/[id]/page.tsx (server component)
+├── OrderInfo — общие данные, покупатель, доставка
+├── OrderProductsTable — список товаров с резервами
+└── (план) OrderStatusActions — кнопки смены статуса
+```
+
+### OrderInfo
+
+Файл: `src/app/orders/components/OrderInfo/OrderInfo.tsx`
+
+Секции:
+
+1. **Общие данные** — статус, дата, способ получения, способ оплаты, скидка, сумма
+2. **Информация о покупателе** — имя, телефон, комментарий, ссылка на пользователя
+3. **Доставка** (только для `courier`) — адрес, дата получения, стоимость доставки
+
+### OrderProductsTable
+
+Файл: `src/app/orders/components/OrderProductsTable/OrderProductsTable.tsx`
+
+Колонки: Название (ссылка на товар), Штрих-код, Количество.
+
+План: добавить колонку «Наличие» с индикацией необходимости перемещения.
+
+---
+
 ## Статусы заказа
 
-### Основные статусы
+### Диаграмма
+
+```
+                  ┌───────────────┐
+                  │ cancelled_new │
+                  │ (админ)       │
+                  └───────┬───────┘
+                          │
+┌─────┐     ┌──────────┐ │  ┌──────────────────┐
+│ NEW │────▶│PROCESSING │─┼─▶│ cancelled_assembly│
+└─────┘     └─────┬────┘ │  │ (админ/сборщик)   │
+                  │       │  └──────────────────┘
+                  ▼       │
+           ┌──────────┐   │
+           │   READY  │   │
+           └────┬─────┘   │
+                │         │
+         ┌──────┴──────┐  │
+         ▼             ▼  │
+  ┌──────────┐  ┌───────────┐
+  │completed │  │in_delivery│
+  │(самовы-  │  │(курьер)   │
+  │ воз)     │  └─────┬─────┘
+  └──────────┘        │
+                 ┌────┴────┐
+                 ▼         ▼
+          ┌──────────┐ ┌───────────────┐
+          │completed │ │cancelled_     │
+          │(достав-  │ │delivery       │
+          │ лен)     │ │(служба достав-│
+          └──────────┘ │ ки)           │
+                       └───────────────┘
+```
+
+Также из любого статуса возможен переход в `cancelled_customer` (отмена клиентом).
+
+### Таблица статусов
 
 | Статус               | Кем устанавливается | Описание                                    |
 | -------------------- | ------------------- | ------------------------------------------- |
@@ -63,157 +249,51 @@ type OrderItemModel = {
 | `cancelled_new`      | Админ               | Отменён на этапе нового (`rejected_reason`) |
 | `processing`         | Админ/Сборщик       | В процессе сборки                           |
 | `cancelled_assembly` | Сборщик/Админ       | Отменён во время сборки (`rejected_reason`) |
-| `ready`    | Сборщик/Админ       | Собран, готов к самовывозу                  |
+| `ready`              | Сборщик/Админ       | Собран, готов к самовывозу                  |
 | `in_delivery`        | Система/Админ       | Передан в доставку                          |
 | `cancelled_delivery` | Служба доставки     | Отменён при доставке (`rejected_reason`)    |
 | `completed`          | Система/Админ       | Получен клиентом                            |
 | `cancelled_customer` | Клиент              | Отменён клиентом (`rejected_reason`)        |
 
-### Диаграмма статусов
+---
 
-```
-┌─────────┐     ┌───────────┐     ┌──────────────┐     ┌──────────────┐
-│   NEW   │────▶│PROCESSING │────▶│AWAITING_     │────▶│   NEXT...    │
-└─────────┘     └───────────┘     │ PICKUP        │     └──────────────┘
-     │               │             │(самовывоз)   │           │
-     ▼               ▼             └──────────────┘           │
-┌───────────┐  ┌───────────────┐                            ▼
-│CANCELLED_ │  │CANCELLED_     │                      ┌──────────────┐
-│ NEW       │  │ ASSEMBLY       │                      │ IN_DELIVERY  │
-│(отменён   │  │ (отменён при   │                      │(передан в    │
-│ сразу)    │  │  сборке)       │                      │ доставку)    │
-└───────────┘  └───────────────┘                      └──────────────┘
-                                                          │
-                                                          ▼
-                                                 ┌──────────────┐
-                                                 │ COMPLETED    │
-                                                 │ (доставлен)  │
-                                                 └──────────────┘
-                                                          │
-                                                          ▼
-                                                 ┌──────────────┐
-                                                 │CANCELLED_    │
-                                                 │DELIVERY      │
-                                                 │(отменён при  │
-                                                 │ доставке)    │
-                                                 └──────────────┘
-```
+## Переводы
+
+Файл: `src/shared/translate/order-translates.ts`
+
+| Ключ                 | Значение           |
+| -------------------- | ------------------ |
+| `new`                | Новый              |
+| `cancelled_new`      | Отменён (новый)    |
+| `processing`         | В обработке        |
+| `cancelled_assembly` | Отменён (сборка)   |
+| `ready`              | Готов              |
+| `in_delivery`        | В доставке         |
+| `cancelled_delivery` | Отменён (доставка) |
+| `completed`          | Завершён           |
+| `cancelled_customer` | Отменён клиентом   |
+| `cash`               | Наличными          |
+| `card`               | Банковской картой  |
+| `pickup`             | Самовывоз          |
+| `courier`            | Курьер             |
 
 ---
 
-## Логика переключения статусов
+## Кэширование
 
-```
-1. Админ открывает заказ (new)
-   ├─▶ Кнопка "Начать сборку" ──▶ status: 'processing'
-   └─▶ Кнопка "Отменить" ──▶ status: 'cancelled_new' + rejected_reason
+Используется `fetchService` с тегами:
 
-2. Сборщик собирает заказ (processing)
-   ├─▶ Кнопка "Готов к выдаче" ──▶ status: 'ready'
-   └─▶ Кнопка "Отменить" ──▶ status: 'cancelled_assembly' + rejected_reason
-
-3. Заказ готов (ready)
-   └─▶ Кнопка "Получен" ──▶ status: 'completed'
-
-4. Заказ в доставке (in_delivery)
-   ├─▶ Кнопка "Доставлен" ──▶ status: 'completed'
-   └─▶ Кнопка "Отменить" ──▶ status: 'cancelled_delivery' + rejected_reason
-```
+- `Orders_${page}_${limit}_${order_number}` — список заказов
+- `Orders_${id}` — конкретный заказ
+- `OrderProduct_${id}` — товары заказа
 
 ---
 
-## Логика определения "кем отменён"
+## Планы (ближайшие)
 
-Отмена определяется по статусу заказа:
-
-| Статус               | Кто отменил     | Причина           |
-| -------------------- | --------------- | ----------------- |
-| `cancelled_new`      | Админ           | `rejected_reason` |
-| `cancelled_assembly` | Сборщик/Админ   | `rejected_reason` |
-| `cancelled_delivery` | Служба доставки | `rejected_reason` |
-| `cancelled_customer` | Клиент          | `rejected_reason` |
-
----
-
-## Полная цепочка развития заказа
-
-```
-┌─────┐                              ┌──────────────────┐
-│ NEW │────────────────────────────────▶CANCELLED_CUSTOMER│
-└─────┘                              │ (reason)         │
-   │                                  │ Кем: Клиент     │
-   ├─▶ "Начать сборку" ──▶ ┌─────────┐                 │
-   │                      │         │                   │
-   │                      ▼         ▼                    │
-   │               ┌───────────┐ ┌───────────────┐    │
-   │               │PROCESSING │ │CANCELLED_NEW  │    │
-   │               │(сборка)   │ │(отменён      │    │
-   │               └───────────┘ │ админом)      │    │
-   │                     │       └───────────────┘    │
-   │                     │                             │
-   │              ┌──────┴──────┐                      │
-   │              ▼             ▼                      │
-   │    ┌───────────────┐ ┌──────────────┐           │
-   │    │CANCELLED_     │ │AWAITING_     │           │
-   │    │ ASSEMBLY      │ │PICKUP         │           │
-   │    │(отменён при   │ │(готов к       │           │
-   │    │ сборке)        │ │самовывозу)     │           │
-   │    └───────────────┘ └──────────────┘           │
-   │                              │                    │
-   │                              ▼                    │
-   │                       ┌──────────────┐           │
-   │                       │ COMPLETED    │           │
-   │                       │ (получен    │           │
-   │                       │  клиентом)   │           │
-   │                       └──────────────┘           │
-   │                              ИЛИ                  │
-   │                              ▼                    │
-   │                       ┌──────────────┐           │
-   │                       │ IN_DELIVERY  │           │
-   │                       │(передан в    │           │
-   │                       │ доставку)    │           │
-   │                       └──────────────┘           │
-   │                              │                    │
-   │                     ┌──────┴──────┐               │
-   │                     ▼             ▼               │
-   │             ┌──────────────┐ ┌──────────────┐    │
-   │             │ COMPLETED   │ │CANCELLED_    │    │
-   │             │ (доставлен) │ │DELIVERY      │    │
-   │             └──────────────┘ │(reason)      │    │
-   │                               └──────────────┘    │
-   └──────────────────────────────────────────────────┘
-```
-
----
-
-## Пример данных
-
-```
-Заказ #1 (create_user_id: 42) — самовывоз
-├── status: ready
-├── order_items:
-│   ├── [Товар A] × 10 шт × 10 руб = 100 руб
-│   └── [Товар B] × 20 шт × 50 руб = 1000 руб
-└── discount: 10%
-```
-
-```
-Заказ #2 (create_user_id: 55) — доставка
-├── status: in_delivery
-├── order_items:
-│   └── [Товар C] × 5 шт × 200 руб = 1000 руб
-```
-
-```
-Заказ #3 (create_user_id: 60) — отменён на этапе new
-├── status: cancelled_new
-├── rejected_reason: "Неверный адрес клиента"
-```
-
-```
-Заказ #4 (create_user_id: 65) — отменён клиентом
-├── status: cancelled_customer
-├── rejected_reason: "Передумал"
-```
-
-Пока реализуем минимальную структуру: `id`, `user_id`, `confirmed_user_id`, `created_at`, `updated_at` + `order_items` с `quantity` и `price`.
+1. Добавить `warehouse_id` в `OrderModel` — главный склад выдачи/доставки
+2. Добавить `warehouse_id` в `reservations` — склад каждого резерва
+3. Реализовать `OrderStatusActions` — кнопки смены статуса
+4. Создать страницу `/orders/transfer/create` — создание перемещений
+5. Добавить колонку «Наличие» в `OrderProductsTable`
+6. Подробнее: [`order-status-new-to-processing.md`](./order-status-new-to-processing.md)

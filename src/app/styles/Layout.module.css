@@ -14,7 +14,6 @@
   flex-direction: column;
   background-color: var(--background-side-navigate);
   border-right: 1px solid lightgray;
-  z-index: 1;
 
   @media (max-width: 880px) {
     transition: var(--header-mobile-menu-transition);
@@ -42,9 +41,9 @@
   position: sticky;
   top: 0;
   left: 0;
-  z-index: 1;
   border-bottom: 1px solid lightgray;
   background-color: var(--background-content-color);
+  z-index: 2;
 }
 
 .layoutMain {

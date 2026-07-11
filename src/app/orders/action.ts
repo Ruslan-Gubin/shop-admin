@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import { fetchService } from "@/shared/fetch-api";
 import { updateTokensInAction } from "@/shared/helpers/updateCookieAction";
 import type { AddressItem } from "@/shared/ui/mapbox/Mapbox";
+import type { WarehouseModel } from "../warehouses/action";
 
 export type OrderStatus =
   | "new"
@@ -39,6 +40,7 @@ export type OrderModel = {
   discount_total: number;
   subtotal: number;
   total: number | string;
+  warehouse: WarehouseModel | null;
   created_at: string;
   updated_at: string | null;
 };
