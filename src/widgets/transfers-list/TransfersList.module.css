@@ -23,9 +23,28 @@
   gap: 12px;
 }
 
-.cardDate {
-  font-size: 13px;
-  color: #888888;
+.completedBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.4;
+  background-color: #e6f7e6;
+  color: #16a34a;
+}
+
+.inTransitBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.4;
+  background-color: #fff3e0;
+  color: #e65100;
 }
 
 .content {

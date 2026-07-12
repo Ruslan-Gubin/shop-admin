@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { OrderStatus } from "../../action";
 import type { OrderProductModel, OrderReservation } from "../../edit/[id]/action";
 import styles from "./OrderProductsTable.module.css";
 
@@ -7,6 +8,8 @@ type Props = {
   baseId: number;
   in_delivery: boolean;
   hasAnyTransfers: boolean;
+  method_receipt: "courier" | "pickup";
+  order_status: OrderStatus;
 };
 
 export const OrderProductsTable = (props: Props) => {
@@ -36,6 +39,12 @@ export const OrderProductsTable = (props: Props) => {
     } else if (needTransferCount > 0) {
       text = `К перемещению ${needTransferCount} шт`;
       className = styles.needTransferText;
+    }
+
+    if (props.order_status === "completed") {
+      const count = reservations.reduce((acc, el) => el.quantity + acc, 0);
+      text = `${props.method_receipt === "courier" ? "Доставлено" : "Забрали"} ${count} шт`;
+      className = styles.availableText;
     }
 
     return { text, className };

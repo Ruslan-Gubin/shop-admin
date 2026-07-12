@@ -128,7 +128,12 @@ export default async function TransferStockToStockPage(req: {
         </Link>
       )}
       {transfers.length > 0 ? (
-        <TransfersList transfers={transfers} products={products} baseId={baseWarehouseId} />
+        <TransfersList
+          transfers={transfers}
+          products={products}
+          baseId={baseWarehouseId}
+          isCompleted={products.some((el) => el.transfers.length > 0)}
+        />
       ) : (
         initValues && (
           <TransferStockToStockForm

@@ -17,7 +17,6 @@ export default async function OrderEditPage(req: { params: Promise<{ id: string 
   const title = order ? `Заказ # ${order.order_number}` : "Заказ";
   const baseWarehouseId = order?.warehouse?.id || 0;
   const delivery = deliveryData.data || [];
-  console.log(delivery);
 
   const isNeedTransfer =
     order?.warehouse?.id && order.status === "new"
@@ -49,14 +48,9 @@ export default async function OrderEditPage(req: { params: Promise<{ id: string 
           baseId={baseWarehouseId}
           in_delivery={delivery.length > 0 && order.status === "in_delivery"}
           hasAnyTransfers={transfers.length > 0}
+          method_receipt={order.method_receipt}
+          order_status={order.status}
         />
-      )}
-
-      {transfers.length > 0 && order && order.status === "processing" && (
-        <>
-          <h2>Список перемещений</h2>
-          <TransfersList transfers={transfers} products={products} baseId={baseWarehouseId} />
-        </>
       )}
 
       {delivery.length > 0 &&
@@ -64,7 +58,26 @@ export default async function OrderEditPage(req: { params: Promise<{ id: string 
         (order.status === "in_delivery" || order.status === "completed") && (
           <>
             <h2>Доставка курьером</h2>
-            <TransfersList transfers={delivery} products={products} baseId={baseWarehouseId} />
+            <TransfersList
+              isCompleted={order.status === "completed"}
+              transfers={delivery}
+              products={products}
+              baseId={baseWarehouseId}
+            />
+          </>
+        )}
+
+      {transfers.length > 0 &&
+        order &&
+        (order.status === "processing" || order.status === "completed") && (
+          <>
+            <h2>Список перемещений</h2>
+            <TransfersList
+              isCompleted={products.some((el) => el.transfers.length > 0)}
+              transfers={transfers}
+              products={products}
+              baseId={baseWarehouseId}
+            />
           </>
         )}
 

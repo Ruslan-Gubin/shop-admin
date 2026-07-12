@@ -41,7 +41,20 @@ export const OrderInfo = (props: Props) => {
         <div className={styles.mainContentContainer}>
           <p className={styles.fieldValue}>
             <span className={styles.fieldLabel}>Статус заказа: </span>
-            {orderStatusTranslations[props.order.status] || props.order.status}
+            <span
+              className={
+                props.order.status === "completed"
+                  ? styles.statusCompleted
+                  : props.order.status === "new" ||
+                      props.order.status === "processing" ||
+                      props.order.status === "ready" ||
+                      props.order.status === "in_delivery"
+                    ? styles.statusActive
+                    : styles.statusCancelled
+              }
+            >
+              {orderStatusTranslations[props.order.status] || props.order.status}
+            </span>
           </p>
           {props.order.rejected_reason && (
             <p className={styles.fieldValue}>

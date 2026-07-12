@@ -14,6 +14,21 @@
   color: var(--text-color-main);
 }
 
+.statusCompleted {
+  font-weight: 700;
+  color: #16a34a;
+}
+
+.statusActive {
+  font-weight: 700;
+  color: #e65100;
+}
+
+.statusCancelled {
+  font-weight: 700;
+  color: #c62828;
+}
+
 .mainContentContainer {
   display: flex;
   flex-direction: column;

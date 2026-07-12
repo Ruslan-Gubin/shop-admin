@@ -10,6 +10,7 @@ type Props = {
   transfers: TransferModel[];
   products: OrderProductModel[];
   baseId: number;
+  isCompleted: boolean;
 };
 
 export const TransfersList = (props: Props) => {
@@ -75,74 +76,6 @@ export const TransfersList = (props: Props) => {
     }
 
     return transfersList;
-
-    // return transfers.map((transfer) => {
-    //   const fromId = transfer.from_warehouse?.id;
-    //   const isDelivery = transfer.type === "delivery";
-    //
-    //   const shouldIncludeProduct = (product: OrderProductModel) => {
-    //     if (transfer.type === "delivery") {
-    //       return product.reservations.some((r) => r.warehouse_id === fromId);
-    //     }
-    //     if (product.transfers.length > 0) {
-    //       return product.transfers.some((t) => t.warehouse_id === fromId);
-    //     }
-    //     return product.reservations.some(
-    //       (r) => r.warehouse_id === fromId && r.warehouse_id !== baseId,
-    //     );
-    //   };
-    //
-    //   let totalQuantity = 0;
-    //   let totalSum = 0;
-    //   let totalWeight = 0;
-    //
-    //   const productsWithQty = products.filter(shouldIncludeProduct).map((product) => {
-    //     const source = isDelivery
-    //       ? product.reservations
-    //       : product.transfers.length > 0
-    //         ? product.transfers
-    //         : product.reservations;
-    //
-    //     let quantity = 0;
-    //
-    //     for (let i = 0; i < source.length; i++) {
-    //       const currentSource = source[i];
-    //       // totalQuantity += currentSource.quantity;
-    //       // totalSum += product.price * currentSource.quantity;
-    //       // totalWeight += (product.weight || 0) * currentSource.quantity;
-    //       quantity += currentSource.warehouse_id === fromId ? currentSource.quantity : 0;
-    //     }
-    //
-    //     totalQuantity += quantity;
-    //     totalSum += product.price * quantity;
-    //     totalWeight += (product.weight || 0) * quantity;
-    //     // productsWithQty.push({ product, quantity });
-    //
-    //     // const quantity = source.reduce(
-    //     //   (sum, item) => (item.warehouse_id === fromId ? sum + item.quantity : sum),
-    //     //   0,
-    //     // );
-    //     return { product, quantity };
-    //   });
-    //
-    //   // const totalQuantity = productsWithQty.reduce((sum, { quantity }) => sum + quantity, 0);
-    //   // const totalSum = productsWithQty.reduce(
-    //   //   (sum, { product, quantity }) => sum + product.price * quantity,
-    //   //   0,
-    //   // );
-    //   // const totalWeight = productsWithQty.reduce(
-    //   //   (sum, { product, quantity }) => sum + (product.weight || 0) * quantity,
-    //   //   0,
-    //   // );
-    //
-    //   return {
-    //     transfer,
-    //     products: productsWithQty,
-    //     totalQuantity,
-    //     totalSum,
-    //     totalWeight,
-    //   };
-    // });
   };
 
   const transfersList = prepareTransferCards(props.transfers, props.products, props.baseId);
@@ -158,8 +91,8 @@ export const TransfersList = (props: Props) => {
               type={transferItem.transfer.type}
               href={`/transfers/info/${transferItem.transfer.id}`}
             />
-            <span className={styles.cardDate}>
-              {new Date(transferItem.transfer.created_at).toLocaleString("ru-RU")}
+            <span className={props.isCompleted ? styles.completedBadge : styles.inTransitBadge}>
+              {props.isCompleted ? "Завершен" : "В пути"}
             </span>
           </header>
           <div className={styles.content}>
@@ -180,6 +113,13 @@ export const TransfersList = (props: Props) => {
               <span className={styles.address}>
                 <span className={styles.addressLabel}>Куда:</span>{" "}
                 {buildAddressString(transferItem.transfer.to_address)}
+              </span>
+            )}
+
+            {transferItem.transfer.updated_at && (
+              <span className={styles.address}>
+                <span className={styles.addressLabel}>Дата:</span>{" "}
+                {new Date(transferItem.transfer.updated_at).toLocaleString("ru-RU")}
               </span>
             )}
 

@@ -101,14 +101,20 @@ export const OrderStatusActions = (props: Props) => {
         </ModalContent>
       </Modal>
       <div className={styles.actionsRow}>
-        <Button
-          variant="outline"
-          variantColor="error"
-          size="md"
-          onClick={() => setIsModalOpen(true)}
-        >
-          Отменить заказ
-        </Button>
+        {props.status !== "completed" &&
+          props.status !== "cancelled_new" &&
+          props.status !== "cancelled_assembly" &&
+          props.status !== "cancelled_delivery" &&
+          props.status !== "cancelled_customer" && (
+            <Button
+              variant="outline"
+              variantColor="error"
+              size="md"
+              onClick={() => setIsModalOpen(true)}
+            >
+              Отменить заказ
+            </Button>
+          )}
 
         {props.status === "new" && (
           <>
