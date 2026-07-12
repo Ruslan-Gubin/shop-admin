@@ -37,7 +37,12 @@ export const OrderStatusActions = (props: Props) => {
   const handleCloseConfirmModal = () => setModalConfirmOpen({ title: "", subtitle: "" });
 
   const handleSubmit = (status: OrderStatus) => {
-    if (status === "processing" || status === "ready" || status === "in_delivery") {
+    if (
+      status === "new" ||
+      status === "processing" ||
+      status === "ready" ||
+      status === "in_delivery"
+    ) {
       props
         .changeOrderStatusAction(props.order_id)
         .then((response) => {
@@ -116,7 +121,17 @@ export const OrderStatusActions = (props: Props) => {
             )}
 
             {!props.isNeedTransfer && (
-              <Button variant="solid" variantColor="green" size="md">
+              <Button
+                onClick={() =>
+                  setModalConfirmOpen({
+                    title: "Начать сборку?",
+                    subtitle: "Заказ будет передан в сборку. Статус изменится на «В сборке».",
+                  })
+                }
+                variant="solid"
+                variantColor="green"
+                size="md"
+              >
                 Начать сборку
               </Button>
             )}
@@ -142,11 +157,11 @@ export const OrderStatusActions = (props: Props) => {
           <Button
             onClick={() =>
               setModalConfirmOpen({
-                title: props.method_receipt === "courier" ? "Передать курьеру" : "Завершить заказ",
+                title: props.method_receipt === "courier" ? "Передать курьеру" : "Завершить выдачу",
                 subtitle:
                   props.method_receipt === "courier"
                     ? "Заказ будет передан в доставку. Статус изменится на «В доставке»."
-                    : "Подтвердите, что клиент забрал товары. Статус изменится на «Завершён».",
+                    : "Подтвердите, что клиент забрал товары. Статус заказа изменится на завершен.",
               })
             }
             variant="solid"
@@ -160,8 +175,9 @@ export const OrderStatusActions = (props: Props) => {
           <Button
             onClick={() =>
               setModalConfirmOpen({
-                title: "Подтвердить доставку?",
-                subtitle: "Заказ будет завершён. Клиент получил товар.",
+                title: "Завершить доставку?",
+                subtitle:
+                  "Подтвердите, что клиенту доставили товар. Статус заказа изменится на завершен. ",
               })
             }
             variant="solid"

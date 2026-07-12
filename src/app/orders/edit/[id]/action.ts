@@ -31,6 +31,7 @@ export type OrderProductModel = {
   created_at: string;
   updated_at: string;
   reservations: OrderReservation[];
+  transfers: OrderReservation[];
 };
 
 export const fetchOrderEditPage = async (id: string) => {
