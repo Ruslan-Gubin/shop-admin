@@ -40,7 +40,7 @@ export const fetchTransfers = async (limit: string, page: string) => {
   });
 };
 
-export const fetchTransfer = async (id: string) => {
+export const fetchTransferAction = async (id: string) => {
   const cookieStore = await cookies();
 
   return await fetchService

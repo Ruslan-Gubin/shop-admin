@@ -2,12 +2,14 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import {
   FullscreenControl,
   GeolocateControl,
+  Layer,
   Map as MapMain,
   type MapMouseEvent,
   type MapRef,
   Marker,
   type MarkerEvent,
   NavigationControl,
+  Source,
   type ViewStateChangeEvent,
 } from "react-map-gl/mapbox";
 import "mapbox-gl/dist/mapbox-gl.css";
@@ -23,6 +25,35 @@ export type AddressItem = {
   flat: string;
   floor: string;
   intercom: string;
+};
+
+export type WayGeojsonResponse = {
+  code: string;
+  routes: {
+    distance: number;
+    duration: number;
+    geometry: { type: "LineString"; coordinates: [number, number][] };
+    legs: {
+      admins: {
+        iso_3166_1: string;
+        iso_3166_1_alpha3: string;
+        distance: number;
+        duration: number;
+        steps: [];
+        summary: string;
+        via_waypoints: [];
+        weight: number;
+      }[];
+    }[];
+    weight: number;
+    weight_name: string;
+  }[];
+  uuid: string;
+  waypoints: {
+    location: [number, number];
+    name: string;
+    distance: number;
+  }[];
 };
 
 export type MapBoxFeaturesItem = {
@@ -121,6 +152,7 @@ type Props = {
   onClickMarker?: (lng: number, lat: number) => void;
   onClickMap?: (lng: number, lat: number) => void;
   hasFullScreen?: boolean;
+  routeGeoJson?: GeoJSON.LineString | null;
 };
 
 export const MapBox = (props: Props) => {
@@ -243,6 +275,19 @@ export const MapBox = (props: Props) => {
             />
           </Marker>
         ))}
+      {props.routeGeoJson && (
+        <Source id="route" type="geojson" data={props.routeGeoJson}>
+          <Layer
+            id="route-line"
+            type="line"
+            paint={{
+              "line-color": "#f1117e",
+              "line-width": 4,
+              "line-opacity": 0.8,
+            }}
+          />
+        </Source>
+      )}
     </MapMain>
   );
 };

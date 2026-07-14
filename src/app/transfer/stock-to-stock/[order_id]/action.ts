@@ -3,10 +3,10 @@ import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import type { OrderModel } from "@/app/orders/action";
 import type { OrderProductModel, OrderReservation } from "@/app/orders/edit/[id]/action";
+import type { TransferModel } from "@/app/transfer/action";
 import type { ProductStockModel } from "@/app/warehouses/action";
 import { fetchService } from "@/shared/fetch-api";
 import { updateTokensInAction } from "@/shared/helpers/updateCookieAction";
-import type { TransferModel } from "@/app/transfer/action";
 
 export const fetchTransferStockToStock = async (id: string) => {
   return await fetchService.fetchChain<

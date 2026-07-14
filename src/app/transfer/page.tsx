@@ -4,7 +4,7 @@ import { getIsLoadMoreDisabled } from "@/shared/helpers/getIsLoadMoreDisabled";
 import { ErrorAlert } from "@/shared/ui/error-alert/ErrorAlert";
 import { Pagination } from "@/shared/ui/pagination/Pagination";
 import { UpdateToken } from "@/views/UpdateToken/UpdateToken";
-import { fetchTransfer, fetchTransfers } from "./action";
+import { fetchTransferAction, fetchTransfers } from "./action";
 import { TransferTableWrapper } from "./components/TransferTableWrapper/TransferTableWrapper";
 
 export default async function TransfersPage(req: {
@@ -44,7 +44,7 @@ export default async function TransfersPage(req: {
         <TransferTableWrapper
           transfers={transfers}
           searchParams={searchParams}
-          fetchTableElementAction={fetchTransfer}
+          fetchTableElementAction={fetchTransferAction}
           isLoadMoreDisabled={isLoadMoreDisabled}
           patch={patch}
         />

@@ -1,9 +1,9 @@
 "use server";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
+import type { TransferModel } from "@/app/transfer/action";
 import { fetchService } from "@/shared/fetch-api";
 import { updateTokensInAction } from "@/shared/helpers/updateCookieAction";
-import type { TransferModel } from "@/app/transfer/action";
 import type { OrderModel } from "../../action";
 
 export type OrderReservation = {
