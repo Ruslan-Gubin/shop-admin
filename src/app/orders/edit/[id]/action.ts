@@ -3,7 +3,7 @@ import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { fetchService } from "@/shared/fetch-api";
 import { updateTokensInAction } from "@/shared/helpers/updateCookieAction";
-import type { TransferModel } from "@/shared/types/transfer";
+import type { TransferModel } from "@/app/transfer/action";
 import type { OrderModel } from "../../action";
 
 export type OrderReservation = {
@@ -73,7 +73,29 @@ export const changeOrderStatusAction = async (id: number) => {
         updateTokensInAction(cookieStore, response.tokens);
       }
 
-      revalidatePath("/orders/edit/");
+      revalidatePath(`/orders/edit/${id}`);
+      revalidatePath("/orders");
+
+      return response;
+    });
+};
+
+export const cancelOrderAction = async (id: number, rejected_reason: string) => {
+  const cookieStore = await cookies();
+
+  return await fetchService
+    .patch<null>({
+      url: `orders/reject/${id}`,
+      payload: { rejected_reason },
+    })
+    .then((response) => {
+      if (response.tokens) {
+        updateTokensInAction(cookieStore, response.tokens);
+      }
+
+      revalidatePath(`/orders/edit/${id}`);
+      revalidatePath("/orders");
+
       return response;
     });
 };

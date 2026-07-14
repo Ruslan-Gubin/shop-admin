@@ -5,7 +5,7 @@ import { TransfersList } from "@/widgets/transfers-list/TransfersList";
 import { OrderInfo } from "../../components/OrderInfo/OrderInfo";
 import { OrderProductsTable } from "../../components/OrderProductsTable/OrderProductsTable";
 import { OrderStatusActions } from "../../components/OrderStatusActions/OrderStatusActions";
-import { changeOrderStatusAction, fetchOrderEditPage } from "./action";
+import { cancelOrderAction, changeOrderStatusAction, fetchOrderEditPage } from "./action";
 
 export default async function OrderEditPage(req: { params: Promise<{ id: string }> }) {
   const { id } = await req.params;
@@ -55,29 +55,26 @@ export default async function OrderEditPage(req: { params: Promise<{ id: string 
 
       {delivery.length > 0 &&
         order &&
-        (order.status === "in_delivery" || order.status === "completed") && (
+        (order.status === "in_delivery" ||
+          order.status === "completed" ||
+          order.status === "cancelled_delivery") && (
           <>
             <h2>Доставка курьером</h2>
-            <TransfersList
-              isCompleted={order.status === "completed"}
-              transfers={delivery}
-              products={products}
-              baseId={baseWarehouseId}
-            />
+            <TransfersList transfers={delivery} products={products} baseId={baseWarehouseId} />
           </>
         )}
 
       {transfers.length > 0 &&
         order &&
-        (order.status === "processing" || order.status === "completed") && (
+        (order.status === "processing" ||
+          order.status === "completed" ||
+          order.status === "cancelled_assembly" ||
+          order.status === "cancelled_ready" ||
+          order.status === "cancelled_delivery" ||
+          order.status === "cancelled_customer") && (
           <>
             <h2>Список перемещений</h2>
-            <TransfersList
-              isCompleted={products.some((el) => el.transfers.length > 0)}
-              transfers={transfers}
-              products={products}
-              baseId={baseWarehouseId}
-            />
+            <TransfersList transfers={transfers} products={products} baseId={baseWarehouseId} />
           </>
         )}
 
@@ -88,6 +85,7 @@ export default async function OrderEditPage(req: { params: Promise<{ id: string 
           order_id={order.id}
           method_receipt={order.method_receipt}
           changeOrderStatusAction={changeOrderStatusAction}
+          cancelOrderAction={cancelOrderAction}
         />
       )}
     </section>

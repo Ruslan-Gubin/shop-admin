@@ -15,6 +15,7 @@ import { RegisterSvg } from "./svg/RegisterSvg";
 import { ReviewSvg } from "./svg/ReviewSvg";
 import { SearchSvg } from "./svg/SearchSvg";
 import { UsersSvg } from "./svg/UsersSvg";
+import { LogisticsSvg } from "./svg/LogisticsSvg";
 import { WarehousesSvg } from "./svg/WarehousesSvg";
 
 export type NavigateListItem = {
@@ -59,6 +60,13 @@ export const LayoutLeftSide = () => {
           isHasLine: false,
         },
       ],
+    },
+    {
+      label: "Логистика",
+      href: "/transfer",
+      icon: <LogisticsSvg />,
+      isHasLine: false,
+      children: [],
     },
     {
       label: "Вопросы к товарам",

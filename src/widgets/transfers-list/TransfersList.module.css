@@ -23,7 +23,19 @@
   gap: 12px;
 }
 
-.completedBadge {
+.badgeProcessing {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.4;
+  background-color: #fff3e0;
+  color: #e65100;
+}
+
+.badgeCompleted {
   display: inline-flex;
   align-items: center;
   padding: 2px 8px;
@@ -35,7 +47,7 @@
   color: #16a34a;
 }
 
-.inTransitBadge {
+.badgeRejected {
   display: inline-flex;
   align-items: center;
   padding: 2px 8px;
@@ -43,8 +55,8 @@
   font-size: 12px;
   font-weight: 600;
   line-height: 1.4;
-  background-color: #fff3e0;
-  color: #e65100;
+  background-color: #fce8e6;
+  color: #c5221f;
 }
 
 .content {

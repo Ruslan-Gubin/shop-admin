@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import type { ResponseData } from "@/shared/types/response";
 import { Button } from "@/shared/ui/button-main/Button";
 import { Modal } from "@/shared/ui/modal/Modal";
@@ -12,6 +12,7 @@ import { TextAreaResize } from "@/shared/ui/text-area-resize/TextAreaResize";
 import { notificationAdapter } from "@/stores/notification/adapter";
 import type { OrderMethodReceipt, OrderStatus } from "../../action";
 import styles from "./OrderStatusActions.module.css";
+import { no } from "zod/v4/locales";
 
 type Props = {
   isNeedTransfer: boolean;
@@ -19,9 +20,11 @@ type Props = {
   order_id: number;
   method_receipt: OrderMethodReceipt;
   changeOrderStatusAction: (order_id: number) => Promise<ResponseData<null>>;
+  cancelOrderAction: (order_id: number, rejected_reason: string) => Promise<ResponseData<null>>;
 };
 
 export const OrderStatusActions = (props: Props) => {
+  const [disabled, transition] = useTransition();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalConfirmOpen, setModalConfirmOpen] = useState<{ title: string; subtitle: string }>({
     title: "",
@@ -30,8 +33,25 @@ export const OrderStatusActions = (props: Props) => {
   const [rejectedReason, setRejectedReason] = useState("");
 
   const onSubmitCancelOrder = () => {
-    setIsModalOpen(false);
-    setRejectedReason("");
+    if (rejectedReason.length === 0) {
+      notificationAdapter.add("Причина отказа обязательна", "error");
+    }
+    if (props.order_id && rejectedReason.length > 0) {
+      transition(() => {
+        props
+          .cancelOrderAction(props.order_id, rejectedReason)
+          .then((response) => {
+            notificationAdapter.add(response.message, response.status);
+
+            if (response.status === "success") {
+              setRejectedReason("");
+            }
+          })
+          .finally(() => {
+            setIsModalOpen(false);
+          });
+      });
+    }
   };
 
   const handleCloseConfirmModal = () => setModalConfirmOpen({ title: "", subtitle: "" });
@@ -43,14 +63,16 @@ export const OrderStatusActions = (props: Props) => {
       status === "ready" ||
       status === "in_delivery"
     ) {
-      props
-        .changeOrderStatusAction(props.order_id)
-        .then((response) => {
-          notificationAdapter.add(response.message, response.status);
-        })
-        .finally(() => {
-          handleCloseConfirmModal();
-        });
+      transition(() => {
+        props
+          .changeOrderStatusAction(props.order_id)
+          .then((response) => {
+            notificationAdapter.add(response.message, response.status);
+          })
+          .finally(() => {
+            handleCloseConfirmModal();
+          });
+      });
     }
   };
 
@@ -70,6 +92,7 @@ export const OrderStatusActions = (props: Props) => {
             submitAction={{
               text: "Подтвердить",
               variantColor: "green",
+              disabled,
               action: () => handleSubmit(props.status),
             }}
           />
@@ -95,6 +118,7 @@ export const OrderStatusActions = (props: Props) => {
             submitAction={{
               text: "Подтвердить",
               variantColor: "green",
+              disabled,
               action: onSubmitCancelOrder,
             }}
           />
@@ -103,6 +127,7 @@ export const OrderStatusActions = (props: Props) => {
       <div className={styles.actionsRow}>
         {props.status !== "completed" &&
           props.status !== "cancelled_new" &&
+          props.status !== "cancelled_ready" &&
           props.status !== "cancelled_assembly" &&
           props.status !== "cancelled_delivery" &&
           props.status !== "cancelled_customer" && (

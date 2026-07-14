@@ -11,6 +11,7 @@ export type OrderStatus =
   | "processing"
   | "cancelled_assembly"
   | "ready"
+  | "cancelled_ready"
   | "in_delivery"
   | "cancelled_delivery"
   | "completed"

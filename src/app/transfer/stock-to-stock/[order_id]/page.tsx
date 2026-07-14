@@ -132,7 +132,6 @@ export default async function TransferStockToStockPage(req: {
           transfers={transfers}
           products={products}
           baseId={baseWarehouseId}
-          isCompleted={products.some((el) => el.transfers.length > 0)}
         />
       ) : (
         initValues && (

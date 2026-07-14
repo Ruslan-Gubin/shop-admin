@@ -165,98 +165,101 @@ export const TransferStockToStockForm = (props: Props) => {
         </ModalContent>
       </Modal>
       <ul className={styles.productsList}>
-        {props.orderProductList.map((product) => {
-          const totalSelected = product.stocks.reduce(
-            (sum, stock) => sum + Number(values[stock.id] || 0),
-            0,
-          );
-          const isError = totalSelected !== product.needReservationCount;
+        {props.orderProductList
+          .filter((el) => el.needReservationCount > 0)
+          .map((product) => {
+            const totalSelected = product.stocks.reduce(
+              (sum, stock) => sum + Number(values[stock.id] || 0),
+              0,
+            );
+            const isError = totalSelected !== product.needReservationCount;
 
-          return (
-            <li
-              className={`${styles.productsItem} ${isError ? styles.productsItemError : ""}`}
-              key={product.id}
-            >
-              <header>
-                <Link href={`/product/info/${product.id}`}>
-                  <Button variant="link" variantColor="blue">
-                    {product.name}
-                  </Button>
-                </Link>
-              </header>
-              <div className={styles.countInfo}>
-                <span className={styles.needTransferText}>
-                  Всего в заказе: {product.needInOrderCount} шт.
-                </span>
-                <span className={styles.needTransferText}>
-                  На базовом складе: {product.readyInBaseWarehouseCount} шт.
-                </span>
+            return (
+              <li
+                className={`${styles.productsItem} ${isError ? styles.productsItemError : ""}`}
+                key={product.id}
+              >
+                <header>
+                  <Link href={`/product/info/${product.id}`}>
+                    <Button variant="link" variantColor="blue">
+                      {product.name}
+                    </Button>
+                  </Link>
+                </header>
+                <div className={styles.countInfo}>
+                  <span className={styles.needTransferText}>
+                    Всего в заказе: {product.needInOrderCount} шт.
+                  </span>
+                  <span className={styles.needTransferText}>
+                    На базовом складе: {product.readyInBaseWarehouseCount} шт.
+                  </span>
 
-                <span className={styles.needTransferText}>
-                  К перемещению: {product.needReservationCount} шт.
-                </span>
-              </div>
+                  <span className={styles.needTransferText}>
+                    К перемещению: {product.needReservationCount} шт.
+                  </span>
+                </div>
 
-              <div className={styles.separator}>
-                <h3>{"Остатки"}</h3>
-                <span
-                  className={`${styles.counter} ${isError ? styles.counterError : styles.counterOk}`}
-                >
-                  {totalSelected} / {product.needReservationCount}
-                </span>
-              </div>
+                <div className={styles.separator}>
+                  <h3>{"Остатки"}</h3>
+                  <span
+                    className={`${styles.counter} ${isError ? styles.counterError : styles.counterOk}`}
+                  >
+                    {totalSelected} / {product.needReservationCount}
+                  </span>
+                </div>
 
-              <table className={styles.table}>
-                <thead className={styles.header}>
-                  <tr className={styles.headerLine}>
-                    <th className={styles.headerCell}>
-                      <span className={styles.headerCellText}>Склад</span>
-                    </th>
-                    <th className={styles.headerCell}>
-                      <span className={styles.headerCellText}>Доступно</span>
-                    </th>
-                    <th className={styles.headerCell}>
-                      <span className={styles.headerCellText}>К перемещению</span>
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {product.stocks.map((stock) => (
-                    <tr key={stock.id} className={styles.dataRow}>
-                      <td className={styles.dataCell}>
-                        <Link
-                          href={`/warehouses/edit/${stock.warehouse.id}`}
-                          className={styles.link}
-                        >
-                          {stock.warehouse.name} id:{stock.id} quantity: {stock.quantity} reserved:{" "}
-                          {stock.reserved} warehouse_id: {stock.warehouse.id}
-                        </Link>
-                      </td>
-                      <td className={styles.dataCell}>
-                        <span>
-                          {product.maxStocks[stock.id] ? product.maxStocks[stock.id] : "∞"}
-                        </span>
-                      </td>
-                      <td className={styles.dataCell}>
-                        <input
-                          onBlur={(e) =>
-                            handleBlurInput(e.target.value, stock.id, product.maxStocks[stock.id])
-                          }
-                          onChange={(e) => handleChangeQuantity(e.target.value, stock.id)}
-                          value={values[stock.id] || ""}
-                          className={styles.cellInput}
-                          type="number"
-                          min={0}
-                          max={product.maxStocks[stock.id]}
-                        />
-                      </td>
+                <table className={styles.table}>
+                  <thead className={styles.header}>
+                    <tr className={styles.headerLine}>
+                      <th className={styles.headerCell}>
+                        <span className={styles.headerCellText}>Склад</span>
+                      </th>
+                      <th className={styles.headerCell}>
+                        <span className={styles.headerCellText}>Доступно</span>
+                      </th>
+                      <th className={styles.headerCell}>
+                        <span className={styles.headerCellText}>К перемещению</span>
+                      </th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </li>
-          );
-        })}
+                  </thead>
+                  <tbody>
+                    {product.stocks.map((stock) => (
+                      <tr key={stock.id} className={styles.dataRow}>
+                        <td className={styles.dataCell}>
+                          <Link
+                            href={`/warehouses/edit/${stock.warehouse.id}`}
+                            className={styles.link}
+                          >
+                            {stock.warehouse.name}
+                          </Link>
+                        </td>
+                        <td className={styles.dataCell}>
+                          <span>
+                            {typeof product.maxStocks[stock.id] === "number"
+                              ? product.maxStocks[stock.id]
+                              : "∞"}
+                          </span>
+                        </td>
+                        <td className={styles.dataCell}>
+                          <input
+                            onBlur={(e) =>
+                              handleBlurInput(e.target.value, stock.id, product.maxStocks[stock.id])
+                            }
+                            onChange={(e) => handleChangeQuantity(e.target.value, stock.id)}
+                            value={values[stock.id] || ""}
+                            className={styles.cellInput}
+                            type="number"
+                            min={0}
+                            max={product.maxStocks[stock.id]}
+                          />
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </li>
+            );
+          })}
       </ul>
       <footer className={styles.footer}>
         <Button

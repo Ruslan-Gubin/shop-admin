@@ -12,6 +12,12 @@ type Props = {
   order_status: OrderStatus;
 };
 
+//before Ручка обычная 5 без типа и цвета в заказе 2шт, test2 4 всего, доступно 2  резерв 2
+//before Ручка обычная 3 Синяя шариковая в заказе 1шт, Главный склад 2 всего, доступно 1  резерв 1 (было перемещение с склада на склад)
+
+//after Ручка обычная 5 без типа и цвета в заказе 2шт, test2 4 всего, доступно 4  резерв 0
+//after Ручка обычная 3 Синяя шариковая в заказе 1шт, Главный склад 2 всего, доступно 2  резерв 0
+
 export const OrderProductsTable = (props: Props) => {
   const getNeedTransferCount = (reservations: OrderReservation[], baseId: number): number => {
     return reservations.reduce(
@@ -33,12 +39,31 @@ export const OrderProductsTable = (props: Props) => {
     if (props.in_delivery) {
       text = `В доставке ${quantity} шт`;
       className = styles.inTransferText;
-    } else if (props.hasAnyTransfers) {
+    } else if (props.hasAnyTransfers && needTransferCount > 0) {
       text = `В перемещении ${needTransferCount} шт`;
       className = styles.inTransferText;
     } else if (needTransferCount > 0) {
       text = `К перемещению ${needTransferCount} шт`;
       className = styles.needTransferText;
+    }
+
+    if (
+      [
+        "cancelled_new",
+        "cancelled_assembly",
+        "cancelled_ready",
+        "cancelled_delivery",
+        "cancelled_customer",
+      ].includes(props.order_status)
+    ) {
+      text = "Отменён";
+      className = styles.needTransferText;
+    }
+
+    if (props.order_status === "ready") {
+      const count = reservations.reduce((acc, el) => el.quantity + acc, 0);
+      text = `${props.method_receipt === "courier" ? "К доставке" : "К выдачи"} ${count} шт`;
+      className = styles.availableText;
     }
 
     if (props.order_status === "completed") {

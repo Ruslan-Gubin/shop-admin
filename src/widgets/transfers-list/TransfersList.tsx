@@ -1,8 +1,9 @@
 import Link from "next/link";
 import type { OrderProductModel } from "@/app/orders/edit/[id]/action";
+import type { TransferModel, TransferStatus } from "@/app/transfer/action";
 import { buildAddressString } from "@/shared/helpers/buildAddressString";
 import { priceFormatter } from "@/shared/helpers/formatPrice";
-import type { TransferModel } from "@/shared/types/transfer";
+import { transferStatusTranslations } from "@/shared/translate/transform-translate";
 import { TransferRoute } from "./TransferRoute";
 import styles from "./TransfersList.module.css";
 
@@ -10,7 +11,6 @@ type Props = {
   transfers: TransferModel[];
   products: OrderProductModel[];
   baseId: number;
-  isCompleted: boolean;
 };
 
 export const TransfersList = (props: Props) => {
@@ -80,6 +80,12 @@ export const TransfersList = (props: Props) => {
 
   const transfersList = prepareTransferCards(props.transfers, props.products, props.baseId);
 
+  const statusClass: Record<TransferStatus, string> = {
+    completed: styles.badgeCompleted,
+    processing: styles.badgeProcessing,
+    rejected: styles.badgeRejected,
+  };
+
   return (
     <ul className={styles.list}>
       {transfersList.map((transferItem) => (
@@ -89,11 +95,15 @@ export const TransfersList = (props: Props) => {
               fromWarehouseName={transferItem.transfer.from_warehouse?.name || ""}
               toWarehouseName={transferItem.transfer.to_warehouse?.name || ""}
               type={transferItem.transfer.type}
-              href={`/transfers/info/${transferItem.transfer.id}`}
+              href={`/transfer/info/${transferItem.transfer.id}`}
             />
-            <span className={props.isCompleted ? styles.completedBadge : styles.inTransitBadge}>
-              {props.isCompleted ? "Завершен" : "В пути"}
-            </span>
+            {(transferItem.transfer.status === "completed" ||
+              transferItem.transfer.status === "rejected" ||
+              transferItem.transfer.status === "processing") && (
+              <span className={statusClass[transferItem.transfer.status]}>
+                {transferStatusTranslations[transferItem.transfer.status]}
+              </span>
+            )}
           </header>
           <div className={styles.content}>
             {transferItem.transfer.from_warehouse?.address && (
