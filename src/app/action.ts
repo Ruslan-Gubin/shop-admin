@@ -3,7 +3,7 @@ import { cookies } from "next/headers";
 import { CONFIG_APP } from "@/shared/config/config";
 import { fetchService } from "@/shared/fetch-api";
 import { updateTokensInAction } from "@/shared/helpers/updateCookieAction";
-import { MapBoxGetSearchGeocodeResponse } from "@/shared/ui/mapbox/Mapbox";
+import type { MapBoxGetSearchGeocodeResponse } from "@/shared/ui/mapbox/Mapbox";
 
 export const fetchConnect = async () => {
   return await fetchService.get<null>({ url: "connect" });

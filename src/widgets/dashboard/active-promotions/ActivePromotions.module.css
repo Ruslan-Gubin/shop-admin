@@ -1,0 +1,53 @@
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 16px;
+  background-color: #fafafa;
+  border: 1px solid #e8e8e8;
+  border-radius: 6px;
+  text-decoration: none;
+  transition: border-color 0.15s, background-color 0.15s;
+}
+
+.item:hover {
+  border-color: #0075f2;
+  background-color: #f0f7ff;
+}
+
+.name {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-color-main);
+}
+
+.percent {
+  font-size: 18px;
+  font-weight: 600;
+  color: #2e7d32;
+  min-width: 60px;
+  text-align: center;
+}
+
+.dates {
+  font-size: 13px;
+  color: #8a8999;
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.dateRange {
+  white-space: nowrap;
+}
+
+.separator {
+  color: #d0d0d0;
+}

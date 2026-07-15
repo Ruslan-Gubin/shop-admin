@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { ReactNode } from "react";
 import { Suspense } from "react";
 import { MainImage } from "@/shared/ui/image-main/ImageMain";
@@ -6,6 +7,7 @@ import { NavigateMenu } from "./NavigateMenu/NavigateMenu";
 import { CartDiscountsSvg } from "./svg/CartDiscountsSvg";
 import { CategorySvg } from "./svg/CategorySvg";
 import { FeaturesSvg } from "./svg/FeaturesSvg";
+import { LogisticsSvg } from "./svg/LogisticsSvg";
 import { OrdersSvg } from "./svg/OrdersSvg";
 import { PriceAutoFillSvg } from "./svg/PriceAutoFillSvg";
 import { PriceTypeSvg } from "./svg/PriceTypeSvg";
@@ -15,7 +17,6 @@ import { RegisterSvg } from "./svg/RegisterSvg";
 import { ReviewSvg } from "./svg/ReviewSvg";
 import { SearchSvg } from "./svg/SearchSvg";
 import { UsersSvg } from "./svg/UsersSvg";
-import { LogisticsSvg } from "./svg/LogisticsSvg";
 import { WarehousesSvg } from "./svg/WarehousesSvg";
 
 export type NavigateListItem = {
@@ -30,7 +31,7 @@ export const LayoutLeftSide = () => {
   const navigateList: NavigateListItem[] = [
     {
       label: "Список товаров",
-      href: "/",
+      href: "/product",
       icon: <RegisterSvg />,
       children: [
         {
@@ -143,7 +144,9 @@ export const LayoutLeftSide = () => {
   return (
     <>
       <div className={styles.navigateLogoContainer}>
-        <MainImage src={"/assets/logo.png"} alt="Logo image" classContainer={styles.logoImage} />
+        <Link href={"/"}>
+          <MainImage src={"/assets/logo.png"} alt="Logo image" classContainer={styles.logoImage} />
+        </Link>
       </div>
       <nav className={styles.navigateMenuNav}>
         <Suspense fallback={<div>Loading...</div>}>

@@ -12,12 +12,6 @@ type Props = {
   order_status: OrderStatus;
 };
 
-//before Ручка обычная 5 без типа и цвета в заказе 2шт, test2 4 всего, доступно 2  резерв 2
-//before Ручка обычная 3 Синяя шариковая в заказе 1шт, Главный склад 2 всего, доступно 1  резерв 1 (было перемещение с склада на склад)
-
-//after Ручка обычная 5 без типа и цвета в заказе 2шт, test2 4 всего, доступно 4  резерв 0
-//after Ручка обычная 3 Синяя шариковая в заказе 1шт, Главный склад 2 всего, доступно 2  резерв 0
-
 export const OrderProductsTable = (props: Props) => {
   const getNeedTransferCount = (reservations: OrderReservation[], baseId: number): number => {
     return reservations.reduce(

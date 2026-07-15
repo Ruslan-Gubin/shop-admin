@@ -1,0 +1,120 @@
+.paymentCard {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
+.paymentCash {
+  background-color: #fff3e0;
+  color: #e65100;
+}
+
+.table {
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+  border: 1px solid lightgray;
+  border-radius: 4px;
+  max-width: 100%;
+}
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  min-width: 620px;
+}
+
+.headerLine {
+  display: grid;
+  grid-template-columns: 1fr 150px 170px 170px;
+  min-height: 50px;
+  background-color: #f5f7f6;
+}
+
+.headerCell {
+  display: flex;
+  align-items: center;
+  padding-inline: 16px 5px;
+  padding-block: 5px;
+  background-color: #f5f7f6;
+  color: #333333;
+  font-size: 14px;
+  font-weight: 500;
+  border-right: 1px solid lightgray;
+  overflow: hidden;
+
+  &:nth-last-child(1) {
+    border-right: none;
+  }
+}
+
+.headerCellText {
+  text-wrap: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.dataRow {
+  display: grid;
+  grid-template-columns: 1fr 150px 170px 170px;
+  min-height: 50px;
+  min-width: 620px;
+
+  &:nth-last-child(1) {
+    .dataCell {
+      border-bottom: none;
+    }
+  }
+
+  &:hover {
+    .dataCell {
+      transition: background-color 0.1s linear;
+      background-color: #f5fafe;
+    }
+  }
+}
+
+.dataCell {
+  display: flex;
+  align-items: center;
+  border-right: 1px solid lightgray;
+  overflow: hidden;
+  padding-inline: 16px 5px;
+  padding-block: 5px;
+  color: #333333;
+  font-size: 14px;
+  background-color: white;
+  border-bottom: 1px solid lightgray;
+
+  &:nth-last-child(1) {
+    border-right: none;
+  }
+}
+
+.link {
+  color: #1a73e8;
+  text-decoration: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.availableText {
+  color: #16a34a;
+  font-weight: 500;
+}
+
+.needTransferText {
+  color: #dc2626;
+  font-weight: 500;
+}
+
+.inTransferText {
+  color: #ea580c;
+  font-weight: 500;
+}

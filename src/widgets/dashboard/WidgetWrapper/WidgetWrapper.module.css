@@ -1,0 +1,24 @@
+.widget {
+  display: flex;
+  flex-direction: column;
+  row-gap: var(--padding-content-block);
+  background-color: var(--background-content-color);
+  border-radius: var(--border-radius-main);
+  padding: var(--padding-content-block);
+  border: 1px solid #e8e8e8;
+}
+
+.widgetHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.widgetLink {
+  font-size: 14px;
+  color: #0075f2;
+}
+
+.widgetLink:hover {
+  text-decoration: underline;
+}

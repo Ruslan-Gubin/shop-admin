@@ -1,6 +1,5 @@
-.root {
+.dashboard {
   display: flex;
   flex-direction: column;
-  column-gap: 20px;
-  height: 100%;
+  gap: var(--padding-content-block);
 }

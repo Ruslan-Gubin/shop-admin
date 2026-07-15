@@ -75,6 +75,7 @@ export const changeOrderStatusAction = async (id: number) => {
 
       revalidatePath(`/orders/edit/${id}`);
       revalidatePath("/orders");
+      revalidatePath("/");
 
       return response;
     });
@@ -95,6 +96,7 @@ export const cancelOrderAction = async (id: number, rejected_reason: string) => 
 
       revalidatePath(`/orders/edit/${id}`);
       revalidatePath("/orders");
+      revalidatePath("/");
 
       return response;
     });
