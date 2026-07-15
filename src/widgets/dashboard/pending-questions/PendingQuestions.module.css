@@ -8,32 +8,16 @@
   display: flex;
   align-items: flex-start;
   gap: 12px;
-  padding: 12px 16px;
-  background-color: #fafafa;
+  padding: var(--padding-content-block);
   border: 1px solid #e8e8e8;
-  border-radius: 6px;
+  border-radius: var(--border-radius-main);
   text-decoration: none;
-  transition: border-color 0.15s, background-color 0.15s;
+  transition: border-color 0.2s linear;
+  overflow: hidden;
 }
 
 .item:hover {
-  border-color: #0075f2;
-  background-color: #f0f7ff;
-}
-
-.icon {
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  background-color: #fff3e0;
-  color: #e65100;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 13px;
-  font-weight: 600;
-  flex-shrink: 0;
-  margin-top: 1px;
+  border-color: #242424;
 }
 
 .content {
@@ -44,11 +28,6 @@
 .question {
   font-size: 14px;
   color: var(--text-color-main);
-  margin-bottom: 4px;
-  line-height: 1.4;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .productName {
@@ -60,4 +39,8 @@
   font-size: 12px;
   color: #8a8999;
   flex-shrink: 0;
+
+  @media (max-width: 360px) {
+    display: none;
+  }
 }

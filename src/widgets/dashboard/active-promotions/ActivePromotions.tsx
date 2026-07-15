@@ -1,17 +1,10 @@
 import Link from "next/link";
+import type { PromotionModel } from "@/app/promotions/action";
 import { WidgetWrapper } from "../WidgetWrapper/WidgetWrapper";
 import styles from "./ActivePromotions.module.css";
 
-export type ActivePromotionItem = {
-  id: number;
-  name: string;
-  percent: number;
-  date_from: string;
-  date_to: string;
-};
-
 type Props = {
-  promotions: ActivePromotionItem[];
+  promotions: PromotionModel[];
 };
 
 const formatDate = (dateStr: string) => {
@@ -22,28 +15,22 @@ const formatDate = (dateStr: string) => {
   });
 };
 
-export const ActivePromotions = ({ promotions }: Props) => {
-  if (promotions.length === 0) return null;
-
+export const ActivePromotions = (props: Props) => {
   return (
-    <WidgetWrapper
-      title="Активные акции"
-      linkHref="/promotions"
-      linkLabel="Все акции"
-    >
-      <div className={styles.list}>
-        {promotions.map((p) => (
-          <Link key={p.id} href="/promotions" className={styles.item}>
-            <span className={styles.name}>{p.name}</span>
-            <span className={styles.percent}>-{p.percent}%</span>
+    <WidgetWrapper title="Активные акции" linkHref="/promotions" linkLabel="Все акции">
+      <ul className={styles.list}>
+        {props.promotions.map((promotion) => (
+          <Link key={promotion.id} href="/promotions" className={styles.item}>
+            <span className={styles.name}>{promotion.name}</span>
+            <span className={styles.percent}>-{promotion.percent}%</span>
             <span className={styles.dates}>
-              <span className={styles.dateRange}>{formatDate(p.date_from)}</span>
+              <span className={styles.dateRange}>{formatDate(promotion.date_from)}</span>
               <span className={styles.separator}>—</span>
-              <span className={styles.dateRange}>{formatDate(p.date_to)}</span>
+              <span className={styles.dateRange}>{formatDate(promotion.date_to)}</span>
             </span>
           </Link>
         ))}
-      </div>
+      </ul>
     </WidgetWrapper>
   );
 };

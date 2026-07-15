@@ -24,6 +24,7 @@ export default async function EditProductQuestionPage(searchParams: {
     "use server";
     await deleteProductQuestionAction(Number(id)).then((res) => {
       if (res.status === "success") {
+        revalidatePath("/");
         redirect("/product-questions");
       }
     });
@@ -40,6 +41,7 @@ export default async function EditProductQuestionPage(searchParams: {
 
       if (response.status === "success") {
         revalidatePath("/product-questions");
+        revalidatePath("/");
         notification = {
           status: "success",
           message: "Ответ успешно сохранен",

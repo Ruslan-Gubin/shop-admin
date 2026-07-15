@@ -5,7 +5,6 @@ import { ActiveTransfers } from "@/widgets/dashboard/active-transfers/ActiveTran
 import { LowStockProducts } from "@/widgets/dashboard/low-stock-products/LowStockProducts";
 import { NewOrders } from "@/widgets/dashboard/new-orders/NewOrders";
 import { PendingQuestions } from "@/widgets/dashboard/pending-questions/PendingQuestions";
-import { PendingReviews } from "@/widgets/dashboard/pending-reviews/PendingReviews";
 import { SalesSchedule } from "@/widgets/dashboard/sales-schedule/SalesSchedule";
 import { SalesStats } from "@/widgets/dashboard/sales-stats/SalesStats";
 import { SummaryCards } from "@/widgets/dashboard/summary-cards/SummaryCards";
@@ -16,11 +15,19 @@ export default async function HomePage(req: {
   searchParams: Promise<{ page: string; name?: string }>;
 }) {
   const searchParams = await req.searchParams;
-  const [usersData, ordersData, transfersData, productsData, newOrdersData, statsData] =
-    await fetchDashboardData();
-
-  const newOrders = newOrdersData.data?.orders || [];
-  console.log(statsData);
+  const [
+    usersData,
+    ordersData,
+    transfersData,
+    productsData,
+    newOrdersData,
+    questionsData,
+    transfersProcessingData,
+    productsLowData,
+    promotionsData,
+    statsData,
+  ] = await fetchDashboardData();
+  console.log(promotionsData);
 
   return (
     <section className="page-wrapper">
@@ -43,6 +50,15 @@ export default async function HomePage(req: {
       {statsData.status === "error" && statsData.message && (
         <ErrorAlert message={statsData.message} />
       )}
+      {questionsData.status === "error" && questionsData.message && (
+        <ErrorAlert message={questionsData.message} />
+      )}
+      {productsLowData.status === "error" && productsLowData.message && (
+        <ErrorAlert message={productsLowData.message} />
+      )}
+      {promotionsData.status === "error" && promotionsData.message && (
+        <ErrorAlert message={promotionsData.message} />
+      )}
 
       <div className={styles.dashboard}>
         <SummaryCards
@@ -52,7 +68,9 @@ export default async function HomePage(req: {
           transfers={transfersData.data?.totalCount || 0}
         />
 
-        {newOrders.length > 0 && <NewOrders orders={newOrders} />}
+        {newOrdersData.data && newOrdersData.data?.orders?.length > 0 && (
+          <NewOrders orders={newOrdersData.data?.orders || []} />
+        )}
 
         {statsData.data && (
           <SalesStats
@@ -65,20 +83,21 @@ export default async function HomePage(req: {
           />
         )}
 
-        {/* Блок 4: Неотвеченные вопросы (данные будут позже) */}
-        <PendingQuestions questions={[]} />
+        {questionsData.data && questionsData.data?.questions?.length > 0 && (
+          <PendingQuestions questions={questionsData.data.questions || []} />
+        )}
 
-        {/* Блок 5: Неотвеченные отзывы (данные будут позже) */}
-        <PendingReviews reviews={[]} />
+        {transfersProcessingData.data && transfersProcessingData.data?.transfers?.length > 0 && (
+          <ActiveTransfers transfers={transfersProcessingData.data?.transfers || []} />
+        )}
 
-        {/* Блок 6: Активные перемещения (данные будут позже) */}
-        <ActiveTransfers transfers={[]} />
+        {productsLowData.data && productsLowData.data.length > 0 && (
+          <LowStockProducts products={productsLowData.data || []} />
+        )}
 
-        {/* Блок 7: Активные акции (данные будут позже) */}
-        <ActivePromotions promotions={[]} />
-
-        {/* Блок 8: Товары с малым остатком (данные будут позже) */}
-        <LowStockProducts products={[]} />
+        {promotionsData.data && promotionsData.data.length > 0 && (
+          <ActivePromotions promotions={promotionsData.data || []} />
+        )}
 
         {/* Блок 9: График продаж (заглушка) */}
         <SalesSchedule />

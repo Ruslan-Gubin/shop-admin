@@ -8,17 +8,16 @@
   display: flex;
   align-items: center;
   gap: 16px;
-  padding: 12px 16px;
+  padding: var(--padding-content-block);
   background-color: #fafafa;
   border: 1px solid #e8e8e8;
   border-radius: 6px;
-  text-decoration: none;
-  transition: border-color 0.15s, background-color 0.15s;
+  transition: border-color 0.2s linear;
+  overflow: hidden;
 }
 
 .item:hover {
-  border-color: #0075f2;
-  background-color: #f0f7ff;
+  border-color: #242424;
 }
 
 .typeBadge {
@@ -51,12 +50,16 @@
 }
 
 .arrow {
-  margin: 0 8px;
+  padding: 0 8px;
   color: #8a8999;
 }
 
 .date {
-  font-size: 13px;
+  font-size: 12px;
   color: #8a8999;
   flex-shrink: 0;
+
+  @media (max-width: 500px) {
+    display: none;
+  }
 }

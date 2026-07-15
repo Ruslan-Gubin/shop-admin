@@ -1,17 +1,10 @@
 import Link from "next/link";
+import type { QuestionModel } from "@/app/product-questions/action";
 import { WidgetWrapper } from "../WidgetWrapper/WidgetWrapper";
 import styles from "./PendingQuestions.module.css";
 
-export type PendingQuestionItem = {
-  id: number;
-  question: string;
-  product_name: string;
-  product_id: number;
-  created_at: string;
-};
-
 type Props = {
-  questions: PendingQuestionItem[];
+  questions: QuestionModel[];
 };
 
 const formatDate = (dateStr: string) => {
@@ -22,31 +15,26 @@ const formatDate = (dateStr: string) => {
   });
 };
 
-export const PendingQuestions = ({ questions }: Props) => {
-  if (questions.length === 0) return null;
-
+export const PendingQuestions = (props: Props) => {
   return (
     <WidgetWrapper
       title="Неотвеченные вопросы"
       linkHref="/product-questions"
       linkLabel="Все вопросы"
     >
-      <div className={styles.list}>
-        {questions.map((q) => (
-          <Link
-            key={q.id}
-            href={`/product/info/${q.product_id}`}
-            className={styles.item}
-          >
-            <span className={styles.icon}>?</span>
-            <div className={styles.content}>
-              <div className={styles.question}>{q.question}</div>
-              <span className={styles.productName}>{q.product_name}</span>
-            </div>
-            <span className={styles.date}>{formatDate(q.created_at)}</span>
-          </Link>
+      <ul className={styles.list}>
+        {props.questions.map((question) => (
+          <li key={question.id}>
+            <Link href={`/product-questions/edit/${question.id}`} className={styles.item}>
+              <div className={styles.content}>
+                <span className={styles.productName}>{question.product.name}</span>
+                <div className={styles.question}>{question.question}</div>
+              </div>
+              <span className={styles.date}>{formatDate(question.created_at)}</span>
+            </Link>
+          </li>
         ))}
-      </div>
+      </ul>
     </WidgetWrapper>
   );
 };

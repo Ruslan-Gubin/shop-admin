@@ -2,8 +2,10 @@
 import { fetchService } from "@/shared/fetch-api";
 import type { OrderModel } from "./orders/action";
 import type { ProductModel } from "./product/action";
+import type { QuestionModel } from "./product-questions/action";
 import type { TransferModel } from "./transfer/action";
 import type { UserModel } from "./users/action";
+import { PromotionModel } from "./promotions/action";
 
 export const fetchDashboardData = async () => {
   return await fetchService.fetchChain<
@@ -33,6 +35,18 @@ export const fetchDashboardData = async () => {
         orders: OrderModel[];
         totalCount: number;
       },
+      {
+        paginationPage: string;
+        questions: QuestionModel[];
+        totalCount: number;
+      },
+      {
+        transfers: TransferModel[];
+        totalCount: number;
+        paginationPage: string;
+      },
+      ProductModel[],
+      PromotionModel[],
       {
         total: number;
         totalCart: number;
@@ -68,8 +82,29 @@ export const fetchDashboardData = async () => {
     },
     {
       url: "orders",
-      params: { limit: "1000", page: "1", status: "new" },
+      params: { limit: "10", page: "1", status: "new" },
       tags: [`NewOrdersDashboard`],
+      revalidate: 30,
+    },
+    {
+      url: "product-question/unanswered",
+      params: { limit: "10", page: "1" },
+      tags: ["UnansweredQuestions"],
+    },
+    {
+      url: "transfers",
+      tags: [`TransfersDashboard`],
+      params: { page: "1", limit: "10", status: "processing" },
+      revalidate: 30,
+    },
+    {
+      url: "product/running-low",
+      tags: ["ProductsRunningLow"],
+      revalidate: 30,
+    },
+    {
+      url: "promotions/active",
+      tags: ["PromotionsActive"],
       revalidate: 30,
     },
     {

@@ -1,52 +1,36 @@
 import Link from "next/link";
+import type { ProductModel } from "@/app/product/action";
 import { WidgetWrapper } from "../WidgetWrapper/WidgetWrapper";
 import styles from "./LowStockProducts.module.css";
 
-export type LowStockProductItem = {
-  id: number;
-  name: string;
-  code: string;
-  available: number;
-};
-
 type Props = {
-  products: LowStockProductItem[];
+  products: ProductModel[];
 };
 
-export const LowStockProducts = ({ products }: Props) => {
-  if (products.length === 0) return null;
-
+export const LowStockProducts = (props: Props) => {
   return (
-    <WidgetWrapper
-      title="Товары с малым остатком"
-      linkHref="/product"
-      linkLabel="Все товары"
-    >
-      <div className={styles.list}>
-        {products.map((p) => {
+    <WidgetWrapper title="Товары на исходе" linkHref="/product" linkLabel="Все товары">
+      <ul className={styles.list}>
+        {props.products.map((product) => {
           const stockClass =
-            p.available === 0
+            product.available === 0
               ? styles.stockEmpty
-              : p.available <= 3
+              : product.available <= 3
                 ? styles.stockLow
                 : styles.stockNormal;
 
           return (
-            <Link
-              key={p.id}
-              href={`/product/info/${p.id}`}
-              className={styles.item}
-            >
-              <span className={styles.name}>{p.name}</span>
-              <span className={styles.code}>{p.code}</span>
+            <Link key={product.id} href={`/product/info/${product.id}`} className={styles.item}>
+              <span className={styles.name}>{product.name}</span>
+              <span className={styles.code}>{product.code}</span>
               <span className={`${styles.stock} ${stockClass}`}>
-                {p.available}
+                {product.available}
                 <span className={styles.stockUnit}>шт</span>
               </span>
             </Link>
           );
         })}
-      </div>
+      </ul>
     </WidgetWrapper>
   );
 };

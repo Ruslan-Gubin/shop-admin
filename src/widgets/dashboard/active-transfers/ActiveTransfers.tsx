@@ -1,69 +1,49 @@
 import Link from "next/link";
+import type { TransferModel } from "@/app/transfer/action";
 import { WidgetWrapper } from "../WidgetWrapper/WidgetWrapper";
 import styles from "./ActiveTransfers.module.css";
 
-export type ActiveTransferItem = {
-  id: number;
-  type: "transfer" | "delivery";
-  from_warehouse_name: string;
-  to_warehouse_name: string | null;
-  to_address_formatted: string | null;
-  created_at: string;
-};
-
 type Props = {
-  transfers: ActiveTransferItem[];
+  transfers: TransferModel[];
 };
 
-const formatDate = (dateStr: string) => {
-  const d = new Date(dateStr);
-  return d.toLocaleDateString("ru-RU", {
-    day: "numeric",
-    month: "short",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-};
+export const ActiveTransfers = (props: Props) => {
+  const formatDate = (dateStr: string) => {
+    const d = new Date(dateStr);
+    return d.toLocaleDateString("ru-RU", {
+      day: "numeric",
+      month: "short",
+    });
+  };
 
-const typeLabels: Record<string, string> = {
-  transfer: "Перемещение",
-  delivery: "Доставка",
-};
-
-export const ActiveTransfers = ({ transfers }: Props) => {
-  if (transfers.length === 0) return null;
+  const typeLabels: Record<string, string> = {
+    transfer: "Перемещение",
+    delivery: "Доставка",
+  };
 
   return (
-    <WidgetWrapper
-      title="Активные перемещения"
-      linkHref="/transfer"
-      linkLabel="Все перемещения"
-    >
-      <div className={styles.list}>
-        {transfers.map((t) => (
-          <Link
-            key={t.id}
-            href={`/transfer/info/${t.id}`}
-            className={styles.item}
-          >
+    <WidgetWrapper title="Активные перемещения" linkHref="/transfer" linkLabel="Все перемещения">
+      <ul className={styles.list}>
+        {props.transfers.map((transfer) => (
+          <Link key={transfer.id} href={`/transfer/info/${transfer.id}`} className={styles.item}>
             <span
               className={`${styles.typeBadge} ${
-                t.type === "transfer" ? styles.typeTransfer : styles.typeDelivery
+                transfer.type === "transfer" ? styles.typeTransfer : styles.typeDelivery
               }`}
             >
-              {typeLabels[t.type]}
+              {typeLabels[transfer.type]}
             </span>
             <span className={styles.route}>
-              {t.from_warehouse_name}
+              {transfer.from_warehouse?.name || "-/-"}
               <span className={styles.arrow}>→</span>
-              {t.type === "delivery"
-                ? t.to_address_formatted ?? "Адрес не указан"
-                : t.to_warehouse_name ?? "Не указан"}
+              {transfer.type === "delivery"
+                ? (transfer.to_address?.name ?? "Адрес не указан")
+                : (transfer.to_warehouse?.name ?? "Не указан")}
             </span>
-            <span className={styles.date}>{formatDate(t.created_at)}</span>
+            <span className={styles.date}>{formatDate(transfer.created_at)}</span>
           </Link>
         ))}
-      </div>
+      </ul>
     </WidgetWrapper>
   );
 };

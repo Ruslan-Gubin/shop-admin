@@ -11,14 +11,14 @@ type Props = {
 export const WidgetWrapper = ({ title, children, linkHref, linkLabel }: Props) => {
   return (
     <section className={styles.widget}>
-      <div className={styles.widgetHeader}>
+      <header className={styles.widgetHeader}>
         <h3>{title}</h3>
         {linkHref && linkLabel && (
           <Link href={linkHref} className={styles.widgetLink}>
             {linkLabel}
           </Link>
         )}
-      </div>
+      </header>
       {children}
     </section>
   );
