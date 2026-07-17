@@ -3,9 +3,15 @@ import { fetchService } from "@/shared/fetch-api";
 import type { OrderModel } from "./orders/action";
 import type { ProductModel } from "./product/action";
 import type { QuestionModel } from "./product-questions/action";
+import type { PromotionModel } from "./promotions/action";
 import type { TransferModel } from "./transfer/action";
 import type { UserModel } from "./users/action";
-import { PromotionModel } from "./promotions/action";
+
+export type SalesItem = {
+  date: string;
+  cash: number;
+  card: number;
+};
 
 export const fetchDashboardData = async () => {
   return await fetchService.fetchChain<
@@ -47,6 +53,7 @@ export const fetchDashboardData = async () => {
       },
       ProductModel[],
       PromotionModel[],
+      SalesItem[],
       {
         total: number;
         totalCart: number;
@@ -106,6 +113,12 @@ export const fetchDashboardData = async () => {
       url: "promotions/active",
       tags: ["PromotionsActive"],
       revalidate: 30,
+    },
+    {
+      url: "orders/sales-by-payment",
+      params: {},
+      tags: ["OrdersSalesSchedule"],
+      //revalidate: 30,
     },
     {
       url: "orders/stats",

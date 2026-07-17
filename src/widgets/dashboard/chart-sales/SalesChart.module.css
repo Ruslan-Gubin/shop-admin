@@ -1,0 +1,112 @@
+.rootWrapper {
+  color: #21272a;
+  font-weight: 400;
+  display: flex;
+  flex-direction: column;
+  row-gap: var(--padding-content-block);
+  overflow: hidden;
+}
+
+.switchButtons {
+  position: relative;
+  top: 10px;
+  background-color: transparent;
+  border-radius: 3px;
+  box-shadow: 1px 1px 5px 1px rgb(0 0 0 / 6%);
+  min-width: 100px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  max-height: 20px;
+}
+
+.linesList {
+  display: flex;
+  flex-direction: column;
+  row-gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+  padding-bottom: 2px;
+
+  @media (max-width: 1220px) {
+    padding-bottom: 20px;
+  }
+
+  @media (max-width: 1050px) {
+    column-gap: 20px;
+  }
+}
+
+.linesItem {
+  display: flex;
+  column-gap: 4px;
+  align-items: center;
+
+  @media (max-width: 1050px) {
+    column-gap: 4px;
+  }
+}
+
+.lineColor {
+  border-radius: 50%;
+  min-height: 12px;
+  min-width: 12px;
+
+  @media (max-width: 1050px) {
+    min-height: 12px;
+    min-width: 12px;
+  }
+}
+
+.linesLabel {
+  font-size: 14px;
+}
+
+.graphWrapper {
+  @media (max-width: 500px) {
+    display: none;
+  }
+}
+
+.graphContainer {
+  display: flex;
+}
+
+.graphDatesLine {
+  display: flex;
+  max-width: calc(100% - 50px);
+  justify-content: space-between;
+  padding-bottom: 11px;
+}
+
+.dateItem {
+  position: relative;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.dateItemValue {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 9px;
+  color: #9095a0;
+}
+
+.countList {
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  font-size: 11px;
+  color: #9095a0;
+  min-width: 50px;
+  justify-content: space-between;
+}
+
+.countListItem {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+}

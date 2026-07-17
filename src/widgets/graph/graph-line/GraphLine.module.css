@@ -1,0 +1,6 @@
+.root {
+  background-color: transparent;
+  width: calc(100% - 50px);
+  height: 189px;
+  padding-top: 11px;
+}

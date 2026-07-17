@@ -11,10 +11,7 @@ import { SummaryCards } from "@/widgets/dashboard/summary-cards/SummaryCards";
 import { fetchDashboardData } from "./dashboard-action";
 import styles from "./styles/Home.module.css";
 
-export default async function HomePage(req: {
-  searchParams: Promise<{ page: string; name?: string }>;
-}) {
-  const searchParams = await req.searchParams;
+export default async function HomePage() {
   const [
     usersData,
     ordersData,
@@ -25,9 +22,9 @@ export default async function HomePage(req: {
     transfersProcessingData,
     productsLowData,
     promotionsData,
+    salesScheduleData,
     statsData,
   ] = await fetchDashboardData();
-  console.log(promotionsData);
 
   return (
     <section className="page-wrapper">
@@ -59,6 +56,9 @@ export default async function HomePage(req: {
       {promotionsData.status === "error" && promotionsData.message && (
         <ErrorAlert message={promotionsData.message} />
       )}
+      {salesScheduleData.status === "error" && salesScheduleData.message && (
+        <ErrorAlert message={salesScheduleData.message} />
+      )}
 
       <div className={styles.dashboard}>
         <SummaryCards
@@ -67,6 +67,10 @@ export default async function HomePage(req: {
           orders={ordersData.data?.totalCount || 0}
           transfers={transfersData.data?.totalCount || 0}
         />
+
+        {salesScheduleData.data && salesScheduleData.data.length > 0 && (
+          <SalesSchedule salesSchedule={salesScheduleData.data} />
+        )}
 
         {newOrdersData.data && newOrdersData.data?.orders?.length > 0 && (
           <NewOrders orders={newOrdersData.data?.orders || []} />
@@ -98,9 +102,6 @@ export default async function HomePage(req: {
         {promotionsData.data && promotionsData.data.length > 0 && (
           <ActivePromotions promotions={promotionsData.data || []} />
         )}
-
-        {/* Блок 9: График продаж (заглушка) */}
-        <SalesSchedule />
       </div>
     </section>
   );
