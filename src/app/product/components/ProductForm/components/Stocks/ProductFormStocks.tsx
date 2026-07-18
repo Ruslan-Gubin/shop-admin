@@ -16,6 +16,7 @@ export type RemainsItem = {
 type Props = {
   remains: RemainsItem[];
   onChangeRemains: (updateRemains: RemainsItem[]) => void;
+  variant: "create" | "edit";
 };
 
 export const ProductFormStocks = (props: Props) => {
@@ -61,10 +62,16 @@ export const ProductFormStocks = (props: Props) => {
               variantSize="sm"
               label="Остаток"
               type="number"
-              rightIcon={<CancelSvg />}
-              onClickRightIcon={() => handleChangeQuantity(warehouse.id, "")}
+              rightIcon={props.variant === "create" ? <CancelSvg /> : null}
+              onClickRightIcon={
+                props.variant === "create"
+                  ? () => handleChangeQuantity(warehouse.id, "")
+                  : undefined
+              }
               onChange={(e) => handleChangeQuantity(warehouse.id, e.target.value)}
               value={warehouse.quantity ?? ""}
+              readOnly={props.variant === "edit"}
+              disabled={props.variant === "edit"}
             />
             <Checkbox
               checked={warehouse.in_stock}

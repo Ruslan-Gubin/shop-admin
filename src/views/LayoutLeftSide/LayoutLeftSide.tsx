@@ -60,6 +60,12 @@ export const LayoutLeftSide = () => {
           children: [],
           isHasLine: false,
         },
+        {
+          label: "Приход товара",
+          href: "/stock/income",
+          children: [],
+          isHasLine: false,
+        },
       ],
     },
     {

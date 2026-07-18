@@ -146,7 +146,7 @@ export const ProductForm = (props: Props) => {
         getFillValuesAction={props.getFillValuesAction}
         priceTypes={props.priceTypes}
       />
-      <ProductFormStocks remains={remains} onChangeRemains={setRemains} />
+      <ProductFormStocks variant={props.variant} remains={remains} onChangeRemains={setRemains} />
       <ProductFormPhotos initPhotos={[]} />
 
       <div className={styles.actionForm}>

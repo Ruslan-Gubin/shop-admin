@@ -1,0 +1,15 @@
+.searchRow {
+  display: flex;
+  gap: var(--padding-content-block);
+  align-items: flex-start;
+}
+
+.buttonCatalog {
+  color: #0075f2;
+}
+
+.buttonInputLineCatalog {
+  @media (max-width: 500px) {
+    display: none;
+  }
+}

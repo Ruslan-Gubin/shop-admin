@@ -1,6 +1,7 @@
 import type { PriceTypeModel } from "@/app/price-types/action";
 import { createProductSpecificationAction, createSpecification } from "@/app/specifications/action";
 import { createProductStock, type WarehouseModel } from "@/app/warehouses/action";
+import { getFillValues } from "@/shared/helpers/get-fill-values";
 import { ErrorAlert } from "@/shared/ui/error-alert/ErrorAlert";
 import { UpdateToken } from "@/views/UpdateToken/UpdateToken";
 import { createProductPriceAction, fetchProductFormData } from "../action";
@@ -38,30 +39,7 @@ export default async function CreateProductPage() {
 
   const getFillValuesAction = async (currentPrice: number) => {
     "use server";
-    const updateFillValues: Record<string, number> = {};
-
-    const currentRange = ranges.find(
-      (range) => currentPrice >= range.price_from && currentPrice <= range.price_to,
-    );
-
-    for (let i = 0; i < priceTypes.length; i++) {
-      const priceType = priceTypes[i];
-      const rangeId = currentRange ? currentRange.id : null;
-
-      const currentPriceFill = rangeId
-        ? priceFillData.find(
-            (el) => el.price_type_id === priceType.id && el.price_range_id === rangeId,
-          )
-        : null;
-
-      const fillValue =
-        currentPriceFill && currentPrice && currentPriceFill.percent
-          ? Math.round(currentPrice * (1 + currentPriceFill.percent / 100))
-          : 0;
-      updateFillValues[priceType.id] = fillValue;
-    }
-
-    return { updateFillValues, isHasRange: Boolean(currentRange) };
+    return getFillValues(currentPrice, ranges, priceTypes, priceFillData);
   };
 
   const getInitialPriceValues = (priceTypes: PriceTypeModel[]) => {

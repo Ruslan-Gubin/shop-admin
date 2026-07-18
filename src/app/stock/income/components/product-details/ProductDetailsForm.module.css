@@ -1,0 +1,67 @@
+.formContent {
+  display: flex;
+  flex-direction: column;
+  row-gap: var(--padding-content-block);
+}
+
+.fieldRow {
+  display: flex;
+  flex-direction: column;
+}
+
+.pricesSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-info-block);
+}
+
+.purchaseRow {
+  display: flex;
+  gap: var(--gap-info-block);
+  align-items: flex-start;
+}
+
+.purchaseField {
+  flex: 1;
+}
+
+.fillAllButtonText {
+  @media (max-width: 500px) {
+    display: none;
+  }
+}
+
+.pricesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.priceField {
+  display: flex;
+  flex-direction: column;
+}
+
+.stocksSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-info-block);
+}
+
+.stocksGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.stockField {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.footer {
+  display: flex;
+  gap: var(--padding-content-block);
+  justify-content: flex-end;
+}
