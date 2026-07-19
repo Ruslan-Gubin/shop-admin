@@ -60,9 +60,16 @@ export const LayoutLeftSide = () => {
           children: [],
           isHasLine: false,
         },
+      ],
+    },
+    {
+      label: "Поступления",
+      href: "/receipts",
+      icon: <RegisterSvg />,
+      children: [
         {
-          label: "Приход товара",
-          href: "/stock/income",
+          label: "Создать поступление",
+          href: "/receipts/create",
           children: [],
           isHasLine: false,
         },

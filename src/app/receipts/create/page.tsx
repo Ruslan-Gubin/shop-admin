@@ -34,8 +34,8 @@ export default async function StockIncomePage() {
 
   return (
     <section className="page-wrapper">
-      {warehousesData?.tokens && <UpdateToken tokens={warehousesData.tokens} />}
-      <h2>Приход товара</h2>
+      {priceFill?.tokens && <UpdateToken tokens={priceFill.tokens} />}
+      <h2>Поступление</h2>
 
       {warehousesData.status === "error" && warehousesData.message && (
         <ErrorAlert message={warehousesData.message} />
@@ -45,6 +45,12 @@ export default async function StockIncomePage() {
       )}
       {priceTypesData.status === "error" && priceTypesData.message && (
         <ErrorAlert message={priceTypesData.message} />
+      )}
+      {rangesData.status === "error" && rangesData.message && (
+        <ErrorAlert message={rangesData.message} />
+      )}
+      {priceFill.status === "error" && priceFill.message && (
+        <ErrorAlert message={priceFill.message} />
       )}
 
       <IncomeWizard

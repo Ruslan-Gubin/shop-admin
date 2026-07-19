@@ -92,19 +92,25 @@ export type IncomeItem = {
   stocks: Record<number, number>;
 };
 
-export const submitIncomeAction = async (items: IncomeItem[]) => {
-  const createdProductIds: number[] = [];
+export const submitIncomeAction = async (payload: IncomeItem[]) => {
+  const cookieStore = await cookies();
 
-  for (const item of items) {
-    if (item.productId) {
-      const mockId = Date.now() + Math.floor(Math.random() * 1000);
-      createdProductIds.push(mockId);
-    }
-  }
+  const updatePayload = payload.map((el) => ({
+    productId: el.productId,
+    name: el.name,
+    code: el.code,
+    purchasePrice: el.purchasePrice,
+    priceValues: el.priceValues,
+    stocks: el.stocks,
+  }));
 
-  return {
-    status: "success" as const,
-    message: "Приход успешно оформлен",
-    createdProductIds,
-  };
+  return fetchService
+    .post<{ id: number }>({ url: "receipt/create", payload: updatePayload })
+    .then((response) => {
+      if (response.tokens) {
+        updateTokensInAction(cookieStore, response.tokens);
+      }
+
+      return response;
+    });
 };

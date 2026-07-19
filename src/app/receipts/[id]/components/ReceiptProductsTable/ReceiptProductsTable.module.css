@@ -1,0 +1,116 @@
+.list {
+  display: flex;
+  flex-direction: column;
+  row-gap: var(--padding-content-block);
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  row-gap: var(--padding-content-block);
+  padding: var(--gap-info-block);
+  background-color: #fff;
+  border: 1px solid #d3d3d3;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.topBlock {
+  display: flex;
+  flex-direction: column;
+  row-gap: 6px;
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+}
+
+.productLink {
+  color: #1a73e8;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 14px;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.cardMeta {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 24px;
+  row-gap: 6px;
+}
+
+.metaItem {
+  font-size: 14px;
+  color: #333;
+}
+
+.metaLabel {
+  font-weight: 500;
+  color: #333;
+}
+
+.transferTable {
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+  border: 1px solid lightgray;
+  border-radius: 4px;
+  max-width: 100%;
+}
+
+.transferTableHead {
+  min-width: 360px;
+}
+
+.transferTableRow {
+  display: grid;
+  grid-template-columns: 1fr 120px;
+  min-height: 36px;
+  min-width: 360px;
+}
+
+.transferTableHeader {
+  display: flex;
+  align-items: center;
+  padding-inline: 12px 5px;
+  padding-block: 5px;
+  background-color: #f5f7f6;
+  color: #333333;
+  font-size: 13px;
+  font-weight: 500;
+  border-right: 1px solid lightgray;
+  border-bottom: 1px solid lightgray;
+
+  &:nth-last-child(1) {
+    border-right: none;
+  }
+}
+
+.transferTableCell {
+  display: flex;
+  align-items: center;
+  border-right: 1px solid lightgray;
+  border-bottom: 1px solid lightgray;
+  overflow: hidden;
+  padding-inline: 12px 5px;
+  padding-block: 5px;
+  color: #333333;
+  font-size: 13px;
+  background-color: white;
+
+  &:nth-last-child(1) {
+    border-right: none;
+  }
+}
+
+.transferTable tbody .transferTableRow:nth-last-child(1) .transferTableCell {
+  border-bottom: none;
+}

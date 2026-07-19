@@ -4,6 +4,7 @@ import type { CategoryModel } from "@/app/category/action";
 import type { PriceFillModel, RangeModel } from "@/app/price-auto-fill/action";
 import type { PriceTypeModel } from "@/app/price-types/action";
 import type { WarehouseModel } from "@/app/warehouses/action";
+import type { ResponseData } from "@/shared/types/response";
 import { notificationAdapter } from "@/stores/notification/adapter";
 import type { IncomeItem } from "../action";
 import styles from "./IncomeWizard.module.css";
@@ -17,11 +18,7 @@ type Props = {
   priceTypes: PriceTypeModel[];
   ranges: RangeModel[];
   priceFill: PriceFillModel[];
-  submitIncomeAction: (items: IncomeItem[]) => Promise<{
-    status: "success" | "error";
-    message: string;
-    createdProductIds: number[];
-  }>;
+  submitIncomeAction: (items: IncomeItem[]) => Promise<ResponseData<{ id: number }>>;
   getFillValuesAction: (
     currentPrice: number,
   ) => Promise<{ updateFillValues: Record<string, number>; isHasRange: boolean }>;
@@ -63,7 +60,6 @@ export const IncomeWizard = (props: Props) => {
         notificationAdapter.add(response.message || "", response.status);
       });
     });
-    props.submitIncomeAction(items);
   };
 
   return (
