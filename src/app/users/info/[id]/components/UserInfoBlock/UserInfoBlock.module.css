@@ -1,0 +1,62 @@
+.content {
+  display: flex;
+  flex-direction: column;
+  row-gap: var(--gap-info-block);
+  overflow: hidden;
+}
+
+.topRow {
+  display: flex;
+  gap: var(--gap-info-block);
+  align-items: flex-start;
+
+  @media (max-width: 500px) {
+    flex-direction: column;
+  }
+}
+
+.photoContainer {
+  flex-shrink: 0;
+  width: 120px;
+  height: 120px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid lightgray;
+}
+
+.photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.fields {
+  display: flex;
+  flex-direction: column;
+  row-gap: 8px;
+  flex: 1;
+  min-width: 0;
+
+  @media (max-width: 500px) {
+    width: 100%;
+  }
+}
+
+.bottomRow {
+  display: flex;
+  flex-direction: column;
+  row-gap: 8px;
+}
+
+.fieldLabel {
+  font-weight: 500;
+}
+
+.fieldValue {
+  font-size: 14px;
+  color: var(--text-color-main);
+  overflow: hidden;
+  max-width: 100%;
+  text-wrap: nowrap;
+  text-overflow: ellipsis;
+}

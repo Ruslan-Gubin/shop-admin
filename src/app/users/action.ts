@@ -4,6 +4,8 @@ import { cookies } from "next/headers";
 import { fetchService } from "@/shared/fetch-api";
 import { deleteItemCookieAction, updateTokensInAction } from "@/shared/helpers/updateCookieAction";
 
+export type UserRole = "user" | "admin" | "moderator" | "wholesaler";
+
 export interface UserModel {
   created_at: string;
   department_id: number | null;
@@ -12,7 +14,7 @@ export interface UserModel {
   name: string;
   phone: string;
   photo: string;
-  role: string;
+  role: UserRole;
   updated_at: string | null;
 }
 

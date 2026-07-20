@@ -10,6 +10,7 @@ type Props = {
   className?: string;
   patch: string;
   searchParams: { [key: string]: string | string[] | undefined };
+  page_key?: string;
 };
 
 export const Pagination = (props: Props) => {
@@ -22,7 +23,13 @@ export const Pagination = (props: Props) => {
         {numbers.map((currentPage, index) => (
           <li key={index}>
             <Link
-              href={getUpdateQueryPageString(props.patch, props.searchParams, currentPage)}
+              href={getUpdateQueryPageString(
+                props.patch,
+                props.searchParams,
+                currentPage,
+                props.page_key,
+              )}
+              scroll={false}
               className={
                 currentPage === props.page
                   ? `${styles.paginationPage} ${styles.paginationPageWhite} `
