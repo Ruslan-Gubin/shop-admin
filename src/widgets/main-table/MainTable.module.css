@@ -61,6 +61,18 @@
   text-overflow: ellipsis;
 }
 
+.status_success {
+  color: green;
+}
+
+.status_error {
+  color: red;
+}
+
+.status_warn {
+  color: orange;
+}
+
 .dataCell {
   display: flex;
   align-items: center;

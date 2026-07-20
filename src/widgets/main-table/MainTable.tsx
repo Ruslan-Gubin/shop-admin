@@ -3,7 +3,7 @@ import { Badge } from "@/shared/ui/badge/Badge";
 import { ActionsMenu } from "../actions-menu/ActionsMenu";
 import styles from "./MainTable.module.css";
 
-type CellType = "date" | "shortDate" | "boolean" | "badge" | "avatar" | "translate";
+type CellType = "date" | "shortDate" | "boolean" | "badge" | "avatar" | "translate" | "status";
 
 export type RenderTableOptions<T> = {
   key: keyof T;
@@ -12,6 +12,7 @@ export type RenderTableOptions<T> = {
   typeConfig?: {
     booleanLabels?: string[];
     translateMap?: Record<string, string>;
+    status?: { key: string; value: string };
   };
 };
 
@@ -66,6 +67,14 @@ export const MainTable = <T extends { id: number }>(props: Props<T>) => {
                     {cell.nextKey
                       ? (item[cell.key][cell.nextKey] as string) || "---"
                       : (item[cell.key] as string) || "---"}
+                  </p>
+                )}
+
+                {cell.key && cell.type === "status" && cell?.typeConfig?.status && (
+                  <p
+                    className={`${styles.textOverflowLine} ${styles[`status_${item[cell.key][cell.typeConfig.status.key]}`]}`}
+                  >
+                    {item[cell.key][cell.typeConfig.status.value]}
                   </p>
                 )}
 

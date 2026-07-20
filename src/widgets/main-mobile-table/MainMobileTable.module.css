@@ -118,6 +118,18 @@
   }
 }
 
+.status_success {
+  color: green;
+}
+
+.status_warn {
+  color: orange;
+}
+
+.status_error {
+  color: red;
+}
+
 .booleanValueActive {
   font-weight: 500;
   color: #1e7e34;

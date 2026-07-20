@@ -40,6 +40,12 @@ export const LayoutLeftSide = () => {
           children: [],
           isHasLine: false,
         },
+        {
+          label: "Товары с проблемами",
+          href: "/product/incomplete",
+          children: [],
+          isHasLine: false,
+        },
       ],
     },
     {

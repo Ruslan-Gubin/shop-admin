@@ -18,7 +18,7 @@ interface Props<T> {
   isLoadMoreDisabled: boolean;
   patch: string;
   searchParams: { [key: string]: string | string[] | undefined };
-  fetchTableElementAction: (id: string) => Promise<ResponseData<T>>;
+  fetchTableElementAction?: (id: string) => Promise<ResponseData<T>>;
   actions?: { label: string; action: (item: T) => void }[];
 }
 
@@ -90,7 +90,7 @@ export const MainMobileTable = <T extends { id: number }>(props: Props<T>) => {
         deleteCookie("delete");
       }
 
-      if (updateId) {
+      if (updateId && props.fetchTableElementAction) {
         props.fetchTableElementAction(updateId).then((response) => {
           if (response.status === "success" && response.data) {
             setData((prev) =>
@@ -171,6 +171,14 @@ export const MainMobileTable = <T extends { id: number }>(props: Props<T>) => {
                         </p>
                       )}
 
+                      {cell.type === "status" && cell.typeConfig?.status && (
+                        <p
+                          className={styles[`status_${item[cell.key][cell.typeConfig.status.key]}`]}
+                        >
+                          {item[cell.key][cell.typeConfig.status.value] || "---"}
+                        </p>
+                      )}
+
                       {cell.type === "boolean" &&
                         typeof item[cell.key] === "boolean" &&
                         cell.typeConfig &&
@@ -235,6 +243,12 @@ export const MainMobileTable = <T extends { id: number }>(props: Props<T>) => {
                         {item[cell.key]
                           ? shortDateFormat.format(new Date(item[cell.key] as string))
                           : "---"}
+                      </p>
+                    )}
+
+                    {cell.type === "status" && cell.typeConfig?.status && (
+                      <p className={styles[`status_${item[cell.key][cell.typeConfig.status.key]}`]}>
+                        {item[cell.key][cell.typeConfig.status.value] || "---"}
                       </p>
                     )}
 

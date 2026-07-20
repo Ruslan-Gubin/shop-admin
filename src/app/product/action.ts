@@ -151,18 +151,14 @@ export const fetchProductFormEditData = async (id: string) => {
   ]);
 };
 
-export const fetchProducts = async (page?: string, name?: string) => {
+export const fetchProducts = async (limit: string, page: string, name: string) => {
   return await fetchService.get<{
     paginationPage: string;
     products: ProductModel[];
     totalCount: number;
   }>({
     url: "product/products",
-    params: {
-      limit: "10",
-      page: page ? String(page) : "1",
-      name: name ? name : "",
-    },
+    params: { limit, page, name },
     tags: ["Products"],
   });
 };
