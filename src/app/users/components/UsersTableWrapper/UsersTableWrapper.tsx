@@ -2,6 +2,7 @@
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { useWindowSize } from "@/shared/hooks/useWindowSize";
+import { userRoleTranslations } from "@/shared/translate/user-translates";
 import type { ResponseData } from "@/shared/types/response";
 import { notificationAdapter } from "@/stores/notification/adapter";
 import { MainMobileTable } from "@/widgets/main-mobile-table/MainMobileTable";
@@ -65,6 +66,12 @@ export const UsersTableWrapper = (props: Props) => {
     }
   };
 
+  const handleInfoRouter = (item: UserModel) => {
+    if (item.id) {
+      router.push(`/users/info/${item.id}`);
+    }
+  };
+
   const handleEditRouter = (item: UserModel) => {
     if (item.id) {
       router.push(`/users/edit/${item.id}`);
@@ -76,7 +83,7 @@ export const UsersTableWrapper = (props: Props) => {
     { key: "name" },
     { key: "phone" },
     { key: "email" },
-    { key: "role" },
+    { key: "role", type: "translate", typeConfig: { translateMap: userRoleTranslations } },
     { key: "created_at", type: "date" },
   ];
 
@@ -109,6 +116,7 @@ export const UsersTableWrapper = (props: Props) => {
             gridTemplateColumns="65px minmax(120px, 192px) minmax(120px, 192px) 192px minmax(100px, 160px) minmax(160px, 1fr) 32px"
             tableOptions={tableOptions}
             actions={[
+              { label: "Подробнее", action: handleInfoRouter },
               { label: "Редактировать", action: handleEditRouter },
               { label: "Удалить", action: handleOpenDeleteModal },
             ]}
@@ -127,6 +135,7 @@ export const UsersTableWrapper = (props: Props) => {
             patch={props.patch}
             fetchTableElementAction={props.fetchTableElementAction}
             actions={[
+              { label: "Подробнее", action: handleEditRouter },
               { label: "Редактировать", action: handleEditRouter },
               { label: "Удалить", action: handleOpenDeleteModal },
             ]}
