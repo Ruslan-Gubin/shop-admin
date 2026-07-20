@@ -3,15 +3,14 @@ import { z } from "zod";
 export const createProductSchema = z.object({
   name: z
     .string({ message: "Название должно быть строкой" })
-    .nonempty({ message: "Название обязательно" })
     .max(255, { message: "Максимум 255 символов" })
     .min(2, { message: "Минимум 2 символа" }),
   code: z
     .string({ message: "Штрихкод должен быть строкой" })
-    .nonempty({ message: "Штрихкод обязателен" })
     .regex(/^\d+$/, { message: "Только цифры" })
     .max(14, { message: "Максимум 14 символов" })
-    .min(8, { message: "Минимум 8 символов" }),
+    .min(8, { message: "Минимум 8 символов" })
+    .or(z.literal("")),
   description: z.string({ message: "Описание должно быть строкой" }),
   brand_id: z.string({ message: "Бренд должен быть строкой" }),
   category_id: z
