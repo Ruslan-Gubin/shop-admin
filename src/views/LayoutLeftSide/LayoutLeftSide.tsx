@@ -41,6 +41,12 @@ export const LayoutLeftSide = () => {
           isHasLine: false,
         },
         {
+          label: "Импорт PDF",
+          href: "/product/import-from-pdf",
+          children: [],
+          isHasLine: false,
+        },
+        {
           label: "Товары с проблемами",
           href: "/product/incomplete",
           children: [],

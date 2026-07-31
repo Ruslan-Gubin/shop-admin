@@ -4,7 +4,11 @@ import type { CategoryModel } from "@/app/category/action";
 import { AddSvg } from "@/app/category/components/category-item/svg/AddSvg";
 import { EditSvg } from "@/app/category/components/category-item/svg/EditSvg";
 import type { PriceTypeModel } from "@/app/price-types/action";
-import type { ProductFormPayloadValues } from "@/app/product/create/action";
+import {
+  getLlmInfoFromProductAction,
+  getPdfJson,
+  type ProductFormPayloadValues,
+} from "@/app/product/create/action";
 import type { SpecificationModel } from "@/app/specifications/action";
 import { Button } from "@/shared/ui/button-main/Button";
 import { notificationAdapter } from "@/stores/notification/adapter";
@@ -15,6 +19,8 @@ import { ProductFormPrices } from "./components/Prices/ProductFormPrices";
 import { ProductFormSpecifications } from "./components/Specifications/ProductFormSpecifications";
 import { ProductFormStocks, type RemainsItem } from "./components/Stocks/ProductFormStocks";
 import styles from "./ProductForm.module.css";
+import catalog from "../../../../../catalog.json";
+import { parseCatalog } from "@/shared/helpers/parse-catalog";
 
 export type SpecificationValueItem = {
   listId: number;
@@ -73,6 +79,7 @@ export const ProductForm = (props: Props) => {
   const [typePriceValues, setTypePriceValues] = useState<Record<string, string>>({});
   const [specificationValues, setSpecificationsValues] = useState<SpecificationValueItem[]>([]);
   const [remains, setRemains] = useState<RemainsItem[]>([]);
+  const [search, setSearch] = useState<string>("4607084502213");
 
   useLayoutEffect(() => {
     setTypePriceValues(props.initialPriceTypesValues);
@@ -118,8 +125,56 @@ export const ProductForm = (props: Props) => {
     setValues((prev) => ({ ...prev, category_id: id }));
   };
 
+  const handleGetLlmInfo = async () => {
+    const pdfJson = await getPdfJson("./catalog.pdf");
+    // console.log(pdfJson);
+    const pdfData = parseCatalog(pdfJson);
+    console.log(pdfData);
+
+    // console.log(JSON.stringify(catalog.Pages[0]));
+    // console.log(items);
+
+    return;
+    // const currentCodes = codes10;
+    // for (let i = 241; i < currentCodes.length; i++) {
+    //   const code = currentCodes[i];
+    //   console.log("generate code:", code, `# ${i + 1}/${currentCodes.length}`);
+    //   await getLlmInfoFromProductAction(code).then((response) => {
+    //     //@ts-ignore
+    //     if (response.status === "success" && response.data) {
+    //       console.log(response.data.product);
+    //     } else {
+    //       //@ts-ignore
+    //       notificationAdapter.add(response.message, "error");
+    //     }
+    //   });
+    // }
+    // return;
+    // if (search.length > 3) {
+    //   getLlmInfoFromProductAction(search).then((response) => {
+    //     //@ts-ignore
+    //     if (response.status === "success" && response.data) {
+    //       // console.log("response:", response);
+    //       console.log(response.data.product);
+    //     } else {
+    //       //@ts-ignore
+    //       notificationAdapter.add(response.message, "error");
+    //     }
+    //     // console.log(JSON.stringify(response.data));
+    //   });
+    // }
+  };
+
   return (
     <section className={styles.addForm}>
+      <input
+        style={{ border: "1px solid black" }}
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+      />
+      <button type="button" onClick={handleGetLlmInfo}>
+        Chekc code
+      </button>
       <ProductFormGeneralInfo
         categories={props.categories}
         values={values}

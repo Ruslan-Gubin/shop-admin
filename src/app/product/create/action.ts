@@ -1,11 +1,23 @@
 "use server";
 import { cookies } from "next/headers";
+import PDFParser from "pdf2json";
 import { fetchService } from "@/shared/fetch-api";
 import { updateTokensInAction } from "@/shared/helpers/updateCookieAction";
 import { getValidatePayload } from "@/shared/services/get-form-action-state";
 import { setErrorFromServer } from "@/shared/services/set-new-store-error-from-server";
 import type { ProductModel } from "../action";
 import { createProductSchema } from "./schema";
+
+const pdfParser = new PDFParser();
+
+export const getPdfJson = async (path: string) => {
+  await pdfParser.loadPDF(path);
+  return new Promise((res) => {
+    pdfParser.on("pdfParser_dataReady", (pdfData) => {
+      res(pdfData);
+    });
+  });
+};
 
 export type ProductFormPayloadValues = {
   name: string;
@@ -80,4 +92,21 @@ export const createProductAction = async (
   }
 
   return { status: "error", errors, data: null };
+};
+
+export const getLlmInfoFromProductAction = async (
+  value: string,
+): Promise<{
+  data: any;
+}> => {
+  const cookieStore = await cookies();
+
+  return await fetchService
+    .post({ url: "product-source-record", payload: { value } })
+    .then((response) => {
+      if (response.tokens) {
+        updateTokensInAction(cookieStore, response.tokens);
+      }
+      return response;
+    });
 };

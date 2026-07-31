@@ -1,0 +1,163 @@
+.section {
+  display: flex;
+  flex-direction: column;
+  row-gap: var(--padding-content-block);
+}
+
+.uploadArea {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-info-block);
+  flex-wrap: wrap;
+}
+
+.fileInput {
+  display: none;
+}
+
+.fileLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 20px;
+  background: #0070f0;
+  color: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.fileLabel:hover {
+  background: #0058cc;
+}
+
+.fileLabelDisabled {
+  opacity: 0.5;
+}
+
+.fileName {
+  font-size: 13px;
+  color: #555;
+}
+
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid #e0e0e0;
+  border-top-color: #0070f0;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.massActions {
+  display: flex;
+  gap: var(--gap-info-block);
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.stats {
+  font-size: 13px;
+  color: #666;
+}
+
+.tableOuter {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid lightgray;
+  border-radius: 4px;
+  overflow-x: auto;
+  max-width: 100%;
+}
+
+.headerLine {
+  display: grid;
+  min-height: 42px;
+  background-color: #f5f7f6;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.headerCell {
+  display: flex;
+  align-items: center;
+  padding-inline: 16px 5px;
+  padding-block: 5px;
+  background-color: #f5f7f6;
+  color: #333333;
+  font-size: 14px;
+  font-weight: 500;
+  border-right: 1px solid lightgray;
+}
+
+.headerCell:last-child {
+  border-right: none;
+}
+
+.tableBody {
+  display: flex;
+  flex-direction: column;
+}
+
+.dataRow {
+  display: grid;
+  min-height: 42px;
+}
+
+.dataRow:last-child .dataCell {
+  border-bottom: none;
+}
+
+.dataCell {
+  display: flex;
+  flex-direction: column;
+  /* justify-content: center; */
+  row-gap: 6px;
+  /* align-items: center; */
+  border-right: 1px solid lightgray;
+  overflow: hidden;
+  padding-inline: 16px 5px;
+  padding-block: 5px;
+  color: #333333;
+  font-size: 14px;
+  background-color: white;
+  border-bottom: 1px solid lightgray;
+}
+
+.dataCell:last-child {
+  border-right: none;
+
+  padding-inline: 16px 16px;
+}
+
+.dataRow:hover .dataCell {
+  transition: background-color 0.1s linear;
+  background-color: #f5fafe;
+}
+
+.textOverflow {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.errorText {
+  color: #cd5c5c;
+}
+
+.barcodeText {
+  font-family: monospace;
+  font-size: 13px;
+}
