@@ -6,9 +6,11 @@ export class NotificationAdapter {
 
     if (notificationList.length) return;
 
-    return notificationStore.setState({
-      notificationList: [{ message, status, timeFrom: new Date().toString() }],
-    });
+    if (typeof message === "string") {
+      notificationStore.setState({
+        notificationList: [{ message, status, timeFrom: new Date().toString() }],
+      });
+    }
   }
 
   public reset() {

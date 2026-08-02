@@ -20,11 +20,11 @@ export const ImportForm = () => {
   const [fileName, setFileName] = useState("");
   const [pdfItems, setPdfItems] = useState<ImportPdfItem[]>([]);
   const [statuses, setStatuses] = useState<
-    Record<string, { status: CheckItemStatus; error_message: string }>
+    Record<string, { status: CheckItemStatus; error_message: string; product_id: number | null }>
   >({});
   const [parseLoading, parseTransition] = useTransition();
-  const [genLoading, genTransition] = useTransition();
-  const [addLoading, addTransition] = useTransition();
+  const [generateLoading, setGenerateLoading] = useState<boolean>(false);
+  const [addLoading, setAddLoading] = useState<boolean>(false);
   const [processMap, setProcessMap] = useState<Record<string, number>>({});
 
   const handleFileChange = () => {
@@ -35,16 +35,38 @@ export const ImportForm = () => {
     }
 
     parseTransition(() => {
-      uploadAndParsePdfAction(file).then((fileItems) => {
-        checkBarcodeAction(fileItems).then((response) => {
-          if (response.status === "success" && response.data) {
-            setStatuses(response.data);
-            setPdfItems(fileItems);
-            setFileName(file.name);
-          } else if (response.status === "error" && response.message) {
-            notificationAdapter.add(response.message, response.status);
-          }
-        });
+      uploadAndParsePdfAction(file).then(async (fileItems) => {
+        const chunkSize = 500;
+
+        const statuses: Record<
+          string,
+          { status: CheckItemStatus; error_message: string; product_id: number | null }
+        > = {};
+        let isError = false;
+
+        for (let i = 0; i < fileItems.length; i += chunkSize) {
+          if (isError) break;
+
+          const chunk = fileItems.slice(i, i + chunkSize);
+
+          await checkBarcodeAction(chunk).then((response) => {
+            if (response.status === "success" && response.data) {
+              for (const key in response.data) {
+                statuses[key] = response.data[key];
+              }
+            } else if (response.status === "error" && response.message) {
+              notificationAdapter.add(response.message, response.status);
+              isError = true;
+              return;
+            }
+          });
+        }
+
+        if (!isError) {
+          setStatuses(statuses);
+          setPdfItems(fileItems);
+          setFileName(file.name);
+        }
       });
     });
   };
@@ -58,14 +80,13 @@ export const ImportForm = () => {
     }
 
     if (!item.barcode) {
-      notificationAdapter.add("Отсутствует штрих-код", "error");
+      return notificationAdapter.add("Отсутствует штрих-код", "error");
     }
 
     generateProductAction(item.name || "", item.barcode)
       .then((response) => {
         let message = response.message;
         let status = response.status;
-        console.log(response.data);
 
         if (response.status === "success" && response.data) {
           setStatuses((prev) => ({
@@ -78,11 +99,12 @@ export const ImportForm = () => {
                   : response?.data?.error_message
                     ? response.data.error_message
                     : "Нет полного описания",
+              product_id: null,
             },
           }));
 
-          if (response?.data?.error_message) {
-            message = response?.data?.error_message || "";
+          if (response?.data?.error_message && typeof response?.data?.error_message === "string") {
+            message = response?.data?.error_message;
             status = "error";
           }
         }
@@ -94,37 +116,54 @@ export const ImportForm = () => {
   };
 
   const handleAdd = (id: number) => {
-    console.log("add", id);
-    // addTransition(async () => {
-    //   setStatuses((prev) => ({ ...prev, [barcode]: "adding" }));
-    //   try {
-    //     await addProductAction(barcode, name, price);
-    //     setStatuses((prev) => ({ ...prev, [barcode]: "exists" }));
-    //     notificationAdapter.add("Товар добавлен", "success");
-    //   } catch {
-    //     setStatuses((prev) => ({ ...prev, [barcode]: "ready" }));
-    //     notificationAdapter.add("Ошибка при добавлении", "error");
-    //   }
-    // });
+    setProcessMap({ [id]: 1 });
+
+    const item = pdfItems.find((el) => el.id === id);
+
+    if (!item) {
+      return notificationAdapter.add("Не удалось получить данные о товаре из файла", "error");
+    }
+
+    if (!item.barcode) {
+      return notificationAdapter.add("Отсутствует штрих-код", "error");
+    }
+
+    const currentPrice = !Number.isNaN(Number(item.price)) ? Math.ceil(Number(item.price)) : 0;
+
+    addProductAction(item.barcode, currentPrice)
+      .then((response) => {
+        const message = response.message;
+        const status = response.status;
+
+        setStatuses((prev) => ({
+          ...prev,
+          [id]: {
+            status: response.status === "success" ? "completed" : "record",
+            error_message:
+              response.status === "error"
+                ? `${response.message && typeof response.message === "string" ? response.message : "Не удалось создать товар"}`
+                : "",
+            product_id: response.data ? response.data.id : null,
+          },
+        }));
+
+        notificationAdapter.add(message, status);
+      })
+      .finally(() => {
+        setProcessMap({});
+      });
   };
 
   const handleGenerateAll = async () => {
-    console.log("all generate");
-
-    // genTransition(() => {
-    //
-    // })
+    setGenerateLoading(true);
 
     for (let i = 0; i < pdfItems.length; i++) {
       const item = pdfItems[i];
       const status = statuses[i];
-      // console.log("----------------------");
-      // console.log("item:", item);
-      // console.log("status:", status);
-      // console.log("----------------------");
+
       if (item.barcode && status.status === "empty") {
         setProcessMap({ [item.id]: 1 });
-        await generateProductAction(item.barcode)
+        await generateProductAction(item.name || "", item.barcode)
           .then((response) => {
             let message = response.message;
             let status = response.status;
@@ -138,6 +177,7 @@ export const ImportForm = () => {
                     response.data?.clear_name && response.data?.product
                       ? ""
                       : "Нет полного описания",
+                  product_id: null,
                 },
               }));
 
@@ -155,56 +195,53 @@ export const ImportForm = () => {
             setProcessMap({});
           });
       }
+      if (generateLoading) {
+        setGenerateLoading(false);
+      }
     }
-
-    // const target = pdfItems.filter((p) => statuses[p.barcode] === "new");
-    //
-    // if (!target.length) return;
-
-    // genTransition(async () => {
-    //   const barcode = target.map((p) => p.barcode);
-    //   setStatuses((prev) => {
-    //     const next = { ...prev };
-    //     for (const b of barcode) next[b] = "generating";
-    //     return next;
-    //   });
-    //
-    //   for (const p of target) {
-    //     try {
-    //       await generateProductAction(p.barcode);
-    //       setStatuses((prev) => ({ ...prev, [p.barcode]: "ready" }));
-    //     } catch {
-    //       setStatuses((prev) => ({ ...prev, [p.barcode]: "new" }));
-    //       notificationAdapter.add(`Ошибка генерации ${p.barcode}`, "error");
-    //     }
-    //   }
-    //   notificationAdapter.add(`Сгенерировано: ${target.length}`, "success");
-    // });
   };
 
-  const handleAddAll = () => {
-    // const target = pdfItems.filter((p) => statuses[p.barcode] === "ready");
-    // if (!target.length) return;
-    //
-    // addTransition(async () => {
-    //   const barcode = target.map((p) => p.barcode);
-    //   setStatuses((prev) => {
-    //     const next = { ...prev };
-    //     for (const b of barcode) next[b] = "adding";
-    //     return next;
-    //   });
-    //
-    //   for (const p of target) {
-    //     try {
-    //       await addProductAction(p.barcode, p.name, p.price);
-    //       setStatuses((prev) => ({ ...prev, [p.barcode]: "exists" }));
-    //     } catch {
-    //       setStatuses((prev) => ({ ...prev, [p.barcode]: "ready" }));
-    //       notificationAdapter.add(`Ошибка добавления ${p.barcode}`, "error");
-    //     }
-    //   }
-    //   notificationAdapter.add(`Добавлено: ${target.length}`, "success");
-    // });
+  const handleAddAll = async () => {
+    setAddLoading(true);
+
+    for (let i = 0; i < pdfItems.length; i++) {
+      const item = pdfItems[i];
+      const status = statuses[item.id];
+
+      if (item.barcode && status?.status === "record") {
+        setProcessMap({ [item.id]: 1 });
+
+        const currentPrice = !Number.isNaN(Number(item.price)) ? Math.ceil(Number(item.price)) : 0;
+
+        await addProductAction(item.barcode, currentPrice)
+          .then((response) => {
+            const message = response.message;
+            const resStatus = response.status;
+
+            setStatuses((prev) => ({
+              ...prev,
+              [item.id]: {
+                status: response.status === "success" ? "completed" : "record",
+                error_message:
+                  response.status === "error"
+                    ? `${response.message && typeof response.message === "string" ? response.message : "Не удалось создать товар"}`
+                    : "",
+                product_id: response.data ? response.data.id : null,
+              },
+            }));
+
+            notificationAdapter.add(message, resStatus);
+          })
+          .catch((error) => {
+            notificationAdapter.add(error, "error");
+          })
+          .finally(() => {
+            setProcessMap({});
+          });
+      }
+    }
+
+    setAddLoading(false);
   };
 
   const getNeedGenerateCount = () => {
@@ -288,13 +325,17 @@ export const ImportForm = () => {
                 disabled={isHasProcess}
                 onClick={handleGenerateAll}
               >
-                {genLoading ? "Генерация…" : `Сгенерировать все (${counts.needGenerate})`}
+                {generateLoading && <div className={styles.spinner} />}
+                {generateLoading
+                  ? `Генерация (${counts.needGenerate})`
+                  : `Сгенерировать все (${counts.needGenerate})`}
               </Button>
             )}
 
             {counts.needAdd > 0 && (
               <Button size="sm" variantColor="green" disabled={isHasProcess} onClick={handleAddAll}>
-                {addLoading ? "Добавление…" : `Добавить все (${counts.needAdd})`}
+                {addLoading && <div className={styles.spinner} />}
+                {addLoading ? `Добавление (${counts.needAdd})` : `Добавить все (${counts.needAdd})`}
               </Button>
             )}
           </div>
@@ -338,6 +379,7 @@ export const ImportForm = () => {
                       isProcess={Object.hasOwn(processMap, p.id)}
                       disabled={isHasProcess}
                       status={statuses[p.id].status || "error"}
+                      product_id={statuses[p.id].product_id}
                       onGenerate={handleGenerate}
                       onAdd={handleAdd}
                     />

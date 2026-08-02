@@ -4,6 +4,7 @@ import PDFParser, { type Output } from "pdf2json";
 import { fetchService } from "@/shared/fetch-api";
 import { type ImportPdfItem, parseCatalog } from "@/shared/helpers/parse-catalog";
 import { updateTokensInAction } from "@/shared/helpers/updateCookieAction";
+import { ProductModel } from "../action";
 
 const pdfParser = new PDFParser();
 
@@ -30,7 +31,9 @@ export const checkBarcodeAction = async (barcode_list: { name: string; barcode: 
   const cookieStore = await cookies();
 
   return await fetchService
-    .post<Record<string, { status: CheckItemStatus; error_message: string }>>({
+    .post<
+      Record<string, { status: CheckItemStatus; error_message: string; product_id: number | null }>
+    >({
       url: "product-source-record/check-import-items",
       payload: barcode_list,
     })
@@ -85,15 +88,18 @@ export const generateProductAction = async (name: string, barcode: string) => {
     });
 };
 
-export async function addProductAction(
-  barcode: string,
-  name: string,
-  price: string,
-): Promise<{ success: boolean }> {
-  void barcode;
-  void name;
-  void price; // будет использовано в реальном запросе
-  // TODO: POST product/create с данными
-  await new Promise((r) => setTimeout(r, 800));
-  return { success: true };
-}
+export const addProductAction = async (barcode: string, price: number) => {
+  const cookieStore = await cookies();
+
+  return await fetchService
+    .post<ProductModel>({
+      url: "product-source-record/create-product",
+      payload: { barcode, price },
+    })
+    .then((response) => {
+      if (response.tokens) {
+        updateTokensInAction(cookieStore, response.tokens);
+      }
+      return response;
+    });
+};

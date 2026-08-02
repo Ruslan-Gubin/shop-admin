@@ -53,7 +53,7 @@ function detectColumns(
   return null;
 }
 
-export function parseCatalog(catalog: { Pages: Pdf2JsonPage[] }): ImportPdfItem[] {
+export const parseCatalog = (catalog: { Pages: Pdf2JsonPage[] }): ImportPdfItem[] => {
   const cols = detectColumns(catalog.Pages);
   if (!cols) return [];
 
@@ -128,4 +128,4 @@ export function parseCatalog(catalog: { Pages: Pdf2JsonPage[] }): ImportPdfItem[
   }
 
   return all;
-}
+};

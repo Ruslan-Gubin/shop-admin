@@ -1,8 +1,10 @@
 .actionBtnDone {
-  background: transparent;
-  color: #2e7d32;
-  cursor: default;
+  color: #0075f2;
   font-weight: 600;
+
+  &:hover {
+    cursor: pointer;
+  }
 }
 
 .spinner {

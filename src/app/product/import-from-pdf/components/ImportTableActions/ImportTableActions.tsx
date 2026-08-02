@@ -1,6 +1,7 @@
 import { Button } from "@/shared/ui/button-main/Button";
 import type { CheckItemStatus } from "../../action";
 import styles from "./ImportTableActions.module.css";
+import Link from "next/link";
 
 type Props = {
   id: number;
@@ -10,6 +11,7 @@ type Props = {
   disabled: boolean;
   isProcess: boolean;
   hasBarcode: boolean;
+  product_id: number | null;
 };
 
 export const ImportTableActions = (props: Props) => {
@@ -74,8 +76,10 @@ export const ImportTableActions = (props: Props) => {
           )}
         </Button>
       )}
-      {props.status === "completed" && (
-        <span className={`${styles.actionBtn} ${styles.actionBtnDone}`}> ✓ Готово</span>
+      {props.status === "completed" && props.product_id && (
+        <Link href={`/product/info/${props.product_id}`}>
+          <span className={`${styles.actionBtn} ${styles.actionBtnDone}`}> ✓ Готов</span>
+        </Link>
       )}
     </>
   );

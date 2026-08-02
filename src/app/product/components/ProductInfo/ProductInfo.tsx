@@ -39,10 +39,9 @@ export const ProductInfo = (props: Props) => {
               {product.description}
             </p>
           )}
-          {product.brand_id && (
+          {typeof product.brand_name === "string" && product.brand_name.length > 0 && (
             <p className={styles.fieldValue}>
-              <span className={styles.fieldLabel}>Бренд: </span>
-              {product.brand_id}
+              <span className={styles.fieldLabel}>Бренд: {product.brand_name}</span>
             </p>
           )}
           {props.categoryName && (
