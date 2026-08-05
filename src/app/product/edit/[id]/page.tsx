@@ -6,12 +6,13 @@ import type { ProductStockModel, WarehouseModel } from "@/app/warehouses/action"
 import { getFillValues } from "@/shared/helpers/get-fill-values";
 import { ErrorAlert } from "@/shared/ui/error-alert/ErrorAlert";
 import { UpdateToken } from "@/views/UpdateToken/UpdateToken";
-import { fetchProductFormEditData } from "../../action";
+import { fetchProductFormEditData, type PhotoItem } from "../../action";
 import type { RemainsItem } from "../../components/ProductForm/components/Stocks/ProductFormStocks";
 import { ProductForm, type SpecificationValueItem } from "../../components/ProductForm/ProductForm";
 import type { ProductFormPayloadValues } from "../../create/action";
 import {
   updateProductAction,
+  updateProductPhotos,
   updateProductPriceValues,
   updateProductSpecifications,
   updateProductStocks,
@@ -120,7 +121,7 @@ export default async function ProductEditPage(searchParams: { params: Promise<{ 
   const initialValues = {
     name: product?.data?.name ? product.data.name : "",
     code: product?.data?.code ? product.data.code : "",
-    brand_id: product?.data?.brand_id ? product.data.brand_id : "",
+    brand_name: product?.data?.brand_name ? product.data.brand_name : "",
     category_id: product?.data?.category_id ? product.data.category_id : null,
     description: product?.data?.description ? product.data.description : "",
     country: product?.data?.country ? product.data.country : "",
@@ -131,6 +132,13 @@ export default async function ProductEditPage(searchParams: { params: Promise<{ 
     length: product?.data?.length ? String(product?.data?.length) : "",
     width: product?.data?.width ? String(product?.data?.width) : "",
     purchase_price: product?.data?.purchase_price ? String(product?.data?.purchase_price) : "",
+    seo_title: product?.data?.seo_title ? product.data.seo_title : "",
+    seo_description: product?.data?.seo_description ? product.data.seo_description : "",
+    slug: product?.data?.slug ? product.data.slug : "",
+    og_title: product?.data?.og_title ? product.data.og_title : "",
+    og_description: product?.data?.og_description ? product.data.og_description : "",
+    og_type: product?.data?.og_type ? product.data.og_type : "",
+    keywords: product?.data?.keywords ? product.data.keywords : "",
   };
 
   const submitAction = async (
@@ -138,6 +146,7 @@ export default async function ProductEditPage(searchParams: { params: Promise<{ 
     typePriceValues: Record<string, string>,
     specificationsValues: SpecificationValueItem[],
     remains: RemainsItem[],
+    photos: PhotoItem[],
   ) => {
     "use server";
 
@@ -183,7 +192,18 @@ export default async function ProductEditPage(searchParams: { params: Promise<{ 
           }
         });
 
-        revalidatePath("product/edit");
+        await updateProductPhotos(photos, product.data?.photos || [], Number(product_id)).then(
+          (errorMessage) => {
+            if (errorMessage) {
+              notification = {
+                status: "error",
+                message: errorMessage,
+              };
+            }
+          },
+        );
+
+        revalidatePath(`product/edit/${id}`);
 
         notification = {
           status: "success",
@@ -252,6 +272,7 @@ export default async function ProductEditPage(searchParams: { params: Promise<{ 
             initialPriceTypesValues={initialPriceTypesValues}
             priceTypes={priceTypes}
             getFillValuesAction={getFillValuesAction}
+            photos={product.data.photos || []}
           />
         )}
       </div>

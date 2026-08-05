@@ -12,7 +12,11 @@ export const createProductSchema = z.object({
     .min(8, { message: "Минимум 8 символов" })
     .or(z.literal("")),
   description: z.string({ message: "Описание должно быть строкой" }),
-  brand_id: z.string({ message: "Бренд должен быть строкой" }),
+  brand_name: z
+    .string({ message: "Бренд должен быть строкой" })
+    .max(100, { message: "Максимум 100 символов" })
+    .min(2, { message: "Минимум 2 символа" })
+    .optional(),
   category_id: z
     .number({ message: "Категория должна быть числом" })
     .nullable()
@@ -64,5 +68,42 @@ export const createProductSchema = z.object({
     .refine((value) => value === null || Number(value) >= 0, {
       message: "Не может быть отрицательным",
     })
+    .or(z.literal("")),
+  seo_title: z
+    .string({ message: "SEO заголовок должен быть строкой" })
+    .max(255, { message: "Максимум 255 символов" })
+    .min(2, { message: "Минимум 2 символа" })
+    .optional()
+    .or(z.literal("")),
+  seo_description: z
+    .string({ message: "SEO описание должно быть строкой" })
+    .max(255, { message: "Максимум 255 символов" })
+    .min(2, { message: "Минимум 2 символа" })
+    .optional()
+    .or(z.literal("")),
+  slug: z
+    .string({ message: "Slug должен быть строкой" })
+    .max(255, { message: "Максимум 255 символов" })
+    .optional()
+    .or(z.literal("")),
+  og_title: z
+    .string({ message: "OG заголовок должен быть строкой" })
+    .max(255, { message: "Максимум 255 символов" })
+    .optional()
+    .or(z.literal("")),
+  og_description: z
+    .string({ message: "OG описание должно быть строкой" })
+    .max(255, { message: "Максимум 255 символов" })
+    .optional()
+    .or(z.literal("")),
+  og_type: z
+    .string({ message: "OG тип должен быть строкой" })
+    .max(255, { message: "Максимум 255 символов" })
+    .optional()
+    .or(z.literal("")),
+  keywords: z
+    .string({ message: "Ключевые слова должны быть строкой" })
+    .max(255, { message: "Максимум 255 символов" })
+    .optional()
     .or(z.literal("")),
 });

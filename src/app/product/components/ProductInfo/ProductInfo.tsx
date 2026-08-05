@@ -189,17 +189,67 @@ export const ProductInfo = (props: Props) => {
         </FormSection>
       )}
 
-      {/* Фото товара (пустой блок) */}
       <FormSection title="Фото товара">
-        <p className={styles.emptyText}>Модуль фотографий не реализован</p>
+        {product.photos.length > 0 ? (
+          <ul className={styles.photoList}>
+            {product.photos.map((photo) => (
+              <li key={photo.id} className={styles.photoItem}>
+                <picture>
+                  <img className={styles.image} src={photo.url} alt={product.name} />
+                </picture>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className={styles.emptyText}>Фотографии не найдены</p>
+        )}
       </FormSection>
 
-      {/* SEO (планируется) */}
-      <FormSection title="SEO (планируется)">
-        <p className={styles.emptyText}>
-          В разработке: meta-заголовок, meta-описание, ЧПУ (slug), Open Graph, настройка
-          индексирования.
-        </p>
+      <FormSection title="SEO">
+        <div className={styles.mainContentContainer}>
+          {product.seo_title && (
+            <p className={styles.fieldValue}>
+              <span className={styles.fieldLabel}>Заголовок страницы: </span>
+              {product.seo_title}
+            </p>
+          )}
+          {product.seo_description && (
+            <p className={styles.fieldValue}>
+              <span className={styles.fieldLabel}>SEO-описание: </span>
+              {product.seo_description}
+            </p>
+          )}
+          {product.keywords && (
+            <p className={styles.fieldValue}>
+              <span className={styles.fieldLabel}>Ключевые слова: </span>
+              {product.keywords}
+            </p>
+          )}
+          {product.og_title && (
+            <p className={styles.fieldValue}>
+              <span className={styles.fieldLabel}>OG-заголовок: </span>
+              {product.og_title}
+            </p>
+          )}
+          {product.og_description && (
+            <p className={styles.fieldValue}>
+              <span className={styles.fieldLabel}>OG-описание: </span>
+              {product.og_description}
+            </p>
+          )}
+          {product.og_type && (
+            <p className={styles.fieldValue}>
+              <span className={styles.fieldLabel}>OG-тип: </span>
+              {product.og_type}
+            </p>
+          )}
+          {product.slug && (
+            <p className={styles.fieldValue}>
+              <span className={styles.fieldLabel}>ЧПУ-адрес страницы: </span>
+              {product.slug}
+            </p>
+          )}
+        </div>
       </FormSection>
     </div>
   );

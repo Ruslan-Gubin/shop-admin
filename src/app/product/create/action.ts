@@ -11,7 +11,7 @@ export type ProductFormPayloadValues = {
   name: string;
   code: string;
   description: string;
-  brand_id: string;
+  brand_name: string;
   category_id: number | null;
   country: string;
   product_type: string;
@@ -21,13 +21,20 @@ export type ProductFormPayloadValues = {
   length: string;
   width: string;
   purchase_price: string;
+  seo_title: string;
+  seo_description: string;
+  slug: string;
+  og_title: string;
+  og_description: string;
+  og_type: string;
+  keywords: string;
 };
 
 export type ProductFormPayload = {
   name: string;
   code: string;
   description: string;
-  brand_id: number | null;
+  brand_name: string;
   category_id: number | null;
   country: string;
   product_type: string;
@@ -37,6 +44,13 @@ export type ProductFormPayload = {
   length: number | null;
   width: number | null;
   purchase_price: number | null;
+  seo_title: string;
+  seo_description: string;
+  slug: string;
+  og_title: string;
+  og_description: string;
+  og_type: string;
+  keywords: string;
 };
 
 export const createProductAction = async (

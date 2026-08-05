@@ -4,11 +4,15 @@ import { createProductStock, type WarehouseModel } from "@/app/warehouses/action
 import { getFillValues } from "@/shared/helpers/get-fill-values";
 import { ErrorAlert } from "@/shared/ui/error-alert/ErrorAlert";
 import { UpdateToken } from "@/views/UpdateToken/UpdateToken";
-import { createProductPriceAction, fetchProductFormData } from "../action";
+import {
+  createPhotoAction,
+  createProductPriceAction,
+  fetchProductFormData,
+  type PhotoItem,
+} from "../action";
 import type { RemainsItem } from "../components/ProductForm/components/Stocks/ProductFormStocks";
 import { ProductForm, type SpecificationValueItem } from "../components/ProductForm/ProductForm";
 import { createProductAction, type ProductFormPayloadValues } from "./action";
-
 export default async function CreateProductPage() {
   const [rangesData, priceTypesData, priceFill, categories, warehousesData, specificationsData] =
     await fetchProductFormData();
@@ -55,7 +59,7 @@ export default async function CreateProductPage() {
   const initialValues = {
     name: "",
     code: "",
-    brand_id: "",
+    brand_name: "",
     category_id: null,
     description: "",
     country: "",
@@ -66,6 +70,13 @@ export default async function CreateProductPage() {
     length: "",
     width: "",
     purchase_price: "",
+    seo_title: "",
+    seo_description: "",
+    slug: "",
+    og_title: "",
+    og_description: "",
+    og_type: "",
+    keywords: "",
   };
 
   const submitAction = async (
@@ -73,6 +84,7 @@ export default async function CreateProductPage() {
     typePriceValues: Record<string, string>,
     specificationsValues: SpecificationValueItem[],
     remains: RemainsItem[],
+    photos: PhotoItem[],
   ) => {
     "use server";
 
@@ -168,6 +180,25 @@ export default async function CreateProductPage() {
           }
         }
 
+        for (let i = 0; i < photos.length; i++) {
+          const photo = photos[i];
+          if (photo.url.length > 0) {
+            await createPhotoAction({
+              url: photo.url,
+              position: photo.position,
+              parent_id: product_id,
+              parent_type: "product",
+            }).then((response) => {
+              if (response === "error") {
+                notification = {
+                  status: "error",
+                  message: "Не удалось изменить позицию фото для товара",
+                };
+              }
+            });
+          }
+        }
+
         notification = {
           status: "success",
           message: "Товар удачно добавлен",
@@ -175,7 +206,7 @@ export default async function CreateProductPage() {
         updateValues = {
           name: "",
           code: "",
-          brand_id: "",
+          brand_name: "",
           category_id: null,
           description: "",
           country: "",
@@ -186,6 +217,13 @@ export default async function CreateProductPage() {
           length: "",
           width: "",
           purchase_price: "",
+          seo_title: "",
+          seo_description: "",
+          slug: "",
+          og_title: "",
+          og_description: "",
+          og_type: "",
+          keywords: "",
         };
         updateTypesPricesValues = initialPriceTypesValues;
         updateRemains = initialRemains;
@@ -197,7 +235,14 @@ export default async function CreateProductPage() {
       }
     });
 
-    return { errors, notification, updateTypesPricesValues, updateValues, updateRemains };
+    return {
+      errors,
+      notification,
+      updateTypesPricesValues,
+      updateValues,
+      updateRemains,
+      updatePhotos: [],
+    };
   };
 
   return (
@@ -234,6 +279,7 @@ export default async function CreateProductPage() {
         initialPriceTypesValues={initialPriceTypesValues}
         priceTypes={priceTypes}
         getFillValuesAction={getFillValuesAction}
+        photos={[]}
       />
     </section>
   );

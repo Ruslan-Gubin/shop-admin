@@ -4,7 +4,7 @@ import PDFParser, { type Output } from "pdf2json";
 import { fetchService } from "@/shared/fetch-api";
 import { type ImportPdfItem, parseCatalog } from "@/shared/helpers/parse-catalog";
 import { updateTokensInAction } from "@/shared/helpers/updateCookieAction";
-import { ProductModel } from "../action";
+import type { ProductModel } from "../action";
 
 const pdfParser = new PDFParser();
 

@@ -1,7 +1,7 @@
 import styles from "./Checkbox.module.css";
 
 interface Props extends React.InputHTMLAttributes<HTMLInputElement> {
-  labelText: string;
+  labelText?: string;
 }
 
 export const Checkbox = ({ labelText, ...rest }: Props) => {

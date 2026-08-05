@@ -18,9 +18,13 @@ import { updateTokensInAction } from "@/shared/helpers/updateCookieAction";
 import { getValidatePayload } from "@/shared/services/get-form-action-state";
 import { setErrorFromServer } from "@/shared/services/set-new-store-error-from-server";
 import {
+  changePositionPhotoAction,
+  createPhotoAction,
   createProductPriceAction,
+  deletePhotoAction,
   deleteProductPriceAction,
   editProductPriceAction,
+  type PhotoItem,
   type ProductModel,
   type ProductPriceModel,
 } from "../../action";
@@ -48,7 +52,6 @@ export const updateProductAction = async (
   if (isValid && id) {
     const updatePayload: ProductFormPayload = {
       ...payload,
-      brand_id: null,
       weight: payload.weight ? Number(payload.weight) : null,
       height: payload.height ? Number(payload.height) : null,
       length: payload.length ? Number(payload.length) : null,
@@ -203,6 +206,53 @@ export const updateProductSpecifications = async (
       await deleteProductSpecificationAction(productSpecification.id).then((response) => {
         if (response === "error") {
           errorMessage = "Не удалось удалить характеристику для товара";
+        }
+      });
+    }
+  }
+
+  return errorMessage;
+};
+
+export const updateProductPhotos = async (
+  photoValues: PhotoItem[],
+  initPhotos: PhotoItem[],
+  parent_id: number,
+): Promise<string> => {
+  let errorMessage = "";
+
+  for (let i = 0; i < initPhotos.length; i++) {
+    const initPhoto = initPhotos[i];
+    const photo = photoValues.find((el) => el.id === initPhoto.id);
+
+    if (!photo) {
+      await deletePhotoAction(initPhoto.id).then((response) => {
+        if (response === "error") {
+          errorMessage = "Не удалось удалить фото для товара";
+        }
+      });
+    } else {
+      if (initPhoto.position !== photo.position) {
+        await changePositionPhotoAction(initPhoto.id, photo.position).then((response) => {
+          if (response === "error") {
+            errorMessage = "Не удалось изменить позицию фото для товара";
+          }
+        });
+      }
+    }
+  }
+
+  for (let i = 0; i < photoValues.length; i++) {
+    const photo = photoValues[i];
+    if (!photo.parent_id && photo.url.length > 0 && parent_id) {
+      await createPhotoAction({
+        url: photo.url,
+        position: photo.position,
+        parent_id,
+        parent_type: "product",
+      }).then((response) => {
+        if (response === "error") {
+          errorMessage = "Не удалось изменить позицию фото для товара";
         }
       });
     }

@@ -15,11 +15,22 @@ import type {
 import type { FetchWarehousesResponse, ProductStockModel } from "../warehouses/action";
 import { createProductPriceSchema } from "./schema";
 
+export type PhotoItem = {
+  created_at: string;
+  id: number;
+  parent_id: number;
+  parent_type: string;
+  position: number;
+  updated_at: string;
+  url: string;
+};
+
 export interface ProductModel {
   id: number;
   name: string;
   code: string;
-  brand_id: string; //TODO change number or null
+  brand_id: number | null;
+  brand_name: string;
   category_id: number;
   description: string;
   country: string;
@@ -38,6 +49,14 @@ export interface ProductModel {
   review_count: number;
   views: number;
   price_list: { price: number; minQuantity: number }[];
+  photos: PhotoItem[];
+  seo_title: string;
+  seo_description: string;
+  slug: string;
+  og_title: string;
+  og_description: string;
+  og_type: string;
+  keywords: string;
 }
 
 export interface ProductPriceModel {
@@ -273,5 +292,79 @@ export const deleteProductPriceAction = async (id: number): Promise<"error" | "s
       }
 
       return response.status;
+    });
+};
+
+export const deletePhotoAction = async (id: number): Promise<"error" | "success"> => {
+  const cookieStore = await cookies();
+
+  return fetchService
+    .delete<null>({
+      url: `photo/${id}`,
+    })
+    .then((response) => {
+      if (response.tokens) {
+        updateTokensInAction(cookieStore, response.tokens);
+      }
+
+      return response.status;
+    });
+};
+
+export const changePositionPhotoAction = async (
+  id: number,
+  position: number,
+): Promise<"error" | "success"> => {
+  const cookieStore = await cookies();
+
+  return fetchService
+    .patch<null>({
+      url: `photo/${id}`,
+      payload: { position },
+    })
+    .then((response) => {
+      if (response.tokens) {
+        updateTokensInAction(cookieStore, response.tokens);
+      }
+
+      return response.status;
+    });
+};
+
+export const createPhotoAction = async (payload: {
+  url: string;
+  parent_type: string;
+  parent_id: number;
+  position: number;
+}): Promise<"error" | "success"> => {
+  const cookieStore = await cookies();
+
+  return fetchService
+    .post<PhotoItem>({
+      url: "photo/create",
+      payload,
+    })
+    .then((response) => {
+      if (response.tokens) {
+        updateTokensInAction(cookieStore, response.tokens);
+      }
+
+      return response.status;
+    });
+};
+
+export const getParsePhotoAction = async (name: string) => {
+  const cookieStore = await cookies();
+
+  return fetchService
+    .get<string[]>({
+      url: `product-source-record/pick-images?query=${name}`,
+    })
+    .then((response) => {
+      if (response.tokens) {
+        updateTokensInAction(cookieStore, response.tokens);
+      }
+
+      return response;
     });
 };

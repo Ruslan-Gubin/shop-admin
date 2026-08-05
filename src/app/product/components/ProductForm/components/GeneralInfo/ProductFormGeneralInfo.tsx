@@ -13,14 +13,14 @@ type Props = {
     name: string;
     code: string;
     description: string;
-    brand_id: string;
+    brand_name: string;
     category_id: number | null;
   };
   errors: {
     name: string;
     code: string;
     description: string;
-    brand_id: string;
+    brand_name: string;
     category_id: string;
   };
   handleChangeValues: (field: string, value: string) => void;
@@ -108,16 +108,16 @@ export const ProductFormGeneralInfo = (props: Props) => {
         onClickRightIcon={() => props.handleChangeValues("description", "")}
       />
       <Input
-        error={props.errors.brand_id}
-        value={props.values.brand_id}
+        error={props.errors.brand_name}
+        value={props.values.brand_name}
         name="product_brand"
         id="product_brand"
         variant="outlined"
         variantSize="sm"
         label="Бренд"
         rightIcon={<CancelSvg />}
-        onChange={(e) => props.handleChangeValues("brand_id", e.target.value)}
-        onClickRightIcon={() => props.handleChangeValues("brand_id", "")}
+        onChange={(e) => props.handleChangeValues("brand_name", e.target.value)}
+        onClickRightIcon={() => props.handleChangeValues("brand_name", "")}
       />
 
       <FormInstruction>

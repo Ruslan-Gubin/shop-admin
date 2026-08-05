@@ -1,7 +1,7 @@
+import Link from "next/link";
 import { Button } from "@/shared/ui/button-main/Button";
 import type { CheckItemStatus } from "../../action";
 import styles from "./ImportTableActions.module.css";
-import Link from "next/link";
 
 type Props = {
   id: number;
