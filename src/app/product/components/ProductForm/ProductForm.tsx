@@ -193,7 +193,12 @@ export const ProductForm = (props: Props) => {
         setPhotos={setPhotoValues}
         brand_name={values.brand_name}
       />
-      <ProductFormSeo values={values} errors={errors} handleChangeValues={handleChangeValues} />
+      <ProductFormSeo
+        values={values}
+        errors={errors}
+        handleChangeValues={handleChangeValues}
+        categories={props.categories}
+      />
 
       <div className={styles.actionForm}>
         <Button

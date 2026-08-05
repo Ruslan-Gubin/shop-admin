@@ -368,3 +368,46 @@ export const getParsePhotoAction = async (name: string) => {
       return response;
     });
 };
+
+export type SeoModel = {
+  seo_title: string;
+  seo_description: string;
+  slug: string;
+  og_title: string;
+  og_description: string;
+  og_type: string;
+  keywords: string;
+};
+
+export type SeoSuggestionPayload = {
+  name: string;
+  description?: string;
+  brand_name?: string;
+  category_name?: string;
+  seo?: {
+    seo_title?: string;
+    seo_description?: string;
+    slug?: string;
+    og_title?: string;
+    og_description?: string;
+    og_type?: string;
+    keywords?: string;
+  };
+};
+
+export const getSeoSuggestionAction = async (payload: SeoSuggestionPayload) => {
+  const cookieStore = await cookies();
+
+  return fetchService
+    .post<SeoModel>({
+      url: "product-source-record/generate-seo",
+      payload,
+    })
+    .then((response) => {
+      if (response.tokens) {
+        updateTokensInAction(cookieStore, response.tokens);
+      }
+
+      return response;
+    });
+};

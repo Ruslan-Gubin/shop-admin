@@ -16,6 +16,7 @@ type Props = {
 
 export const ProductInfo = (props: Props) => {
   const product = props.product;
+  const firstPrice = props.pricesList.find((el) => el.value > 0);
 
   return (
     <div className={styles.root}>
@@ -194,9 +195,33 @@ export const ProductInfo = (props: Props) => {
           <ul className={styles.photoList}>
             {product.photos.map((photo) => (
               <li key={photo.id} className={styles.photoItem}>
-                <picture>
-                  <img className={styles.image} src={photo.url} alt={product.name} />
-                </picture>
+                <div className={styles.imageContainer}>
+                  <picture>
+                    <img
+                      draggable={false}
+                      className={styles.image}
+                      src={photo.url}
+                      alt={photo.url}
+                    />
+                  </picture>
+                </div>
+                <div className={styles.photoInfo}>
+                  {product.name ? (
+                    <p className={styles.cardName}>{product.name}</p>
+                  ) : (
+                    <div className={styles.skeletonName}>
+                      <span className={styles.skeletonNameLine} />
+                      <span
+                        className={`${styles.skeletonNameLine} ${styles.skeletonNameLineShort}`}
+                      />
+                    </div>
+                  )}
+                  {firstPrice?.value ? (
+                    <p className={styles.cardPrice}>{priceFormatter.format(firstPrice.value)}</p>
+                  ) : (
+                    <div className={styles.skeletonPrice} />
+                  )}
+                </div>
               </li>
             ))}
           </ul>
@@ -204,6 +229,21 @@ export const ProductInfo = (props: Props) => {
           <p className={styles.emptyText}>Фотографии не найдены</p>
         )}
       </FormSection>
+      {/* <FormSection title="Фото товара"> */}
+      {/*   {product.photos.length > 0 ? ( */}
+      {/*     <div className={styles.productPhotoGrid}> */}
+      {/*       {product.photos.map((photo) => ( */}
+      {/*         <div key={photo.id} className={styles.photoItemGrid}> */}
+      {/*           <picture> */}
+      {/*             <img className={styles.image} src={photo.url} alt={product.name} /> */}
+      {/*           </picture> */}
+      {/*         </div> */}
+      {/*       ))} */}
+      {/*     </div> */}
+      {/*   ) : ( */}
+      {/*     <p className={styles.emptyText}>Фотографии не найдены</p> */}
+      {/*   )} */}
+      {/* </FormSection> */}
 
       <FormSection title="SEO">
         <div className={styles.mainContentContainer}>

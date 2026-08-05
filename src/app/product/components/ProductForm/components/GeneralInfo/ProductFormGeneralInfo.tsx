@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Activity, useMemo, useState } from "react";
 import type { CategoryModel } from "@/app/category/action";
+import { getCategoryName } from "@/shared/helpers/getCategoryName";
 import { CancelSvg } from "@/shared/svg/CancelSvg";
 import { Input } from "@/shared/ui/input-main/Input";
 import { SelectCategoryList } from "@/views/SelectCategoryList/SelectCategoryList";
@@ -34,32 +35,6 @@ export const ProductFormGeneralInfo = (props: Props) => {
   const handleSelectCategory = (id: number | null) => {
     props.onSelectCategory(id);
     setOpenCategory(false);
-  };
-
-  const getCategoryName = (categories: CategoryModel[], id: number | null) => {
-    let name = "";
-
-    if (typeof id === "number") {
-      for (let i = 0; i < categories.length; i++) {
-        const currentCategory = categories[i];
-        const hasChildren = currentCategory.children.length > 0;
-
-        if (currentCategory.id === id) {
-          name = currentCategory.name;
-          break;
-        }
-
-        if (hasChildren) {
-          const findChildrenName = getCategoryName(currentCategory.children, id);
-          if (findChildrenName) {
-            name = findChildrenName;
-            break;
-          }
-        }
-      }
-    }
-
-    return name;
   };
 
   const categoryName = useMemo(
