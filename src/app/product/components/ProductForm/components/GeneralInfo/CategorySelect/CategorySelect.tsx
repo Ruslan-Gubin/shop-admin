@@ -131,8 +131,10 @@ export const CategorySelect = (props: Props) => {
         onClick={handleSuggestCategory}
         disabled={loading || props.values.name.length < 3 || props.values.description.length < 3}
       >
-        {loading ? <span className={styles.spinner} /> : <AiSvg />}
-        Определить категорию
+        <div className="buttonContentIcon">
+          <div>{loading ? <div className="spinner" /> : <AiSvg />}</div>
+          <p>Определить категорию</p>
+        </div>
       </Button>
       <div className={styles.categoryContainer}>
         <div className={styles.categoryValueContainer}>

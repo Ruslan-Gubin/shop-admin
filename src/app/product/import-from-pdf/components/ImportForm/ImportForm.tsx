@@ -297,7 +297,7 @@ export const ImportForm = () => {
         >
           {parseLoading ? (
             <>
-              <span className={styles.spinner} />
+              <span className="spinner" />
               Формируем PDF…
             </>
           ) : (
@@ -325,7 +325,7 @@ export const ImportForm = () => {
                 disabled={isHasProcess}
                 onClick={handleGenerateAll}
               >
-                {generateLoading && <div className={styles.spinner} />}
+                {generateLoading && <div className="spinner" />}
                 {generateLoading
                   ? `Генерация (${counts.needGenerate})`
                   : `Сгенерировать все (${counts.needGenerate})`}
@@ -334,7 +334,7 @@ export const ImportForm = () => {
 
             {counts.needAdd > 0 && (
               <Button size="sm" variantColor="green" disabled={isHasProcess} onClick={handleAddAll}>
-                {addLoading && <div className={styles.spinner} />}
+                {addLoading && <div className="spinner" />}
                 {addLoading ? `Добавление (${counts.needAdd})` : `Добавить все (${counts.needAdd})`}
               </Button>
             )}

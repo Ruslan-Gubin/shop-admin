@@ -125,3 +125,45 @@ h3 {
 .instruction-link {
   color: #0075f2;
 }
+
+.buttonContentIcon {
+  display: grid;
+  grid-template-columns: 20px 1fr;
+  column-gap: 8px;
+  align-items: center;
+
+  div {
+    min-width: 20px;
+    width: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  p {
+    text-wrap: nowrap;
+    max-width: 100%;
+    text-overflow: ellipsis;
+    overflow: hidden;
+  }
+
+  @media (max-width: 500px) {
+    column-gap: 4px;
+  }
+}
+
+.spinner {
+  height: 16px;
+  width: 100%;
+  min-width: 100%;
+  border: 2px solid #e0e0e0;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

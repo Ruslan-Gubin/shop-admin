@@ -301,7 +301,7 @@ export const ProductFormPhotos = (props: Props) => {
         >
           {isLoadingRecommended ? (
             <>
-              <span className={styles.spinner} />
+              <span className="spinner" />
               Поиск…
             </>
           ) : recommendedPhotos === null ? (

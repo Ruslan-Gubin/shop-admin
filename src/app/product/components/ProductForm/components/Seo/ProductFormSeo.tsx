@@ -1,6 +1,10 @@
 import { useState } from "react";
 import type { CategoryModel } from "@/app/category/action";
-import { getSeoSuggestionAction, type SeoModel, type SeoSuggestionPayload } from "@/app/product/action";
+import {
+  getSeoSuggestionAction,
+  type SeoModel,
+  type SeoSuggestionPayload,
+} from "@/app/product/action";
 import type { ProductFormPayloadValues } from "@/app/product/create/action";
 import { getCategoryFullPath } from "@/shared/helpers/getCategoryFullPath";
 import { AiSvg } from "@/shared/svg/AiSvg";
@@ -9,7 +13,6 @@ import { Button } from "@/shared/ui/button-main/Button";
 import { Input } from "@/shared/ui/input-main/Input";
 import { notificationAdapter } from "@/stores/notification/adapter";
 import { FormSection } from "@/widgets/form-section/FormSection";
-import styles from "./ProductFormSeo.module.css";
 import { SeoRecommendationModal } from "./SeoRecommendationModal";
 
 type SeoKey = keyof SeoModel;
@@ -59,7 +62,10 @@ export const ProductFormSeo = (props: Props) => {
           });
           setIsModalOpen(true);
         } else {
-          notificationAdapter.add(response.message || "Не удалось сгенерировать SEO", response.status);
+          notificationAdapter.add(
+            response.message || "Не удалось сгенерировать SEO",
+            response.status,
+          );
         }
       })
       .finally(() => {
@@ -100,7 +106,7 @@ export const ProductFormSeo = (props: Props) => {
           onClick={handleGenerate}
           disabled={isLoading || !props.values.name}
         >
-          {isLoading ? <span className={styles.spinner} /> : <AiSvg />}
+          {isLoading ? <span className="spinner" /> : <AiSvg />}
           {isLoading ? "Генерация…" : "Сгенерировать SEO"}
         </Button>
         <Input

@@ -3,6 +3,8 @@ import { CancelSvg } from "@/shared/svg/CancelSvg";
 import { Input } from "@/shared/ui/input-main/Input";
 import { FormSection } from "@/widgets/form-section/FormSection";
 import { CategorySelect } from "./CategorySelect/CategorySelect";
+import { Button } from "@/shared/ui/button-main/Button";
+import { AiSvg } from "@/shared/svg/AiSvg";
 
 type Props = {
   values: {
@@ -25,6 +27,7 @@ type Props = {
 };
 
 export const ProductFormGeneralInfo = (props: Props) => {
+  const loading = false;
   return (
     <FormSection title="Общие данные">
       <Input
@@ -53,6 +56,20 @@ export const ProductFormGeneralInfo = (props: Props) => {
         onChange={(e) => props.handleChangeValues("name", e.target.value)}
         onClickRightIcon={() => props.handleChangeValues("name", "")}
       />
+
+      <Button
+        variant="solid"
+        variantColor="blue"
+        size="sm"
+        onClick={() => {}}
+        disabled={false}
+        //      disabled={loading || props.values.name.length < 3 || props.values.description.length < 3}
+      >
+        <div className="buttonContentIcon">
+          <div>{loading ? <div className="spinner" /> : <AiSvg />}</div>
+          <p>Сгенерировать полную информацию</p>
+        </div>
+      </Button>
       <Input
         error={props.errors.description}
         value={props.values.description}
