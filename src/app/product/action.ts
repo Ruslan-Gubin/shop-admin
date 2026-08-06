@@ -1,5 +1,5 @@
 "use server";
-import { revalidateTag } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
 import { fetchService } from "@/shared/fetch-api";
 import { updateTokensInAction } from "@/shared/helpers/updateCookieAction";
@@ -13,7 +13,7 @@ import type {
   ProductSpecificationModel,
 } from "../specifications/action";
 import type { FetchWarehousesResponse, ProductStockModel } from "../warehouses/action";
-import { createProductPriceSchema } from "./schema";
+import { categorySuggestionSchema, createProductPriceSchema } from "./schema";
 
 export type PhotoItem = {
   created_at: string;
@@ -406,6 +406,66 @@ export const getSeoSuggestionAction = async (payload: SeoSuggestionPayload) => {
     .then((response) => {
       if (response.tokens) {
         updateTokensInAction(cookieStore, response.tokens);
+      }
+
+      return response;
+    });
+};
+
+export type CategorySuggestion = {
+  category_id: number | null;
+  create_categories: { name: string; parent_id: number | null }[];
+};
+
+export type CategorySuggestionPayload = {
+  name: string;
+  description: string;
+};
+
+export const getCategorySuggestionAction = async (payload: CategorySuggestionPayload) => {
+  const { isValid, errors } = getValidatePayload(payload, categorySuggestionSchema);
+
+  if (isValid) {
+    const cookieStore = await cookies();
+
+    return fetchService
+      .post<CategorySuggestion>({
+        url: "product-source-record/suggest-category",
+        payload,
+      })
+      .then((response) => {
+        if (response.tokens) {
+          updateTokensInAction(cookieStore, response.tokens);
+        }
+
+        if (response.status === "error" && response.errors) {
+          setErrorFromServer(response.errors, errors);
+        }
+
+        return { ...response, errors };
+      });
+  } else {
+    return { data: null, status: "error", message: "", errors, tokens: null };
+  }
+};
+
+export const applyCategorySuggestionAction = async (
+  payload: { name: string; parent_id: number | null }[],
+) => {
+  const cookieStore = await cookies();
+
+  return fetchService
+    .post<number>({
+      url: "product-source-record/apply-category-suggestion",
+      payload,
+    })
+    .then((response) => {
+      if (response.tokens) {
+        updateTokensInAction(cookieStore, response.tokens);
+      }
+
+      if (response.status === "success") {
+        revalidatePath("/product/edit/");
       }
 
       return response;

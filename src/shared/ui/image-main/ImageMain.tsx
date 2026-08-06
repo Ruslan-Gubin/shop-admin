@@ -6,18 +6,20 @@ type Props = {
   classImg?: string;
   classContainer?: string;
   priority?: boolean;
+  loading?: "eager" | "lazy";
 };
 
-const MainImage = ({ priority, classContainer, classImg, alt, src }: Props) => {
+const MainImage = (props: Props) => {
   return (
-    <div className={classContainer}>
+    <div className={props.classContainer}>
       <Image
-        priority={priority}
-        src={src}
-        alt={alt}
-        className={classImg}
+        priority={props.priority}
+        src={props.src}
+        alt={props.alt}
+        className={props.classImg}
         fill
-        // sizes="100%"
+        loading={props.loading === "lazy" ? "lazy" : "eager"}
+        sizes="100%"
       />
     </div>
   );

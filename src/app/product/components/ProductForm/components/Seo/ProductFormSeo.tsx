@@ -1,12 +1,8 @@
 import { useState } from "react";
 import type { CategoryModel } from "@/app/category/action";
-import {
-  getSeoSuggestionAction,
-  type SeoModel,
-  type SeoSuggestionPayload,
-} from "@/app/product/action";
+import { getSeoSuggestionAction, type SeoModel, type SeoSuggestionPayload } from "@/app/product/action";
 import type { ProductFormPayloadValues } from "@/app/product/create/action";
-import { getCategoryName } from "@/shared/helpers/getCategoryName";
+import { getCategoryFullPath } from "@/shared/helpers/getCategoryFullPath";
 import { AiSvg } from "@/shared/svg/AiSvg";
 import { CancelSvg } from "@/shared/svg/CancelSvg";
 import { Button } from "@/shared/ui/button-main/Button";
@@ -29,14 +25,13 @@ export const ProductFormSeo = (props: Props) => {
   const [isLoading, setIsLoading] = useState(false);
   const [recommendations, setRecommendations] = useState<SeoModel | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  console.log(recommendations);
 
   const handleGenerate = () => {
     const payload: SeoSuggestionPayload = {
       name: props.values.name,
       description: props.values.description || undefined,
       brand_name: props.values.brand_name || undefined,
-      category_name: getCategoryName(props.categories, props.values.category_id) || undefined,
+      category_name: getCategoryFullPath(props.categories, props.values.category_id) || undefined,
       seo: {
         seo_title: props.values.seo_title,
         seo_description: props.values.seo_description,
@@ -64,10 +59,7 @@ export const ProductFormSeo = (props: Props) => {
           });
           setIsModalOpen(true);
         } else {
-          notificationAdapter.add(
-            response.message || "Не удалось сгенерировать SEO",
-            response.status,
-          );
+          notificationAdapter.add(response.message || "Не удалось сгенерировать SEO", response.status);
         }
       })
       .finally(() => {

@@ -31,13 +31,15 @@ export const SelectCategoryItem = (props: Props) => {
             </div>
             <p className={styles.categoryName}>{props.category.name}</p>
           </button>
-          <button
-            onClick={() => props.onSelectCategory(props.category.id)}
-            type="button"
-            className={styles.selectButton}
-          >
-            выбрать
-          </button>
+          {props.category.children.length === 0 && (
+            <button
+              onClick={() => props.onSelectCategory(props.category.id)}
+              type="button"
+              className={styles.selectButton}
+            >
+              выбрать
+            </button>
+          )}
         </div>
       </li>
 

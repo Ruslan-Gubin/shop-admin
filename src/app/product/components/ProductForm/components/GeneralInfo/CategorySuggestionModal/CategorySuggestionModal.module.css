@@ -1,0 +1,115 @@
+.body {
+  display: flex;
+  flex-direction: column;
+  row-gap: 12px;
+  max-width: 100%;
+  min-width: 0px;
+}
+
+.description {
+  font-size: 14px;
+  color: #696969;
+}
+
+.emptyBlock {
+  border: 1px dashed #cecece;
+  border-radius: 8px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  row-gap: 8px;
+  background-color: #fafafa;
+}
+
+.emptyText {
+  font-size: 14px;
+  font-weight: 500;
+  color: #f32d2d;
+}
+
+.emptyHint {
+  font-size: 14px;
+  color: #8a8a8a;
+}
+
+.recommendedBlock {
+  display: flex;
+  flex-direction: column;
+  row-gap: 8px;
+  background-color: #f2f7fd;
+  border-left: 3px solid #0075f2;
+  border-radius: 6px;
+  padding: 12px 14px;
+}
+
+.chainBlock {
+  display: flex;
+  flex-direction: column;
+  row-gap: 8px;
+  background-color: #f4fbf7;
+  border-left: 3px solid #38a169;
+  border-radius: 6px;
+  padding: 12px 14px;
+  max-width: 100%;
+  overflow: hidden;
+
+  min-width: 0px;
+}
+
+.badge {
+  font-size: 12px;
+  font-weight: 600;
+  color: #0075f2;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.chainBlock .badge {
+  color: #38a169;
+}
+
+.recommendedName {
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.chainPath {
+  font-size: 15px;
+}
+
+.chainItem {
+  color: #8a8a8a;
+}
+
+.chainItemNew {
+  color: #000;
+  font-weight: 500;
+}
+
+.chainArrow {
+  color: #8a8a8a;
+}
+
+.chainHint {
+  font-size: 14px;
+  color: #8a8a8a;
+}
+
+.footer {
+  padding-inline: 24px;
+  padding-block: 16px;
+  align-items: center;
+  background-color: #e7ebe8;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  column-gap: 12px;
+  row-gap: 8px;
+  flex-wrap: wrap;
+
+  @media (max-width: 500px) {
+    button {
+      flex: 1 1 auto;
+    }
+  }
+}

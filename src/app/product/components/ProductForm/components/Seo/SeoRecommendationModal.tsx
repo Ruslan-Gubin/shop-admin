@@ -26,7 +26,10 @@ const getInitialSelected = (
   recommendations: SeoModel | null,
   currentValues: Partial<SeoModel>,
 ): Record<SeoKey, boolean> => {
-  const result = Object.fromEntries(SEO_FIELDS.map((field) => [field.key, false])) as Record<SeoKey, boolean>;
+  const result = Object.fromEntries(SEO_FIELDS.map((field) => [field.key, false])) as Record<
+    SeoKey,
+    boolean
+  >;
 
   if (!recommendations) return result;
 
@@ -59,7 +62,10 @@ export const SeoRecommendationModal = (props: Props) => {
     recommendations: props.recommendations,
   });
 
-  if (prevSnapshot.isOpen !== props.isOpen || prevSnapshot.recommendations !== props.recommendations) {
+  if (
+    prevSnapshot.isOpen !== props.isOpen ||
+    prevSnapshot.recommendations !== props.recommendations
+  ) {
     setPrevSnapshot({ isOpen: props.isOpen, recommendations: props.recommendations });
     setSelected(getInitialSelected(props.recommendations, props.currentValues));
   }

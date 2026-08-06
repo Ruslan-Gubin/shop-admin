@@ -18,7 +18,6 @@ export default async function EditProductQuestionPage(searchParams: {
 
   const questionData = await fetchProductQuestion(id);
   const question = questionData.data;
-  console.log(question);
 
   const deleteAction = async () => {
     "use server";
