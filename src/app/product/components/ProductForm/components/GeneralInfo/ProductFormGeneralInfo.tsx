@@ -1,10 +1,10 @@
 import type { CategoryModel } from "@/app/category/action";
+import { AiSvg } from "@/shared/svg/AiSvg";
 import { CancelSvg } from "@/shared/svg/CancelSvg";
+import { Button } from "@/shared/ui/button-main/Button";
 import { Input } from "@/shared/ui/input-main/Input";
 import { FormSection } from "@/widgets/form-section/FormSection";
 import { CategorySelect } from "./CategorySelect/CategorySelect";
-import { Button } from "@/shared/ui/button-main/Button";
-import { AiSvg } from "@/shared/svg/AiSvg";
 
 type Props = {
   values: {
@@ -24,10 +24,13 @@ type Props = {
   handleChangeValues: (field: string, value: string) => void;
   categories: CategoryModel[];
   onSelectCategory: (id: number | null) => void;
+  generatingFullInfo: boolean;
+  onGenerateFullInfo: () => void;
 };
 
 export const ProductFormGeneralInfo = (props: Props) => {
-  const loading = false;
+  const isValidBarcode = /^\d{8,14}$/.test(props.values.code.trim());
+
   return (
     <FormSection title="Общие данные">
       <Input
@@ -56,17 +59,15 @@ export const ProductFormGeneralInfo = (props: Props) => {
         onChange={(e) => props.handleChangeValues("name", e.target.value)}
         onClickRightIcon={() => props.handleChangeValues("name", "")}
       />
-
       <Button
         variant="solid"
         variantColor="blue"
         size="sm"
-        onClick={() => {}}
-        disabled={false}
-        //      disabled={loading || props.values.name.length < 3 || props.values.description.length < 3}
+        onClick={props.onGenerateFullInfo}
+        disabled={props.generatingFullInfo || !isValidBarcode}
       >
         <div className="buttonContentIcon">
-          <div>{loading ? <div className="spinner" /> : <AiSvg />}</div>
+          <div>{props.generatingFullInfo ? <div className="spinner" /> : <AiSvg />}</div>
           <p>Сгенерировать полную информацию</p>
         </div>
       </Button>

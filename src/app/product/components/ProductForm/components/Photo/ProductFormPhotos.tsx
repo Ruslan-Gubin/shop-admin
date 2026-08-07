@@ -10,6 +10,7 @@ import { FormInstruction } from "@/widgets/form-instruction/FormInstruction";
 import { FormSection } from "@/widgets/form-section/FormSection";
 import { ModalDelete } from "@/widgets/modals/modal-delete/ModalDelete";
 import styles from "./ProductFormPhotos.module.css";
+import { AiSvg } from "@/shared/svg/AiSvg";
 
 type Props = {
   photos: PhotoItem[];
@@ -229,7 +230,7 @@ export const ProductFormPhotos = (props: Props) => {
             variantColor="green"
             size="sm"
           >
-            Добавить ссылку
+            <p>Добавить ссылку</p>
           </Button>
         </div>
         {recommendedPhotos && recommendedPhotos.length > 0 && (
@@ -299,18 +300,16 @@ export const ProductFormPhotos = (props: Props) => {
             recommendedPhotos && recommendedPhotos.length > 0 ? styles.successButton : ""
           }`}
         >
-          {isLoadingRecommended ? (
-            <>
-              <span className="spinner" />
-              Поиск…
-            </>
-          ) : recommendedPhotos === null ? (
-            "Подобрать фото"
-          ) : recommendedPhotos.length > 0 ? (
-            `${recommendedPhotos.length} подходящих изображений`
-          ) : (
-            "Не найдено"
-          )}
+          <div className="buttonContentIcon">
+            <div>{isLoadingRecommended ? <div className="spinner" /> : <AiSvg />}</div>
+            <p>
+              {recommendedPhotos === null
+                ? "Подобрать фото"
+                : recommendedPhotos.length > 0
+                  ? `${recommendedPhotos.length} подходящих изображений`
+                  : "Не найдено"}
+            </p>
+          </div>
         </Button>
         <ul className={styles.photoList}>
           {props.photos.map((photo) => (

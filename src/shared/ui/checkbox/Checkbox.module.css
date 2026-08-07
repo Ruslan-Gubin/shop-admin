@@ -9,6 +9,7 @@
 .checkbox {
   appearance: none;
   width: 20px;
+  min-width: 20px;
   height: 20px;
   background-color: transparent;
   border: 1px solid lightgray;

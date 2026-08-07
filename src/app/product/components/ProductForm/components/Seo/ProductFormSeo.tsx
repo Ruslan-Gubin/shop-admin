@@ -106,8 +106,10 @@ export const ProductFormSeo = (props: Props) => {
           onClick={handleGenerate}
           disabled={isLoading || !props.values.name}
         >
-          {isLoading ? <span className="spinner" /> : <AiSvg />}
-          {isLoading ? "Генерация…" : "Сгенерировать SEO"}
+          <div className="buttonContentIcon">
+            <div>{isLoading ? <div className="spinner" /> : <AiSvg />}</div>
+            <p>Сгенерировать SEO</p>
+          </div>
         </Button>
         <Input
           name="seo_title"

@@ -8,10 +8,7 @@ import { setErrorFromServer } from "@/shared/services/set-new-store-error-from-s
 import type { CategoryModel } from "../category/action";
 import type { PriceFillModel, RangeModel } from "../price-auto-fill/action";
 import type { FetchPriceTypesResponse } from "../price-types/action";
-import type {
-  FetchSpecificationsResponse,
-  ProductSpecificationModel,
-} from "../specifications/action";
+import type { FetchSpecificationsResponse, ProductSpecificationModel } from "../specifications/action";
 import type { FetchWarehousesResponse, ProductStockModel } from "../warehouses/action";
 import { categorySuggestionSchema, createProductPriceSchema } from "./schema";
 
@@ -198,9 +195,7 @@ export const fetchProduct = async (id: string) => {
     });
 };
 
-export const deleteProductAction = async (
-  id: number,
-): Promise<{ status: "error" | "success"; message: string }> => {
+export const deleteProductAction = async (id: number): Promise<{ status: "error" | "success"; message: string }> => {
   const cookieStore = await cookies();
 
   return fetchService
@@ -259,10 +254,7 @@ export const createProductPriceAction = async (
   return { status: "error", errors, data: null };
 };
 
-export const editProductPriceAction = async (
-  id: number,
-  price: number,
-): Promise<"error" | "success"> => {
+export const editProductPriceAction = async (id: number, price: number): Promise<"error" | "success"> => {
   const cookieStore = await cookies();
 
   return await fetchService
@@ -311,10 +303,7 @@ export const deletePhotoAction = async (id: number): Promise<"error" | "success"
     });
 };
 
-export const changePositionPhotoAction = async (
-  id: number,
-  position: number,
-): Promise<"error" | "success"> => {
+export const changePositionPhotoAction = async (id: number, position: number): Promise<"error" | "success"> => {
   const cookieStore = await cookies();
 
   return fetchService
@@ -365,6 +354,49 @@ export const getParsePhotoAction = async (name: string) => {
         updateTokensInAction(cookieStore, response.tokens);
       }
 
+      return response;
+    });
+};
+
+export type GenerateProductType = {
+  brand_name?: string;
+  category_name?: string;
+  country?: string;
+  description?: string;
+  equipment?: string;
+  height?: number;
+  length?: number;
+  name?: string;
+  code?: string;
+  photos?: string[];
+  product_type?: string;
+  seo?: {
+    seo_title: string;
+    seo_description: string;
+    slug: string;
+    og_title: string;
+    og_description: string;
+    og_type: string;
+    keywords: string;
+  };
+  specifications?: { name: string; value: string }[];
+  weight?: number;
+  width?: number;
+};
+
+export const generateProductAction = async (name: string, barcode: string) => {
+  const cookieStore = await cookies();
+
+  return await fetchService
+    .post<{
+      clear_name: string;
+      product: GenerateProductType;
+      error_message: string;
+    }>({ url: "product-source-record", payload: { name, barcode } })
+    .then((response) => {
+      if (response.tokens) {
+        updateTokensInAction(cookieStore, response.tokens);
+      }
       return response;
     });
 };
@@ -449,9 +481,7 @@ export const getCategorySuggestionAction = async (payload: CategorySuggestionPay
   }
 };
 
-export const applyCategorySuggestionAction = async (
-  payload: { name: string; parent_id: number | null }[],
-) => {
+export const applyCategorySuggestionAction = async (payload: { name: string; parent_id: number | null }[]) => {
   const cookieStore = await cookies();
 
   return fetchService

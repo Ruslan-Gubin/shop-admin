@@ -18,6 +18,16 @@
   padding-left: 14px;
   min-height: 32px;
   max-height: 32px;
+
+  @media (max-width: 880px) {
+    min-height: 28px;
+    max-height: 28px;
+  }
+
+  @media (max-width: 880px) {
+    padding-left: 10px;
+    padding-right: 4px;
+  }
 }
 .selectValueButtonAction {
   border-color: #757575;
@@ -43,6 +53,10 @@
   color: var(----text-color-main);
   width: 100%;
   height: 100%;
+
+  @media (max-width: 880px) {
+    font-size: 12px;
+  }
 }
 
 .arrowIcon {
@@ -131,6 +145,10 @@
   top: 50%;
   transform: translateY(-50%);
   transition: all 0.2s linear;
+
+  @media (max-width: 880px) {
+    font-size: 12px;
+  }
 }
 
 .labelActive {
@@ -141,6 +159,10 @@
   left: -7px;
   top: -7px;
   transform: translateY(0%);
+
+  @media (max-width: 880px) {
+    font-size: 9px;
+  }
 }
 
 .selectValueButton:focus-within .label {
@@ -151,33 +173,4 @@
   left: -7px;
   top: -7px;
   transform: translateY(0%);
-}
-
-@media (max-width: 639px) {
-  .selectValueButton {
-    min-height: 53px;
-  }
-
-  .label {
-    color: #7a7a7a;
-    font-size: 14px;
-    line-height: 16px;
-  }
-
-  .labelActive {
-    font-weight: 400;
-    font-size: 12px;
-    line-height: 14px;
-  }
-
-  .dropdownMenuItemButton {
-    font-size: 14px;
-    line-height: 16px;
-    padding: 12px 12px;
-  }
-
-  .input {
-    font-size: 15px;
-    line-height: 20px;
-  }
 }

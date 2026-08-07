@@ -31,55 +31,10 @@ export const checkBarcodeAction = async (barcode_list: { name: string; barcode: 
   const cookieStore = await cookies();
 
   return await fetchService
-    .post<
-      Record<string, { status: CheckItemStatus; error_message: string; product_id: number | null }>
-    >({
+    .post<Record<string, { status: CheckItemStatus; error_message: string; product_id: number | null }>>({
       url: "product-source-record/check-import-items",
       payload: barcode_list,
     })
-    .then((response) => {
-      if (response.tokens) {
-        updateTokensInAction(cookieStore, response.tokens);
-      }
-      return response;
-    });
-};
-
-export type GenerateProductType = {
-  brand_name?: string;
-  category_name?: string;
-  country?: string;
-  description?: string;
-  equipment?: string;
-  height?: number;
-  length?: number;
-  name?: string;
-  code?: string;
-  photos?: string[];
-  product_type?: string;
-  seo?: {
-    seo_title: string;
-    seo_description: string;
-    slug: string;
-    og_title: string;
-    og_description: string;
-    og_type: string;
-    keywords: string;
-  };
-  specifications?: { name: string; value: string }[];
-  weight?: number;
-  width?: number;
-};
-
-export const generateProductAction = async (name: string, barcode: string) => {
-  const cookieStore = await cookies();
-
-  return await fetchService
-    .post<{
-      clear_name: string;
-      product: GenerateProductType;
-      error_message: string;
-    }>({ url: "product-source-record", payload: { name, barcode } })
     .then((response) => {
       if (response.tokens) {
         updateTokensInAction(cookieStore, response.tokens);

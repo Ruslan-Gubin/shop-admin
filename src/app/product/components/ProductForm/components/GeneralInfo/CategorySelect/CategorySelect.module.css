@@ -7,11 +7,15 @@
   padding: 0px 14px;
   padding-right: 6px;
   position: relative;
+  min-width: 0;
 }
 
 .categoryValueLeftSide {
   flex: 1;
   text-align: start;
+  overflow: hidden;
+  max-width: 100%;
+  min-width: 0px;
 }
 
 .categoryValueContainer {
@@ -44,15 +48,17 @@
 .categoryToggleButton {
   font-size: 14px;
   color: #0075f2;
+  text-wrap: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .categoryToggleButtonActive {
   font-size: 14px;
   color: #171717;
-
+  text-wrap: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  text-wrap: nowrap;
 }
 
 @keyframes label-animate-filled {
