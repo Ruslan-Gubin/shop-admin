@@ -3,6 +3,7 @@ import { AiSvg } from "@/shared/svg/AiSvg";
 import { CancelSvg } from "@/shared/svg/CancelSvg";
 import { Button } from "@/shared/ui/button-main/Button";
 import { Input } from "@/shared/ui/input-main/Input";
+import { InputTextarea } from "@/shared/ui/input-textarea/InputTextarea";
 import { FormSection } from "@/widgets/form-section/FormSection";
 import { CategorySelect } from "./CategorySelect/CategorySelect";
 
@@ -71,25 +72,24 @@ export const ProductFormGeneralInfo = (props: Props) => {
           <p>Сгенерировать полную информацию</p>
         </div>
       </Button>
-      <Input
-        error={props.errors.description}
+      <InputTextarea
+        variantSize="sm"
         value={props.values.description}
         name="product_description"
-        id="product_description"
-        variant="outlined"
-        variantSize="sm"
+        onChange={(value) => props.handleChangeValues("description", value)}
+        disabled={false}
+        error={props.errors.description}
         label="Описание"
-        rightIcon={<CancelSvg />}
-        onChange={(e) => props.handleChangeValues("description", e.target.value)}
-        onClickRightIcon={() => props.handleChangeValues("description", "")}
+        maxHeight={200}
+        onClickArea={() => console.log("click textarea")}
       />
       <Input
+        variantSize="sm"
         error={props.errors.brand_name}
         value={props.values.brand_name}
         name="product_brand"
         id="product_brand"
         variant="outlined"
-        variantSize="sm"
         label="Бренд"
         rightIcon={<CancelSvg />}
         onChange={(e) => props.handleChangeValues("brand_name", e.target.value)}

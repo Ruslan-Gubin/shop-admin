@@ -1,5 +1,5 @@
 "use server";
-import { revalidatePath, revalidateTag } from "next/cache";
+import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { fetchService } from "@/shared/fetch-api";
 import { updateTokensInAction } from "@/shared/helpers/updateCookieAction";
@@ -8,7 +8,10 @@ import { setErrorFromServer } from "@/shared/services/set-new-store-error-from-s
 import type { CategoryModel } from "../category/action";
 import type { PriceFillModel, RangeModel } from "../price-auto-fill/action";
 import type { FetchPriceTypesResponse } from "../price-types/action";
-import type { FetchSpecificationsResponse, ProductSpecificationModel } from "../specifications/action";
+import type {
+  FetchSpecificationsResponse,
+  ProductSpecificationModel,
+} from "../specifications/action";
 import type { FetchWarehousesResponse, ProductStockModel } from "../warehouses/action";
 import { categorySuggestionSchema, createProductPriceSchema } from "./schema";
 
@@ -176,6 +179,7 @@ export const fetchProducts = async (limit: string, page: string, name: string) =
     url: "product/products",
     params: { limit, page, name },
     tags: ["Products"],
+    revalidate: 30,
   });
 };
 
@@ -195,7 +199,9 @@ export const fetchProduct = async (id: string) => {
     });
 };
 
-export const deleteProductAction = async (id: number): Promise<{ status: "error" | "success"; message: string }> => {
+export const deleteProductAction = async (
+  id: number,
+): Promise<{ status: "error" | "success"; message: string }> => {
   const cookieStore = await cookies();
 
   return fetchService
@@ -208,7 +214,7 @@ export const deleteProductAction = async (id: number): Promise<{ status: "error"
       }
 
       if (response.status === "success") {
-        revalidateTag("Products", "max");
+        revalidatePath("/product");
       }
 
       return { status: response.status, message: response.message };
@@ -254,7 +260,10 @@ export const createProductPriceAction = async (
   return { status: "error", errors, data: null };
 };
 
-export const editProductPriceAction = async (id: number, price: number): Promise<"error" | "success"> => {
+export const editProductPriceAction = async (
+  id: number,
+  price: number,
+): Promise<"error" | "success"> => {
   const cookieStore = await cookies();
 
   return await fetchService
@@ -303,7 +312,10 @@ export const deletePhotoAction = async (id: number): Promise<"error" | "success"
     });
 };
 
-export const changePositionPhotoAction = async (id: number, position: number): Promise<"error" | "success"> => {
+export const changePositionPhotoAction = async (
+  id: number,
+  position: number,
+): Promise<"error" | "success"> => {
   const cookieStore = await cookies();
 
   return fetchService
@@ -481,7 +493,9 @@ export const getCategorySuggestionAction = async (payload: CategorySuggestionPay
   }
 };
 
-export const applyCategorySuggestionAction = async (payload: { name: string; parent_id: number | null }[]) => {
+export const applyCategorySuggestionAction = async (
+  payload: { name: string; parent_id: number | null }[],
+) => {
   const cookieStore = await cookies();
 
   return fetchService

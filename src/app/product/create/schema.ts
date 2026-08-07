@@ -16,7 +16,7 @@ export const createProductSchema = z.object({
     .string({ message: "Бренд должен быть строкой" })
     .max(100, { message: "Максимум 100 символов" })
     .min(2, { message: "Минимум 2 символа" })
-    .optional(),
+    .or(z.literal("")),
   category_id: z
     .number({ message: "Категория должна быть числом" })
     .nullable()

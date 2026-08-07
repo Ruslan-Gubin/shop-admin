@@ -32,6 +32,7 @@ import type { RemainsItem } from "../../components/ProductForm/components/Stocks
 import type { SpecificationValueItem } from "../../components/ProductForm/ProductForm";
 import type { ProductFormPayload, ProductFormPayloadValues } from "../../create/action";
 import { createProductSchema } from "../../create/schema";
+import { revalidatePath } from "next/cache";
 
 export const fetchProduct = async (id: string) => {
   return await fetchService.get<ProductModel>({
@@ -73,6 +74,8 @@ export const updateProductAction = async (
 
         if (response.status === "error" && response.errors) {
           setErrorFromServer(response.errors, errors);
+        } else {
+          revalidatePath("/product/incomplete");
         }
 
         return { status: response.status, errors, data: response.data };

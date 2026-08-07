@@ -1,0 +1,321 @@
+.inputContainer {
+  border-radius: 4px;
+  border: 1px solid #cecece;
+  text-align: start;
+  position: relative;
+  width: 100%;
+  padding-inline: 14px;
+  cursor: default;
+}
+
+.textareaElement {
+  width: 100%;
+  max-height: 406px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  outline: none;
+  line-height: 19px;
+  scrollbar-width: thin;
+  scrollbar-gutter: stable;
+  scrollbar-color: #f6f6f9 transparent;
+  transition: scrollbar-color 0.2s ease;
+  cursor: text;
+  padding-block: 4px;
+
+  @media (max-width: 880px) {
+    padding-block: 3px;
+  }
+
+  &:hover {
+    scrollbar-color: #cbcbcb transparent;
+  }
+
+  h1 {
+    background-color: #f9fafb;
+  }
+}
+
+.inputContainer:disabled {
+  color: var(--text-color-main);
+}
+
+.label {
+  position: absolute;
+  left: 14px;
+  top: 6px;
+  text-wrap: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  max-width: calc(100% - 24px);
+  color: #75787a;
+  cursor: text;
+  font-size: 14px;
+
+  @media (max-width: 880px) {
+    font-size: 12px;
+  }
+
+  @media (max-width: 500px) {
+    left: 10px;
+  }
+}
+
+.labelActive {
+  top: -7px;
+  left: 6px;
+  font-size: 10.5px;
+  padding-inline: 8px;
+  background-color: white;
+  color: #171717;
+  transition:
+    top 0.2s ease-out,
+    font-size 0.2s ease-out;
+
+  @media (max-width: 880px) {
+    font-size: 9px;
+    top: -6px;
+  }
+
+  @media (max-width: 500px) {
+    padding-inline: 6px;
+    left: 4px;
+  }
+}
+
+.errorText {
+  position: absolute;
+  color: #d32f2f;
+  font-size: 10.5px;
+  top: -7px;
+  left: 6px;
+  padding-inline: 8px;
+  max-width: calc(100% - 24px);
+  background-color: white;
+  text-wrap: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+
+  @media (max-width: 880px) {
+    font-size: 9px;
+    top: -6px;
+  }
+
+  @media (max-width: 500px) {
+    padding-inline: 6px;
+    left: 4px;
+  }
+}
+
+.inputContainer:focus-within {
+  border: 1px solid #757575;
+
+  .label {
+    top: -7px;
+    left: 6px;
+    font-size: 10.5px;
+    padding-inline: 8px;
+    background-color: white;
+    color: #171717;
+    transition:
+      top 0.2s ease-out,
+      font-size 0.2s ease-out;
+
+    @media (max-width: 880px) {
+      font-size: 9px;
+      top: -6px;
+    }
+
+    @media (max-width: 500px) {
+      padding-inline: 6px;
+      left: 4px;
+    }
+  }
+}
+
+.xs {
+  min-height: 24px;
+  padding-inline: 14px;
+  font-size: 12px;
+  line-height: 12px;
+
+  .textareaElement {
+    padding-block: 1px;
+  }
+
+  .label {
+    top: 4px;
+    font-size: 12px;
+  }
+
+  .labelActive {
+    font-size: 9px;
+    top: -7px;
+  }
+
+  @media (max-width: 500px) {
+    padding-inline: 10px;
+  }
+
+  &:focus-within {
+    .label {
+      font-size: 9px;
+      top: -7px;
+    }
+  }
+}
+
+.sm {
+  min-height: 32px;
+  font-size: 14px;
+  padding-inline: 14px;
+  padding-block: 1px;
+
+  @media (max-width: 880px) {
+    min-height: 28px;
+    font-size: 12px;
+    padding-block: 0px;
+  }
+
+  @media (max-width: 500px) {
+    padding-inline: 10px;
+  }
+}
+
+.md {
+  min-height: 40px;
+  font-size: 16px;
+  padding-inline: 16px;
+  padding-block: 5px;
+
+  .label {
+    font-size: 16px;
+    top: 9px;
+  }
+
+  .labelActive {
+    font-size: 12px;
+    top: -7px;
+  }
+
+  &:focus-within {
+    .label {
+      font-size: 12px;
+      top: -7px;
+    }
+  }
+
+  @media (max-width: 880px) {
+    font-size: 14px;
+    min-height: 36px;
+    padding-block: 4px;
+
+    .label {
+      font-size: 14px;
+    }
+
+    .labelActive {
+      font-size: 10.5px;
+    }
+
+    &:focus-within {
+      .label {
+        font-size: 10.5px;
+      }
+    }
+  }
+
+  @media (max-width: 500px) {
+    padding-inline: 12px;
+    font-size: 12px;
+    min-height: 32px;
+
+    padding-block: 2px;
+
+    .label {
+      font-size: 12px;
+      top: 8px;
+    }
+
+    .labelActive {
+      font-size: 9px;
+      top: -7px;
+    }
+
+    &:focus-within {
+      .label {
+        font-size: 9px;
+      }
+    }
+  }
+}
+
+.lg {
+  min-height: 55px;
+  font-size: 18px;
+  padding-inline: 16px;
+  padding-block: 13px;
+
+  .label {
+    font-size: 18px;
+    top: 16px;
+  }
+
+  .labelActive {
+    font-size: 13.5px;
+    top: -7px;
+  }
+
+  &:focus-within {
+    .label {
+      font-size: 13.5px;
+      top: -7px;
+    }
+  }
+
+  @media (max-width: 880px) {
+    font-size: 16px;
+    min-height: 36px;
+    padding-block: 4px;
+
+    .label {
+      font-size: 16px;
+      top: 7;
+    }
+
+    .labelActive {
+      font-size: 12px;
+      top: -7px;
+    }
+
+    &:focus-within {
+      .label {
+        font-size: 12px;
+      }
+    }
+  }
+
+  @media (max-width: 500px) {
+    padding-inline: 14px;
+    font-size: 14px;
+    min-height: 32px;
+    padding-block: 2px;
+
+    .label {
+      font-size: 14px;
+      left: 14px;
+    }
+
+    .labelActive {
+      font-size: 10.5px;
+      top: -7px;
+      left: 8px;
+    }
+
+    &:focus-within {
+      .label {
+        font-size: 10.5px;
+        left: 8px;
+      }
+    }
+  }
+}
