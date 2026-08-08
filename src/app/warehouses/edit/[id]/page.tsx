@@ -3,6 +3,7 @@ import { revalidatePath } from "next/cache";
 import { fetchReverseAction } from "@/app/action";
 import { CONFIG_APP } from "@/shared/config/config";
 import { ErrorAlert } from "@/shared/ui/error-alert/ErrorAlert";
+import { PageHeader } from "@/shared/ui/page-header/PageHeader";
 import { UpdateToken } from "@/views/UpdateToken/UpdateToken";
 import { WarehouseForm } from "../../components/WarehouseForm/WarehouseForm";
 import type { WarehousePayload } from "../../create/action";
@@ -68,7 +69,7 @@ export default async function EditWarehousePage(props: Props) {
   return (
     <section className="page-wrapper">
       {warehouseData.tokens && <UpdateToken tokens={warehouseData.tokens} />}
-      <h2>Редактировать склад</h2>
+      <PageHeader title="Редактировать склад" fallbackHref="/warehouses" />
       {!warehouseData.data && <ErrorAlert message={warehouseData.message || "Склад не найден"} />}
       <WarehouseForm
         mapStyle={CONFIG_APP.MAPBOX_STYLE}

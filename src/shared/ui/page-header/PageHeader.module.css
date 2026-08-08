@@ -5,6 +5,13 @@
   gap: 8px;
 }
 
+.titleSide {
+  display: flex;
+  align-items: center;
+  column-gap: 8px;
+  min-width: 0;
+}
+
 .title {
   text-wrap: nowrap;
   text-overflow: ellipsis;

@@ -8,7 +8,6 @@ import { logoutAction } from "./action";
 import { Roboto } from "./core/fonts";
 import { getMetadata } from "./core/generateMetadata";
 import styles from "./styles/Layout.module.css";
-// import { fetchConnect } from "./action";
 
 export const metadata: Metadata = getMetadata({
   title: "Панель управления",

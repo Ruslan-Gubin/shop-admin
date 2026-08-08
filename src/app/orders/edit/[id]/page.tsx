@@ -1,5 +1,6 @@
 "use server";
 import { ErrorAlert } from "@/shared/ui/error-alert/ErrorAlert";
+import { PageHeader } from "@/shared/ui/page-header/PageHeader";
 import { UpdateToken } from "@/views/UpdateToken/UpdateToken";
 import { TransfersList } from "@/widgets/transfers-list/TransfersList";
 import { OrderInfo } from "../../components/OrderInfo/OrderInfo";
@@ -27,7 +28,7 @@ export default async function OrderEditPage(req: { params: Promise<{ id: string 
 
   return (
     <section className="page-wrapper">
-      <h2>{title}</h2>
+      <PageHeader title={title} fallbackHref="/orders" />
       {deliveryData?.tokens && <UpdateToken tokens={deliveryData.tokens} />}
       {productsData.status === "error" && productsData.message && (
         <ErrorAlert message={productsData.message} />

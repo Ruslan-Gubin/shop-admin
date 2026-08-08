@@ -5,6 +5,7 @@ import type { ProductSpecificationModel } from "@/app/specifications/action";
 import type { ProductStockModel, WarehouseModel } from "@/app/warehouses/action";
 import { getFillValues } from "@/shared/helpers/get-fill-values";
 import { ErrorAlert } from "@/shared/ui/error-alert/ErrorAlert";
+import { PageHeader } from "@/shared/ui/page-header/PageHeader";
 import { UpdateToken } from "@/views/UpdateToken/UpdateToken";
 import { fetchProductFormEditData, type PhotoItem } from "../../action";
 import type { RemainsItem } from "../../components/ProductForm/components/Stocks/ProductFormStocks";
@@ -229,7 +230,7 @@ export default async function ProductEditPage(searchParams: { params: Promise<{ 
   return (
     <section className="page-wrapper">
       {productStocksData?.tokens && <UpdateToken tokens={productStocksData.tokens} />}
-      <h2>Редактировать товар</h2>
+      <PageHeader title="Редактировать товар" fallbackHref="/product" />
       {product.status === "error" && product.message && <ErrorAlert message={product.message} />}
       {rangesData.status === "error" && rangesData.message && (
         <ErrorAlert message={rangesData.message} />

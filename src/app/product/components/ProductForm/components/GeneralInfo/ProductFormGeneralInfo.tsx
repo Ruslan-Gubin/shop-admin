@@ -81,7 +81,6 @@ export const ProductFormGeneralInfo = (props: Props) => {
         error={props.errors.description}
         label="Описание"
         maxHeight={200}
-        onClickArea={() => console.log("click textarea")}
       />
       <Input
         variantSize="sm"

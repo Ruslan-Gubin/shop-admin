@@ -1,3 +1,9 @@
+.select {
+  visibility: hidden;
+  height: 0;
+  position: absolute;
+}
+
 .dropdown {
   position: relative;
   display: flex;
@@ -42,6 +48,24 @@
   position: relative;
   align-items: flex-end;
   height: 100%;
+}
+
+.selectValue {
+  font-size: 14px;
+  color: var(--text-color-main);
+  padding-inline: 8px;
+  text-overflow: ellipsis;
+  text-wrap: nowrap;
+  overflow: hidden;
+  min-height: 16px;
+
+  @media (max-width: 880px) {
+    font-size: 12px;
+  }
+
+  @media (max-width: 500px) {
+    padding-inline: 6px;
+  }
 }
 
 .input {
@@ -118,10 +142,6 @@
   text-wrap: balance;
 }
 
-.dropdownMenuItemButton:hover {
-  background-color: #f5fafe;
-}
-
 .dropdownMenuItemButton:focus {
   box-shadow: 1px 1px 4px 1px #f9e0a4;
   outline: none;
@@ -174,11 +194,12 @@
   background-color: white;
   cursor: default;
   left: 0px;
-  top: -7px;
+  top: -14px;
   transform: translateY(0%);
 
   @media (max-width: 880px) {
     font-size: 9px;
+    top: -11px;
   }
 }
 
@@ -188,14 +209,11 @@
   background-color: white;
   cursor: default;
   left: 0px;
-  top: -7px;
+  top: -14px;
   transform: translateY(0%);
 
   @media (max-width: 880px) {
     font-size: 9px;
-  }
-
-  @media (max-width: 500px) {
-    font-size: 9px;
+    top: -11px;
   }
 }

@@ -25,7 +25,6 @@ export const Button = ({
       {...rest}
     >
       {children}
-      {/* <div className={styles.content}></div> */}
     </button>
   );
 };

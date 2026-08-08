@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { getIsLoadMoreDisabled } from "@/shared/helpers/getIsLoadMoreDisabled";
 import { getUpdateQueryPageString } from "@/shared/helpers/getUpdateQueryPageString";
 import { ErrorAlert } from "@/shared/ui/error-alert/ErrorAlert";
+import { PageHeader } from "@/shared/ui/page-header/PageHeader";
 import { Pagination } from "@/shared/ui/pagination/Pagination";
 import { UpdateToken } from "@/views/UpdateToken/UpdateToken";
 import { deleteUserAction, fetchUser, fetchUsers } from "./action";
@@ -35,7 +36,7 @@ export default async function UsersPage(req: {
       {tableData.status === "error" && tableData.message && (
         <ErrorAlert message={tableData.message} />
       )}
-      <h2>Справочник пользователей.</h2>
+      <PageHeader title="Справочник пользователей." />
       <section className="table-container">
         <UsersTableWrapper
           users={tableData?.data?.users || []}

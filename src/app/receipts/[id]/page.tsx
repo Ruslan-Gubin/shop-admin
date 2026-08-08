@@ -36,7 +36,7 @@ export default async function ReceiptDetailPage(props: { params: Promise<{ id: s
   return (
     <section className="page-wrapper">
       {warehousesData?.tokens && <UpdateToken tokens={warehousesData.tokens} />}
-      <PageHeader title="Поступление" />
+      <PageHeader title="Поступление" fallbackHref="/receipts" />
 
       {receiptData.status === "error" && receiptData.message && (
         <ErrorAlert message={receiptData.message} />

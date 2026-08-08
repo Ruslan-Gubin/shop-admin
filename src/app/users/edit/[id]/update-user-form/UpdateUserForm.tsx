@@ -1,58 +1,149 @@
 "use client";
-import { useActionState, useLayoutEffect } from "react";
+import { type SubmitEventHandler, useLayoutEffect, useState, useTransition } from "react";
+import { AddSvg } from "@/app/category/components/category-item/svg/AddSvg";
+import { EditSvg } from "@/app/category/components/category-item/svg/EditSvg";
+import type { UserModel } from "@/app/users/action";
+import type { CreateUserPayload } from "@/app/users/create/action";
 import { CancelSvg } from "@/shared/svg/CancelSvg";
 import { Button } from "@/shared/ui/button-main/Button";
+import { Dropdown } from "@/shared/ui/dropdown/Dropdown";
 import { Input } from "@/shared/ui/input-main/Input";
 import { notificationAdapter } from "@/stores/notification/adapter";
-import type { UpdateUserFormFields } from "../action";
 import styles from "./UpdateUserForm.module.css";
 
 type Props = {
-  submitAction: (
-    prevState: UpdateUserFormFields,
-    formData: FormData,
-  ) => Promise<UpdateUserFormFields>;
+  submitAction: (values: {
+    role: string;
+    name: string;
+    email: string;
+    phone: string;
+    password: string;
+    repeatPassword: string;
+  }) => Promise<{
+    status: "error" | "success";
+    errors: Record<keyof CreateUserPayload, string>;
+    data: UserModel | null;
+    message: string;
+  }>;
   initValue?: {
     name: string;
     email: string;
     phone: string;
     role: string;
     photo: string;
-    id: string;
   };
+  variant: "create" | "edit";
 };
 
 export const UpdateUserForm = (props: Props) => {
-  const [state, formAction, pending] = useActionState(props.submitAction, {
-    name: { value: props?.initValue?.name || "", error: "" },
-    email: { value: props?.initValue?.email || "", error: "" },
-    phone: { value: props?.initValue?.phone || "", error: "" },
-    password: { value: "", error: "" },
-    repeatPassword: { value: "", error: "" },
-    role: { value: props?.initValue?.role || "", error: "" },
-    message: "",
-    status: "",
-    id: props?.initValue?.id || "",
+  const [loading, transition] = useTransition();
+  const [values, setValues] = useState<{
+    role: string;
+    name: string;
+    email: string;
+    phone: string;
+    password: string;
+    repeatPassword: string;
+  }>({
+    role: props?.initValue?.role || "user",
+    email: props?.initValue?.email || "",
+    name: props?.initValue?.name || "",
+    phone: props?.initValue?.phone || "",
+    password: "",
+    repeatPassword: "",
+  });
+  const [errors, setErrors] = useState<{
+    role: string;
+    name: string;
+    email: string;
+    phone: string;
+    password: string;
+    repeatPassword: string;
+  }>({
+    role: "",
+    email: "",
+    name: "",
+    phone: "",
+    password: "",
+    repeatPassword: "",
   });
 
   useLayoutEffect(() => {
-    if (state.message && (state.status === "success" || state.status === "error")) {
-      notificationAdapter.add(state.message, state.status);
-    }
-  }, [state]);
+    setValues({
+      role: props?.initValue?.role || "user",
+      email: props?.initValue?.email || "",
+      name: props?.initValue?.name || "",
+      phone: props?.initValue?.phone || "",
+      password: "",
+      repeatPassword: "",
+    });
+  }, [props.initValue]);
 
-  const roles = ["user", "moderator", "admin"];
+  const handleSubmit: SubmitEventHandler = (e) => {
+    e.preventDefault();
+    transition(() => {
+      props.submitAction(values).then((response) => {
+        if (response.status === "success") {
+          if (props.variant === "create") {
+            setValues((prev) => ({
+              ...prev,
+              ...{
+                email: "",
+                name: "",
+                phone: "",
+                password: "",
+                repeatPassword: "",
+              },
+            }));
+          }
+          if (props.variant === "edit") {
+            setValues((prev) => ({
+              ...prev,
+              ...{
+                password: "",
+                repeatPassword: "",
+              },
+            }));
+          }
+          notificationAdapter.add(response.message, response.status);
+        } else if (response.status === "error" && response.errors) {
+          setErrors(response.errors);
+          if (response.message) {
+            notificationAdapter.add(response.message, response.status);
+          }
+        }
+      });
+    });
+  };
+
+  const handleChangeValues = (value: string, key: string) => {
+    setValues((prev) => ({ ...prev, [key]: value }));
+    setErrors((prev) => ({ ...prev, [key]: "" }));
+  };
+
+  const options = [
+    { label: "Покупатель", value: "user" },
+    { label: "Модератор", value: "moderator" },
+    { label: "Админ", value: "admin" },
+  ];
 
   return (
-    <form action={formAction} className={styles.loginForm}>
-      <select key={state.role.value} defaultValue={state.role.value} name="role" id="role">
-        {roles.map((role) => (
-          <option key={role}>{role}</option>
-        ))}
-      </select>
+    <form className={styles.loginForm} onSubmit={handleSubmit}>
+      <Dropdown
+        options={options}
+        value={values.role}
+        name="role"
+        id="role"
+        disabled={false}
+        onSelectMenu={(value) => handleChangeValues(String(value), "role")}
+        label="Роль"
+        menuHeight={300}
+        variant="select"
+      />
       <Input
-        error={state.name.error}
-        defaultValue={state.name.value}
+        error={errors.name}
+        value={values.name}
+        onChange={(e) => handleChangeValues(e.target.value, "name")}
         name="name"
         id="name"
         variant="outlined"
@@ -62,8 +153,9 @@ export const UpdateUserForm = (props: Props) => {
         rightIcon={<CancelSvg />}
       />
       <Input
-        error={state.email.error}
-        defaultValue={state.email.value}
+        error={errors.email}
+        value={values.email}
+        onChange={(e) => handleChangeValues(e.target.value, "email")}
         name="email"
         id="email"
         variant="outlined"
@@ -73,8 +165,9 @@ export const UpdateUserForm = (props: Props) => {
         rightIcon={<CancelSvg />}
       />
       <Input
-        error={state.phone.error}
-        defaultValue={state.phone.value}
+        error={errors.phone}
+        value={values.phone}
+        onChange={(e) => handleChangeValues(e.target.value, "phone")}
         name="phone"
         id="phone"
         type="tel"
@@ -85,8 +178,9 @@ export const UpdateUserForm = (props: Props) => {
         rightIcon={<CancelSvg />}
       />
       <Input
-        error={state.password.error}
-        defaultValue={state.password.value}
+        error={errors.password}
+        value={values.password}
+        onChange={(e) => handleChangeValues(e.target.value, "password")}
         name="password"
         id="password"
         type="password"
@@ -97,8 +191,9 @@ export const UpdateUserForm = (props: Props) => {
         rightIcon={<CancelSvg />}
       />
       <Input
-        error={state.repeatPassword.error}
-        defaultValue={state.repeatPassword.value}
+        error={errors.repeatPassword}
+        value={values.repeatPassword}
+        onChange={(e) => handleChangeValues(e.target.value, "repeatPassword")}
         name="repeatPassword"
         id="repeatPassword"
         type="password"
@@ -108,9 +203,13 @@ export const UpdateUserForm = (props: Props) => {
         label={props?.initValue?.id ? "Повторите пароль" : "Введите повторный пароль"}
         rightIcon={<CancelSvg />}
       />
-      <Button variant="solid" variantColor="green" type="submit" disabled={pending}>
-        {props?.initValue?.id ? "Редактировать" : "Создать"}
-      </Button>
+      <div className={styles.actionForm}>
+        <Button size="sm" variant="solid" variantColor="green" type="submit" disabled={loading}>
+          {props.variant === "create" ? <AddSvg /> : <EditSvg />}
+
+          {props.variant === "edit" ? "Редактировать пользователя" : "Создать пользователя"}
+        </Button>
+      </div>
     </form>
   );
 };

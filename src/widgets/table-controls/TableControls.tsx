@@ -33,13 +33,18 @@ export const TableControls = (props: Props) => {
         )}
       </div>
       {props?.addAction?.href && (
-        <Link href={props.addAction.href}>
+        <Link style={{ maxWidth: "100%" }} href={props.addAction.href}>
           <Button
             size={props.addAction.size || "sm"}
             variant={props.addAction.variant || "outline"}
+            customClass={styles.buttonLink}
           >
-            <AddSvg />
-            {props.addAction.text}
+            <div className="buttonContentIcon">
+              <div className={styles.svgContainer}>
+                <AddSvg />
+              </div>
+              {props.addAction.text}
+            </div>
           </Button>
         </Link>
       )}
@@ -49,8 +54,12 @@ export const TableControls = (props: Props) => {
           variant={props.addAction.variant || "outline"}
           onClick={props.addAction.onClick}
         >
-          <AddSvg />
-          {props.addAction.text}
+          <div className="buttonContentIcon">
+            <div>
+              <AddSvg />
+            </div>
+            <p>{props.addAction.text}</p>
+          </div>
         </Button>
       )}
     </section>

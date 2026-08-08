@@ -146,7 +146,7 @@ export const SpecificationTableWrapper = (props: Props) => {
       <div className="table-container">
         <TableControls
           addAction={{
-            text: "Добавить характеристику",
+            text: "Добавить",
             onClick: handleOpenMainModal,
           }}
           name={props.name}

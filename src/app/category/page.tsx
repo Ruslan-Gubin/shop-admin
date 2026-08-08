@@ -1,5 +1,6 @@
 "use server";
 import { ErrorAlert } from "@/shared/ui/error-alert/ErrorAlert";
+import { PageHeader } from "@/shared/ui/page-header/PageHeader";
 import { UpdateToken } from "@/views/UpdateToken/UpdateToken";
 import {
   createCategoryAction,
@@ -17,7 +18,7 @@ export default async function CategoriesPage() {
   return (
     <section className="page-wrapper">
       {tableData?.tokens && <UpdateToken tokens={tableData.tokens} />}
-      <h2>Справочник категорий.</h2>
+      <PageHeader title="Справочник категорий." />
       {tableData.status === "error" && tableData.message && (
         <ErrorAlert message={tableData.message} />
       )}

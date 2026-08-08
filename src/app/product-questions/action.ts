@@ -32,6 +32,14 @@ export const fetchProductQuestions = async (limit: string, page?: string) => {
   });
 };
 
+export const fetchProductQuestionEdit = async (id: string) => {
+  return await fetchService.get<QuestionModel>({
+    url: `product-question/${id}`,
+    tags: [`ProductQuestion_${id}`],
+    revalidate: 30,
+  });
+};
+
 export const fetchProductQuestion = async (id: string) => {
   const cookieStore = await cookies();
 
@@ -74,6 +82,29 @@ export const deleteProductQuestionAction = async (
 
 export type UpdateAnswerPayload = {
   answer: string;
+};
+
+export type AnswerSuggestionPayload = {
+  question: string;
+  product_id: number;
+  context?: string;
+};
+
+export const getAnswerSuggestionAction = async (payload: AnswerSuggestionPayload) => {
+  const cookieStore = await cookies();
+
+  return fetchService
+    .post<string>({
+      url: "product-question/generate-answer",
+      payload,
+    })
+    .then((response) => {
+      if (response.tokens) {
+        updateTokensInAction(cookieStore, response.tokens);
+      }
+
+      return response;
+    });
 };
 
 export const updateProductQuestionAction = async (

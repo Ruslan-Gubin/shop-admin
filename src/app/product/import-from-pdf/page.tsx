@@ -1,10 +1,11 @@
+import { PageHeader } from "@/shared/ui/page-header/PageHeader";
 import { ImportForm } from "./components/ImportForm/ImportForm";
 import styles from "./page.module.css";
 
 export default function ImportFromPdfPage() {
   return (
     <section className="page-wrapper">
-      <h2>Импорт товаров из PDF</h2>
+      <PageHeader title="Импорт товаров из PDF" fallbackHref="/product" />
 
       <section className={styles.rules}>
         <p>

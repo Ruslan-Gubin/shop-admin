@@ -4,6 +4,7 @@ import type { ProductStockModel } from "@/app/warehouses/action";
 import { getNeedTransferCount } from "@/shared/helpers/getNeedTransferCount";
 import { Button } from "@/shared/ui/button-main/Button";
 import { ErrorAlert } from "@/shared/ui/error-alert/ErrorAlert";
+import { PageHeader } from "@/shared/ui/page-header/PageHeader";
 import { UpdateToken } from "@/views/UpdateToken/UpdateToken";
 import { TransfersList } from "@/widgets/transfers-list/TransfersList";
 import { createTransferOrderToOrderAction, fetchTransferStockToStock } from "./action";
@@ -101,11 +102,14 @@ export default async function TransferStockToStockPage(req: {
 
   return (
     <section className="page-wrapper">
-      <h2>
-        {transfers.length > 0
-          ? `Перемещения для заказа #${params.order_id}`
-          : "Создать перемещение со склада на склад"}
-      </h2>
+      <PageHeader
+        title={
+          transfers.length > 0
+            ? `Перемещения для заказа #${params.order_id}`
+            : "Создать перемещение со склада на склад"
+        }
+        fallbackHref="/transfer"
+      />
       {orderData?.tokens && <UpdateToken tokens={orderData.tokens} />}
       {transfersData.status === "error" && transfersData.message && (
         <ErrorAlert message={transfersData.message} />

@@ -38,7 +38,7 @@ export const LogoutButton = (props: Props) => {
           />
         </ModalContent>
       </Modal>
-      <button type="button" onClick={() => setOpenLogoutModal(true)}>
+      <button type="button" onClick={() => setOpenLogoutModal(true)} className="button-svg">
         <ExitSvg />
       </button>
     </>

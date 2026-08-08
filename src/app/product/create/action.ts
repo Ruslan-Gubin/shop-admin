@@ -62,6 +62,7 @@ export const createProductAction = async (
 }> => {
   const { isValid, errors } = getValidatePayload(payload, createProductSchema);
 
+  //TODO check brand_id
   if (isValid) {
     const updatePayload: ProductFormPayload = {
       ...payload,

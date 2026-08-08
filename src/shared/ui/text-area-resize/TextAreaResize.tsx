@@ -13,6 +13,7 @@ export interface Props {
   onClickArea?: () => void;
 }
 
+//TODO REMOVE
 export const TextAreaResize = ({
   name,
   label,

@@ -129,7 +129,7 @@ h3 {
 .buttonContentIcon {
   display: grid;
   grid-template-columns: 20px 1fr;
-  column-gap: 8px;
+  column-gap: 4px;
   align-items: center;
 
   div {
@@ -148,7 +148,7 @@ h3 {
   }
 
   @media (max-width: 500px) {
-    column-gap: 4px;
+    column-gap: 2px;
   }
 }
 
@@ -166,4 +166,10 @@ h3 {
   to {
     transform: rotate(360deg);
   }
+}
+
+.button-svg {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }

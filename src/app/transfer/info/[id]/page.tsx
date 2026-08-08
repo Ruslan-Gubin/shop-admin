@@ -1,6 +1,7 @@
 import { TransferInfo } from "@/app/transfer/components/transfer-info/TransferInfo";
 import { CONFIG_APP } from "@/shared/config/config";
 import { ErrorAlert } from "@/shared/ui/error-alert/ErrorAlert";
+import { PageHeader } from "@/shared/ui/page-header/PageHeader";
 import { UpdateToken } from "@/views/UpdateToken/UpdateToken";
 import { TransferMapWrapper } from "../../components/transfer-map-wrapper/TransferMapWrapper";
 import { fetchTransferData, fetchWayAction } from "./action";
@@ -11,7 +12,7 @@ export default async function TransferInfoPage(req: { params: Promise<{ id: stri
 
   return (
     <section className="page-wrapper">
-      <h2>Информация о перемещении</h2>
+      <PageHeader title="Информация о перемещении" fallbackHref="/transfer" />
       {productsData?.tokens && <UpdateToken tokens={productsData.tokens} />}
       {transferData.status === "error" && transferData.message && (
         <ErrorAlert message={transferData.message} />

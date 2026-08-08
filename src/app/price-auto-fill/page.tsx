@@ -1,5 +1,6 @@
 "use server";
 import { ErrorAlert } from "@/shared/ui/error-alert/ErrorAlert";
+import { PageHeader } from "@/shared/ui/page-header/PageHeader";
 import { UpdateToken } from "@/views/UpdateToken/UpdateToken";
 import {
   createPriceFillAction,
@@ -19,7 +20,7 @@ export default async function PriceAutoFillPage(req: { searchParams: Promise<{ r
 
   return (
     <section className="page-wrapper">
-      <h2>Автозаполнение цен — настройка процентов наценки по диапазонам закупочной цены.</h2>
+      <PageHeader title="Автозаполнение цен — настройка процентов наценки по диапазонам закупочной цены." />
 
       {priceFill?.tokens && <UpdateToken tokens={priceFill.tokens} />}
 

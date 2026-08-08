@@ -2,10 +2,12 @@
 import Link from "next/link";
 import { useRef, useState, useTransition } from "react";
 import { Button } from "@/shared/ui/button-main/Button";
-import { TextAreaResize } from "@/shared/ui/text-area-resize/TextAreaResize";
+import { InputTextarea } from "@/shared/ui/input-textarea/InputTextarea";
 import { notificationAdapter } from "@/stores/notification/adapter";
+import { AiSvg } from "@/shared/svg/AiSvg";
 import { ModalDelete } from "@/widgets/modals/modal-delete/ModalDelete";
-import type { ReviewModel } from "../../action";
+import { AnswerSuggestionModal } from "@/widgets/answer-suggestion-modal/AnswerSuggestionModal";
+import { type AnswerSuggestionPayload, type ReviewModel } from "../../action";
 import styles from "./ProductReviewEditForm.module.css";
 
 type Props = {
@@ -17,13 +19,20 @@ type Props = {
   deleteAction: () => Promise<void>;
   initErrors: { answer: string };
   initValues: { answer: string };
+  generateAnswerAction: (payload: AnswerSuggestionPayload) => Promise<{
+    notification: { status: "error" | "success"; message: string } | null;
+    answer: string;
+  }>;
 };
 
 export const ProductReviewEditForm = (props: Props) => {
   const [submitLoading, transition] = useTransition();
+  const [generateLoading, generateTransition] = useTransition();
   const [deleteLoading, deleteTransition] = useTransition();
   const [errors, setErrors] = useState(props.initErrors);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [suggestion, setSuggestion] = useState<string | null>(null);
   const formRef = useRef<HTMLFormElement>(null);
   const [answer, setAnswer] = useState<string>(props.initValues.answer);
 
@@ -43,6 +52,40 @@ export const ProductReviewEditForm = (props: Props) => {
         }
       });
     });
+  };
+
+  const handleGenerate = () => {
+    const reviewId = props.review?.id;
+
+    if (!reviewId) {
+      notificationAdapter.add("Не удалось сгенерировать ответ: отзыв не указан", "error");
+      return;
+    }
+
+    generateTransition(() => {
+      const payload = {
+        review_id: reviewId,
+        context: answer.trim() || "",
+      };
+
+      props.generateAnswerAction(payload).then((response) => {
+        if (response.answer) {
+          setSuggestion(response.answer);
+          setIsModalOpen(true);
+        } else if (response.notification) {
+          notificationAdapter.add(response.notification.message, response.notification.status);
+        }
+      });
+    });
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSuggestion(null);
+  };
+
+  const handleApplyAnswer = (value: string) => {
+    setAnswer(value);
   };
 
   const handleDelete = () => {
@@ -66,7 +109,16 @@ export const ProductReviewEditForm = (props: Props) => {
         showSubTitle={true}
       />
 
-      <h2>Редактировать отзыв</h2>
+      <AnswerSuggestionModal
+        isOpen={isModalOpen}
+        subject={props.review.comment || props.review.dignities || props.review.disadvantages}
+        subjectLabel="Отзыв"
+        fieldTitle="Ответ на отзыв"
+        suggestion={suggestion || ""}
+        currentValue={answer}
+        onClose={handleCloseModal}
+        onApply={handleApplyAnswer}
+      />
 
       <section className={styles.productInfo}>
         <h3>Информация о товаре</h3>
@@ -141,8 +193,23 @@ export const ProductReviewEditForm = (props: Props) => {
       </section>
 
       <form ref={formRef} action={handleSubmit} className={styles.form}>
+        <Button
+          type="button"
+          variant="solid"
+          variantColor="blue"
+          size="sm"
+          onClick={handleGenerate}
+          disabled={submitLoading || generateLoading || !props.review?.id}
+        >
+          <div className="buttonContentIcon">
+            <div>{generateLoading ? <div className="spinner" /> : <AiSvg />}</div>
+            <p>Сгенерировать ответ</p>
+          </div>
+        </Button>
+
         <div className={styles.fieldGroup}>
-          <TextAreaResize
+          <InputTextarea
+            variantSize="md"
             error={errors.answer}
             name="answer"
             onChange={(value) => setAnswer(value)}
@@ -152,7 +219,7 @@ export const ProductReviewEditForm = (props: Props) => {
         </div>
 
         <div className={styles.actions}>
-          <Button type="submit" variantColor="green" disabled={submitLoading}>
+          <Button type="submit" variantColor="green" disabled={submitLoading || generateLoading}>
             Сохранить
           </Button>
           <Button
@@ -160,7 +227,7 @@ export const ProductReviewEditForm = (props: Props) => {
             variantColor="error"
             variant="outline"
             onClick={() => setShowDeleteModal(true)}
-            disabled={deleteLoading}
+            disabled={deleteLoading || generateLoading || submitLoading}
           >
             Удалить отзыв
           </Button>

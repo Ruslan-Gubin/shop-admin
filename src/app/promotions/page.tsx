@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { getIsLoadMoreDisabled } from "@/shared/helpers/getIsLoadMoreDisabled";
 import { getUpdateQueryPageString } from "@/shared/helpers/getUpdateQueryPageString";
 import { ErrorAlert } from "@/shared/ui/error-alert/ErrorAlert";
+import { PageHeader } from "@/shared/ui/page-header/PageHeader";
 import { Pagination } from "@/shared/ui/pagination/Pagination";
 import { UpdateToken } from "@/views/UpdateToken/UpdateToken";
 import {
@@ -43,7 +44,7 @@ export default async function PromotionsPage(req: {
 
   return (
     <section className="page-wrapper">
-      <h2>Справочник акций — временные предложения со скидкой.</h2>
+      <PageHeader title="Справочник акций — временные предложения со скидкой." />
       {tableData?.tokens && <UpdateToken tokens={tableData.tokens} />}
       {tableData.status === "error" && tableData.message && (
         <ErrorAlert message={tableData.message} />

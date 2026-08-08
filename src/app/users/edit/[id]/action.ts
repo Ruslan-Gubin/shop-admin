@@ -3,21 +3,18 @@ import { cookies } from "next/headers";
 import { fetchService } from "@/shared/fetch-api";
 import { normalizePhoneNumber } from "@/shared/helpers/normalizePhoneNumber";
 import { updateItemCookieAction, updateTokensInAction } from "@/shared/helpers/updateCookieAction";
-import { getFormActionState } from "@/shared/services/get-form-action-state";
-import { setNewStoreErrorFromServer } from "@/shared/services/set-new-store-error-from-server";
+import { getValidatePayload } from "@/shared/services/get-form-action-state";
+import { setErrorFromServer } from "@/shared/services/set-new-store-error-from-server";
 import type { UserModel } from "../../action";
 import { updateUserSchema } from "./schema";
 
-export type UpdateUserFormFields = {
-  name: { value: string; error: string };
-  email: { value: string; error: string };
-  phone: { value: string; error: string };
-  password: { value: string; error: string };
-  repeatPassword: { value: string; error: string };
-  role: { value: string; error: string };
-  message: string;
-  status: string;
-  id: string;
+export type UpdateUserPayload = {
+  role: string;
+  name: string;
+  email: string;
+  phone: string;
+  password: string;
+  repeatPassword: string;
 };
 
 export const fetchUser = async (id: string) => {
@@ -27,46 +24,48 @@ export const fetchUser = async (id: string) => {
 };
 
 export const updateUserAction = async (
-  prevState: UpdateUserFormFields,
-  formData: FormData,
-): Promise<UpdateUserFormFields> => {
-  const validate = getFormActionState<UpdateUserFormFields>(formData, prevState, updateUserSchema);
+  payload: UpdateUserPayload,
+  id: string,
+): Promise<{
+  status: "error" | "success";
+  errors: Record<keyof UpdateUserPayload, string>;
+  data: UserModel | null;
+  message: string;
+}> => {
+  const validate = getValidatePayload(payload, updateUserSchema);
+  console.log(validate);
 
   if (validate.isValid) {
-    const id = validate.newState.id;
-
-    if (typeof validate.payload.phone === "string") {
-      validate.payload.phone = normalizePhoneNumber(validate.payload.phone);
-    }
-    const { repeatPassword, ...restPayload } = validate.payload;
-
     const cookieStore = await cookies();
 
-    await fetchService
+    if (typeof payload.phone === "string") {
+      payload.phone = normalizePhoneNumber(payload.phone);
+    }
+
+    const { repeatPassword, ...restPayload } = payload;
+
+    return fetchService
       .patch<null>({
         url: `users/${id}`,
         payload: restPayload,
       })
       .then(async (response) => {
-        validate.newState.message = response.message;
-        validate.newState.status = response.status;
-
         if (response.tokens) {
           updateTokensInAction(cookieStore, response.tokens);
         }
 
-        if (response.status !== "success") {
-          setNewStoreErrorFromServer(response.errors, validate.newState);
+        if (response.status === "error" && response.errors) {
+          setErrorFromServer(response.errors, validate.errors);
         } else {
           updateItemCookieAction(cookieStore, Number(id));
-          validate.newState.password.value = "";
-          validate.newState.repeatPassword.value = "";
         }
+
+        return {
+          ...response,
+          errors: validate.errors,
+        };
       });
-  } else {
-    validate.newState.message = "";
-    validate.newState.status = "";
   }
 
-  return validate.newState;
+  return { status: "error", message: "", data: null, errors: validate.errors };
 };

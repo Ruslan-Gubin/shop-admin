@@ -1,11 +1,13 @@
-// "use server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { ErrorAlert } from "@/shared/ui/error-alert/ErrorAlert";
+import { PageHeader } from "@/shared/ui/page-header/PageHeader";
 import { UpdateToken } from "@/views/UpdateToken/UpdateToken";
 import {
+  type AnswerSuggestionPayload,
   deleteProductQuestionAction,
-  fetchProductQuestion,
+  fetchProductQuestionEdit,
+  getAnswerSuggestionAction,
   updateProductQuestionAction,
 } from "../../action";
 import { ProductQuestionEditForm } from "../../components/ProductQuestionEditForm/ProductQuestionEditForm";
@@ -16,7 +18,7 @@ export default async function EditProductQuestionPage(searchParams: {
   const params = await searchParams.params;
   const id = params.id;
 
-  const questionData = await fetchProductQuestion(id);
+  const questionData = await fetchProductQuestionEdit(id);
   const question = questionData.data;
 
   const deleteAction = async () => {
@@ -56,12 +58,34 @@ export default async function EditProductQuestionPage(searchParams: {
     return { errors, notification };
   };
 
+  const generateAnswerAction = async (payload: AnswerSuggestionPayload) => {
+    "use server";
+
+    let notification: { status: "error" | "success"; message: string } | null = null;
+    let answer = "";
+
+    await getAnswerSuggestionAction(payload).then((response) => {
+      if (response.status === "success" && typeof response.data === "string") {
+        answer = response.data;
+      } else {
+        notification = {
+          status: "error",
+          message: response.message || "Не удалось сгенерировать ответ",
+        };
+      }
+    });
+
+    return { notification, answer };
+  };
+
   return (
     <section className="page-wrapper">
       {questionData.tokens && <UpdateToken tokens={questionData.tokens} />}
+      <PageHeader title="Редактировать вопрос" fallbackHref="/product-questions" />
       {!question && <ErrorAlert message={questionData.message || "Вопрос не найден"} />}
       {question && (
         <ProductQuestionEditForm
+          generateAnswerAction={generateAnswerAction}
           question={question}
           submitAction={submitAction}
           deleteAction={deleteAction}

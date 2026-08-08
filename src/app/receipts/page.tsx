@@ -1,6 +1,7 @@
 "use server";
 import { getIsLoadMoreDisabled } from "@/shared/helpers/getIsLoadMoreDisabled";
 import { ErrorAlert } from "@/shared/ui/error-alert/ErrorAlert";
+import { PageHeader } from "@/shared/ui/page-header/PageHeader";
 import { Pagination } from "@/shared/ui/pagination/Pagination";
 import { UpdateToken } from "@/views/UpdateToken/UpdateToken";
 import { fetchReceipt, fetchReceiptsWithWarehouses, type ReceiptModelTable } from "./action";
@@ -61,7 +62,7 @@ export default async function ReceiptsPage(req: {
     <section className="page-wrapper">
       {warehousesData?.tokens && <UpdateToken tokens={warehousesData.tokens} />}
       {tableData?.tokens && <UpdateToken tokens={tableData.tokens} />}
-      <h2>Поступления</h2>
+      <PageHeader title="Поступления" />
       {tableData.status === "error" && tableData.message && (
         <ErrorAlert message={tableData.message} />
       )}

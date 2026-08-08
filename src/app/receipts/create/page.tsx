@@ -1,6 +1,7 @@
 import type { WarehouseModel } from "@/app/warehouses/action";
 import { getFillValues } from "@/shared/helpers/get-fill-values";
 import { ErrorAlert } from "@/shared/ui/error-alert/ErrorAlert";
+import { PageHeader } from "@/shared/ui/page-header/PageHeader";
 import { UpdateToken } from "@/views/UpdateToken/UpdateToken";
 import { fetchIncomeFormData, submitIncomeAction } from "./action";
 import { IncomeWizard } from "./components/IncomeWizard";
@@ -35,7 +36,7 @@ export default async function StockIncomePage() {
   return (
     <section className="page-wrapper">
       {priceFill?.tokens && <UpdateToken tokens={priceFill.tokens} />}
-      <h2>Поступление</h2>
+      <PageHeader title="Поступление" fallbackHref="/receipts" />
 
       {warehousesData.status === "error" && warehousesData.message && (
         <ErrorAlert message={warehousesData.message} />

@@ -2,6 +2,7 @@
 import { buildAddressString } from "@/shared/helpers/buildAddressString";
 import { getIsLoadMoreDisabled } from "@/shared/helpers/getIsLoadMoreDisabled";
 import { ErrorAlert } from "@/shared/ui/error-alert/ErrorAlert";
+import { PageHeader } from "@/shared/ui/page-header/PageHeader";
 import { Pagination } from "@/shared/ui/pagination/Pagination";
 import { UpdateToken } from "@/views/UpdateToken/UpdateToken";
 import { fetchTransferAction, fetchTransfers } from "./action";
@@ -35,7 +36,7 @@ export default async function TransfersPage(req: {
 
   return (
     <section className="page-wrapper">
-      <h2>Логистика</h2>
+      <PageHeader title="Логистика" />
       {tableData?.tokens && <UpdateToken tokens={tableData.tokens} />}
       {tableData.status === "error" && tableData.message && (
         <ErrorAlert message={tableData.message} />

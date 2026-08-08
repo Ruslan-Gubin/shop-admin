@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { getIsLoadMoreDisabled } from "@/shared/helpers/getIsLoadMoreDisabled";
 import { getUpdateQueryPageString } from "@/shared/helpers/getUpdateQueryPageString";
 import { ErrorAlert } from "@/shared/ui/error-alert/ErrorAlert";
+import { PageHeader } from "@/shared/ui/page-header/PageHeader";
 import { Pagination } from "@/shared/ui/pagination/Pagination";
 import { UpdateToken } from "@/views/UpdateToken/UpdateToken";
 import { deleteProductAction, fetchProduct, fetchProducts } from "./action";
@@ -41,7 +42,7 @@ export default async function ProductsPage(req: {
   return (
     <section className="page-wrapper">
       {tableData?.tokens && <UpdateToken tokens={tableData.tokens} />}
-      <h2>Справочник товаров.</h2>
+      <PageHeader title="Справочник товаров." />
       {tableData.status === "error" && tableData.message && (
         <ErrorAlert message={tableData.message} />
       )}

@@ -11,3 +11,9 @@
   column-gap: 12px;
   align-items: center;
 }
+
+.headerRightSide {
+  display: flex;
+  column-gap: 12px;
+  align-items: center;
+}

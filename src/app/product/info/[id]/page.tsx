@@ -185,7 +185,7 @@ export default async function ProductInfoPage(searchParams: { params: Promise<{ 
   return (
     <section className="page-wrapper">
       {productStocksData?.tokens && <UpdateToken tokens={productStocksData.tokens} />}
-      <PageHeader title="Информация о товаре">
+      <PageHeader title="Информация о товаре" fallbackHref="/product">
         <Link href={`/product/edit/${id}`}>
           <Button variant="solid" size="sm">
             Редактировать

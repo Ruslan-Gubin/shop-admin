@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { getIsLoadMoreDisabled } from "@/shared/helpers/getIsLoadMoreDisabled";
 import { getUpdateQueryPageString } from "@/shared/helpers/getUpdateQueryPageString";
 import { ErrorAlert } from "@/shared/ui/error-alert/ErrorAlert";
+import { PageHeader } from "@/shared/ui/page-header/PageHeader";
 import { Pagination } from "@/shared/ui/pagination/Pagination";
 import { UpdateToken } from "@/views/UpdateToken/UpdateToken";
 import {
@@ -41,7 +42,7 @@ export default async function PriceTypesPage(req: {
 
   return (
     <section className="page-wrapper">
-      <h2>Справочник типов цен — базовые цены для разных категорий клиентов.</h2>
+      <PageHeader title="Справочник типов цен — базовые цены для разных категорий клиентов." />
       {tableData?.tokens && <UpdateToken tokens={tableData.tokens} />}
       {tableData.status === "error" && tableData.message && (
         <ErrorAlert message={tableData.message} />

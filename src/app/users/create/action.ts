@@ -1,64 +1,63 @@
 "use server";
 import { cookies } from "next/headers";
 import { fetchService } from "@/shared/fetch-api";
-import { normalizePhoneNumber } from "@/shared/helpers/normalizePhoneNumber";
 import { addItemCookieAction, updateTokensInAction } from "@/shared/helpers/updateCookieAction";
-import { getFormActionState } from "@/shared/services/get-form-action-state";
-import { resetNewStateValues } from "@/shared/services/reset-new-store-values";
-import { setNewStoreErrorFromServer } from "@/shared/services/set-new-store-error-from-server";
+import { getValidatePayload } from "@/shared/services/get-form-action-state";
+import { setErrorFromServer } from "@/shared/services/set-new-store-error-from-server";
 import type { UserModel } from "../action";
 import { createUserSchema } from "./schema";
 
-export type CreateUserFormFields = {
-  name: { value: string; error: string };
-  email: { value: string; error: string };
-  phone: { value: string; error: string };
-  password: { value: string; error: string };
-  repeatPassword: { value: string; error: string };
-  role: { value: string; error: string };
-  message: string;
-  status: string;
-  id: string;
+export type CreateUserPayload = {
+  role: string;
+  name: string;
+  email: string;
+  phone: string;
+  password: string;
+  repeatPassword: string;
 };
 
-export const createUserAction = async (
-  prevState: CreateUserFormFields,
-  formData: FormData,
-): Promise<CreateUserFormFields> => {
-  const validate = getFormActionState<CreateUserFormFields>(formData, prevState, createUserSchema);
+export const createUserAction = async (payload: {
+  role: string;
+  name: string;
+  email: string;
+  phone: string;
+  password: string;
+  repeatPassword: string;
+}): Promise<{
+  status: "error" | "success";
+  errors: Record<keyof CreateUserPayload, string>;
+  data: UserModel | null;
+  message: string;
+}> => {
+  const validate = getValidatePayload(payload, createUserSchema);
 
   if (validate.isValid) {
-    if (typeof validate.payload.phone === "string") {
-      validate.payload.phone = normalizePhoneNumber(validate.payload.phone);
-    }
-    const { repeatPassword, ...restPayload } = validate.payload;
-
     const cookieStore = await cookies();
 
-    await fetchService
+    const { repeatPassword, ...restPayload } = payload;
+
+    return fetchService
       .post<UserModel>({
         url: "users/create",
         payload: restPayload,
       })
       .then(async (response) => {
-        validate.newState.message = response.message;
-        validate.newState.status = response.status;
-
         if (response.tokens) {
           updateTokensInAction(cookieStore, response.tokens);
         }
 
-        if (response.status !== "success") {
-          setNewStoreErrorFromServer(response.errors, validate.newState);
+        if (response.status === "error" && response.errors) {
+          setErrorFromServer(response.errors, validate.errors);
         } else {
           addItemCookieAction(cookieStore, response.data);
-          resetNewStateValues(validate.newState);
         }
+
+        return {
+          ...response,
+          errors: validate.errors,
+        };
       });
-  } else {
-    validate.newState.message = "";
-    validate.newState.status = "";
   }
 
-  return validate.newState;
+  return { status: "error", message: "", data: null, errors: validate.errors };
 };

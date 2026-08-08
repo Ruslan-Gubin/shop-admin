@@ -2,6 +2,7 @@
 import { priceFormatter } from "@/shared/helpers/formatPrice";
 import { getIsLoadMoreDisabled } from "@/shared/helpers/getIsLoadMoreDisabled";
 import { ErrorAlert } from "@/shared/ui/error-alert/ErrorAlert";
+import { PageHeader } from "@/shared/ui/page-header/PageHeader";
 import { Pagination } from "@/shared/ui/pagination/Pagination";
 import { UpdateToken } from "@/views/UpdateToken/UpdateToken";
 import { fetchOrder, fetchOrders } from "./action";
@@ -33,7 +34,7 @@ export default async function OrdersPage(req: {
 
   return (
     <section className="page-wrapper">
-      <h2>Заказы</h2>
+      <PageHeader title="Заказы" />
       {tableData?.tokens && <UpdateToken tokens={tableData.tokens} />}
       {tableData.status === "error" && tableData.message && (
         <ErrorAlert message={tableData.message} />

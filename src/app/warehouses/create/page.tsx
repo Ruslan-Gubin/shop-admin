@@ -1,6 +1,7 @@
 "use server";
 import { fetchReverseAction } from "@/app/action";
 import { CONFIG_APP } from "@/shared/config/config";
+import { PageHeader } from "@/shared/ui/page-header/PageHeader";
 import { UpdateToken } from "@/views/UpdateToken/UpdateToken";
 import { WarehouseForm } from "../components/WarehouseForm/WarehouseForm";
 import { createWarehouseAction, fetchDefaultWarehouse, type WarehousePayload } from "./action";
@@ -60,7 +61,7 @@ export default async function CreateWarehousePage() {
     <>
       {defaultWarehouse?.tokens && <UpdateToken tokens={defaultWarehouse.tokens} />}
       <section className="page-wrapper">
-        <h2>Создать склад</h2>
+        <PageHeader title="Создать склад" fallbackHref="/warehouses" />
         <WarehouseForm
           initCenter={defaultCenter}
           fetchReverseAction={fetchReverseAction}

@@ -3,6 +3,7 @@ import { createProductSpecificationAction, createSpecification } from "@/app/spe
 import { createProductStock, type WarehouseModel } from "@/app/warehouses/action";
 import { getFillValues } from "@/shared/helpers/get-fill-values";
 import { ErrorAlert } from "@/shared/ui/error-alert/ErrorAlert";
+import { PageHeader } from "@/shared/ui/page-header/PageHeader";
 import { UpdateToken } from "@/views/UpdateToken/UpdateToken";
 import {
   createPhotoAction,
@@ -248,7 +249,7 @@ export default async function CreateProductPage() {
   return (
     <section className="page-wrapper">
       {specificationsData?.tokens && <UpdateToken tokens={specificationsData.tokens} />}
-      <h2>Создать товар</h2>
+      <PageHeader title="Создать товар" fallbackHref="/product" />
 
       {rangesData.status === "error" && rangesData.message && (
         <ErrorAlert message={rangesData.message} />

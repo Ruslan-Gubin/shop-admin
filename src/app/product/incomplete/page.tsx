@@ -1,5 +1,6 @@
 import { getIsLoadMoreDisabled } from "@/shared/helpers/getIsLoadMoreDisabled";
 import { ErrorAlert } from "@/shared/ui/error-alert/ErrorAlert";
+import { PageHeader } from "@/shared/ui/page-header/PageHeader";
 import { Pagination } from "@/shared/ui/pagination/Pagination";
 import { UpdateToken } from "@/views/UpdateToken/UpdateToken";
 import { fetchIncompleteProducts } from "./action";
@@ -22,7 +23,7 @@ export default async function IncompleteProductsPage(req: {
   return (
     <section className="page-wrapper">
       {tableData?.tokens && <UpdateToken tokens={tableData.tokens} />}
-      <h2>Товары с проблемами.</h2>
+      <PageHeader title="Товары с проблемами." />
 
       {tableData.status === "error" && tableData.message && (
         <ErrorAlert message={tableData.message} />

@@ -1,0 +1,114 @@
+.body {
+  display: flex;
+  flex-direction: column;
+  row-gap: 12px;
+}
+
+.fieldRow {
+  border: 1px solid #e8e8e8;
+  border-radius: 8px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  row-gap: 12px;
+  background-color: #ffffff;
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.fieldRowSelected {
+  border-color: #38a169;
+  background-color: #f4fbf7;
+}
+
+.fieldHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.fieldTitle {
+  font-weight: 500;
+  color: #191817;
+}
+
+.fieldHint {
+  font-size: 14px;
+  color: #696969;
+}
+
+.suggestedBlock {
+  display: flex;
+  flex-direction: column;
+  row-gap: 6px;
+  background-color: #f2f7fd;
+  border-left: 3px solid #0075f2;
+  border-radius: 6px;
+  padding: 10px 12px;
+}
+
+.suggestedHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.suggestedLabel {
+  font-size: 14px;
+  font-weight: 500;
+  color: #0075f2;
+}
+
+.suggestedLength {
+  font-size: 12px;
+  color: #8a8a8a;
+}
+
+.suggestedValue {
+  font-size: 15px;
+  line-height: 18px;
+  color: #191817;
+}
+
+.appliedBadge {
+  font-size: 12px;
+  line-height: 1.2;
+  color: #38a169;
+  background-color: #38a16918;
+  border-radius: 999px;
+  padding: 4px 10px;
+  white-space: nowrap;
+}
+
+.emptyBadge {
+  font-size: 12px;
+  color: #696969;
+  background-color: #69696912;
+  border-radius: 999px;
+  padding: 4px 10px;
+  white-space: nowrap;
+}
+
+.footer {
+  padding-inline: 24px;
+  padding-block: 16px;
+  align-items: center;
+  background-color: #e7ebe8;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  column-gap: 12px;
+  row-gap: 8px;
+  flex-wrap: wrap;
+
+  @media (max-width: 500px) {
+    button {
+      flex: 1 1 auto;
+    }
+  }
+}

@@ -1,6 +1,7 @@
 "use server";
 import { priceFormatter } from "@/shared/helpers/formatPrice";
 import { ErrorAlert } from "@/shared/ui/error-alert/ErrorAlert";
+import { PageHeader } from "@/shared/ui/page-header/PageHeader";
 import { Pagination } from "@/shared/ui/pagination/Pagination";
 import { UpdateToken } from "@/views/UpdateToken/UpdateToken";
 import { fetchUserInfoPage } from "./action";
@@ -48,7 +49,7 @@ export default async function UserInfoPage(req: Props) {
     <section className="page-wrapper">
       {questionsData?.tokens && <UpdateToken tokens={questionsData.tokens} />}
 
-      <h2>Информация о пользователе</h2>
+      <PageHeader title="Информация о пользователе" fallbackHref="/users" />
 
       {userData.status === "error" && userData.message && <ErrorAlert message={userData.message} />}
       {ordersData.status === "error" && ordersData.message && (

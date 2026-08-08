@@ -1,6 +1,10 @@
 .loginForm {
   display: flex;
   flex-direction: column;
-  width: 100%;
-  gap: 40px;
+  gap: var(--padding-content-block);
+}
+
+.actionForm {
+  display: flex;
+  justify-content: flex-end;
 }
