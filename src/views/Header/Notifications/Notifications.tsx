@@ -1,21 +1,27 @@
-import { fetchQuestionProductUnanswered } from "@/app/action";
+import { fetchNotificationHeader } from "@/app/action";
 import { UpdateToken } from "@/views/UpdateToken/UpdateToken";
+import { NotificationWrapper } from "../NotificationWrapper/NotificationWrapper";
 import styles from "./Notifications.module.css";
 
-type Props = {};
+export const Notifications = async () => {
+  const [questionProductUnanswered, reviewProductUnanswered, transfersActive, newOrders] =
+    await fetchNotificationHeader();
 
-export const Notifications = async (props: Props) => {
-  const questionProductUnanswered = await fetchQuestionProductUnanswered();
-  const questions = questionProductUnanswered?.data?.questions || [];
   const questionsTotalCount = questionProductUnanswered?.data?.totalCount || 0;
+  const reviewTotalCount = reviewProductUnanswered?.data?.totalCount || 0;
+  const transferTotalCount = transfersActive?.data?.totalCount || 0;
+  const newOrdersTotalCount = newOrders?.data?.totalCount || 0;
 
   return (
     <>
-      {questionProductUnanswered?.tokens && (
-        <UpdateToken tokens={questionProductUnanswered.tokens} />
-      )}
+      {newOrders?.tokens && <UpdateToken tokens={newOrders.tokens} />}
       <div className={styles.root}>
-        <div>Product question {questionsTotalCount}</div>
+        <NotificationWrapper
+          order={newOrdersTotalCount}
+          question={questionsTotalCount}
+          reviews={reviewTotalCount}
+          transfer={transferTotalCount}
+        />
       </div>
     </>
   );

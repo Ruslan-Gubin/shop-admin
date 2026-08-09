@@ -1,0 +1,19 @@
+.svgButton {
+  height: 30px;
+  width: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #171717;
+
+  svg {
+    width: 20px;
+    height: 20px;
+    color: #171717;
+    fill: #171717;
+  }
+
+  path {
+    fill: #171717;
+  }
+}

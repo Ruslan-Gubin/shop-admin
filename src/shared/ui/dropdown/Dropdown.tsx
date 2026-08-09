@@ -86,7 +86,9 @@ export const Dropdown = (props: Props) => {
         aria-disabled={props.disabled}
         aria-controls="dropdown-listbox"
       >
-        <div className={styles.values}>
+        <div
+          className={`${styles.values} ${props.variant === "search" ? styles.valuesSearch : ""}`}
+        >
           <span
             className={
               props.variant === "search" &&

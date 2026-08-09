@@ -7,7 +7,7 @@ import { MainMobileTable } from "@/widgets/main-mobile-table/MainMobileTable";
 import { MainTable, type RenderTableOptions } from "@/widgets/main-table/MainTable";
 import { ModalDelete } from "@/widgets/modals/modal-delete/ModalDelete";
 import { TableControls } from "@/widgets/table-controls/TableControls";
-import type { CartDiscountModel, CreateCartDiscountFormFields } from "../../action";
+import type { CartDiscountActionResponse, CartDiscountModel, CreateCartDiscountPayload } from "../../action";
 import { ModalCartDiscountForm } from "../modal-cart-discount-form/ModalCartDiscountForm";
 
 type Props = {
@@ -16,13 +16,12 @@ type Props = {
   redirectPageAfterDeleteAction: () => void;
   name: string;
   createCartDiscountAction: (
-    prevState: CreateCartDiscountFormFields,
-    formData: FormData,
-  ) => Promise<CreateCartDiscountFormFields>;
+    values: CreateCartDiscountPayload,
+  ) => Promise<CartDiscountActionResponse>;
   updateCartDiscountAction: (
-    prevState: CreateCartDiscountFormFields,
-    formData: FormData,
-  ) => Promise<CreateCartDiscountFormFields>;
+    values: CreateCartDiscountPayload,
+    id: number,
+  ) => Promise<CartDiscountActionResponse>;
   isLoadMoreDisabled: boolean;
   patch: string;
   searchParams: { [key: string]: string | string[] | undefined };
@@ -120,9 +119,13 @@ export const CartDiscountsTableWrapper = (props: Props) => {
   const isEditModal = optionFormModal.name.length > 0 && typeof optionFormModal.id === "number";
   const modalTitle = isEditModal ? "Редактировать скидку" : "Добавить скидку";
   const submitButtonText = isEditModal ? "Редактировать" : "Добавить";
-  const onSubmitAction = isEditModal
-    ? props.updateCartDiscountAction
-    : props.createCartDiscountAction;
+  const onSubmitAction = (values: CreateCartDiscountPayload) => {
+    if (isEditModal && typeof optionFormModal.id === "number") {
+      return props.updateCartDiscountAction(values, optionFormModal.id);
+    }
+
+    return props.createCartDiscountAction(values);
+  };
 
   const tableOptions: RenderTableOptions<CartDiscountModel>[] = [
     { key: "id" },

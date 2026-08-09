@@ -186,8 +186,8 @@ export const UpdateUserForm = (props: Props) => {
         type="password"
         variant="outlined"
         variantSize="sm"
-        placeholder={props?.initValue?.id ? "Изменить пароль" : "Введите пароль"}
-        label={props?.initValue?.id ? "Изменить пароль" : "Введите пароль"}
+        placeholder={props.variant === "edit" ? "Изменить пароль" : "Введите пароль"}
+        label={props.variant === "edit" ? "Изменить пароль" : "Введите пароль"}
         rightIcon={<CancelSvg />}
       />
       <Input
@@ -199,8 +199,8 @@ export const UpdateUserForm = (props: Props) => {
         type="password"
         variant="outlined"
         variantSize="sm"
-        placeholder={props?.initValue?.id ? "Повторите пароль" : "Введите повторный пароль"}
-        label={props?.initValue?.id ? "Повторите пароль" : "Введите повторный пароль"}
+        placeholder={"Повторите пароль"}
+        label={"Повторите пароль"}
         rightIcon={<CancelSvg />}
       />
       <div className={styles.actionForm}>

@@ -5,6 +5,7 @@ import { Modal } from "@/shared/ui/modal/Modal";
 import { ModalContent } from "@/shared/ui/modal/modal-content/ModalContent";
 import { ModalFooter } from "@/shared/ui/modal/modal-footer/ModalFooter";
 import { ModalHeader } from "@/shared/ui/modal/modal-header/ModalHeader";
+import styles from "./LogoutButton.module.css";
 
 type Props = {
   logoutAction: () => Promise<{ status: string; message: string }>;
@@ -38,7 +39,7 @@ export const LogoutButton = (props: Props) => {
           />
         </ModalContent>
       </Modal>
-      <button type="button" onClick={() => setOpenLogoutModal(true)} className="button-svg">
+      <button className={styles.svgButton} type="button" onClick={() => setOpenLogoutModal(true)}>
         <ExitSvg />
       </button>
     </>

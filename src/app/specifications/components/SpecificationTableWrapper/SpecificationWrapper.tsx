@@ -7,7 +7,11 @@ import { MainMobileTable } from "@/widgets/main-mobile-table/MainMobileTable";
 import { MainTable, type RenderTableOptions } from "@/widgets/main-table/MainTable";
 import { ModalDelete } from "@/widgets/modals/modal-delete/ModalDelete";
 import { TableControls } from "@/widgets/table-controls/TableControls";
-import type { CreateSpecificationFields, SpecificationModel } from "../../action";
+import type {
+  CreateSpecificationPayload,
+  SpecificationActionResponse,
+  SpecificationModel,
+} from "../../action";
 import { SpecificationModalForm } from "../SpecificationModalForm/SpecificationModalForm";
 
 type Props = {
@@ -16,13 +20,12 @@ type Props = {
   redirectPageAfterDeleteAction: () => void;
   name: string;
   createSpecificationAction: (
-    prevState: CreateSpecificationFields,
-    formData: FormData,
-  ) => Promise<CreateSpecificationFields>;
+    values: CreateSpecificationPayload,
+  ) => Promise<SpecificationActionResponse>;
   updateSpecificationAction: (
-    prevState: CreateSpecificationFields,
-    formData: FormData,
-  ) => Promise<CreateSpecificationFields>;
+    values: CreateSpecificationPayload,
+    id: number,
+  ) => Promise<SpecificationActionResponse>;
   isLoadMoreDisabled: boolean;
   patch: string;
   searchParams: { [key: string]: string | string[] | undefined };
@@ -102,9 +105,13 @@ export const SpecificationTableWrapper = (props: Props) => {
   const isEditModal = optionFormModal.name.length > 0 && typeof optionFormModal.id === "number";
   const modalTitle = isEditModal ? "Редактировать характеристику" : "Добавить характеристику";
   const submitButtonText = isEditModal ? "Редактировать" : "Добавить";
-  const onSubmitAction = isEditModal
-    ? props.updateSpecificationAction
-    : props.createSpecificationAction;
+  const onSubmitAction = (values: CreateSpecificationPayload) => {
+    if (isEditModal && typeof optionFormModal.id === "number") {
+      return props.updateSpecificationAction(values, optionFormModal.id);
+    }
+
+    return props.createSpecificationAction(values);
+  };
 
   const tableOptions: RenderTableOptions<SpecificationModel>[] = [
     { key: "id" },

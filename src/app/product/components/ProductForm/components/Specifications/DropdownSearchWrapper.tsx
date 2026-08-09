@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { fetchSpecificationsClient, type SpecificationModel } from "@/app/specifications/action";
 import { useDebounce } from "@/shared/hooks/useDebounce";
-import { DropdownSearch } from "@/shared/ui/dropdown-search/DropdownSearch";
+import { Dropdown } from "@/shared/ui/dropdown/Dropdown";
 
 type Props = {
   index: number;
@@ -64,13 +64,15 @@ export const DropdownSearchWrapper = (props: Props) => {
   );
 
   return (
-    <DropdownSearch
+    <Dropdown
+      variant="search"
       options={filteredSelectedOptions}
-      value={props.selectId}
-      disabled={false}
+      value={props.selectId ?? 0}
+      name="specification"
+      id="specification"
+      label="Характеристика"
       menuHeight={300}
-      placeholder="Характеристика"
-      onSelectMenu={handleSelectMenu}
+      onSelectMenu={(value) => handleSelectMenu(Number(value))}
       onChangeValue={handleChangeSearch}
       inputValue={props.label}
     />

@@ -8,9 +8,8 @@ import {
   updateItemCookieAction,
   updateTokensInAction,
 } from "@/shared/helpers/updateCookieAction";
-import { getFormActionState } from "@/shared/services/get-form-action-state";
-import { resetNewStateValues } from "@/shared/services/reset-new-store-values";
-import { setNewStoreErrorFromServer } from "@/shared/services/set-new-store-error-from-server";
+import { getValidatePayload } from "@/shared/services/get-form-action-state";
+import { setErrorFromServer } from "@/shared/services/set-new-store-error-from-server";
 import { createCartDiscountSchema } from "./schema";
 
 export type CartDiscountModel = {
@@ -77,106 +76,102 @@ export const deleteCartDiscountAction = async (
     });
 };
 
-export type CreateCartDiscountFormFields = {
-  name: { value: string; error: string };
-  min_sum: { value: string; error: string };
-  percent: { value: string; error: string };
-  apply_to: { value: string; error: string };
-  is_active: { value: string; error: string };
+export type CreateCartDiscountPayload = {
+  name: string;
+  min_sum: string;
+  percent: string;
+  apply_to: string;
+  is_active: boolean;
+};
+
+export type CartDiscountActionResponse = {
+  status: "error" | "success";
+  errors: Record<keyof CreateCartDiscountPayload, string>;
+  data: CartDiscountModel | null;
   message: string;
-  status: string;
-  id: number | null;
 };
 
 export const createCartDiscountAction = async (
-  prevState: CreateCartDiscountFormFields,
-  formData: FormData,
-): Promise<CreateCartDiscountFormFields> => {
-  const validate = getFormActionState<CreateCartDiscountFormFields>(
-    formData,
-    prevState,
-    createCartDiscountSchema,
-  );
+  payload: CreateCartDiscountPayload,
+): Promise<CartDiscountActionResponse> => {
+  const validate = getValidatePayload(payload, createCartDiscountSchema);
 
   if (validate.isValid) {
-    validate.payload.min_sum = Number(validate.payload.min_sum);
-    validate.payload.percent = Number(validate.payload.percent);
-    validate.payload.is_active = validate.payload.is_active === "on";
-
     const cookieStore = await cookies();
 
-    await fetchService
+    return fetchService
       .post<CartDiscountModel>({
         url: "cart-discounts/create",
-        payload: validate.payload,
+        payload: {
+          name: payload.name,
+          min_sum: Number(payload.min_sum),
+          percent: Number(payload.percent),
+          apply_to: payload.apply_to,
+          is_active: payload.is_active,
+        },
       })
-      .then((response) => {
-        validate.newState.message = response.message;
-        validate.newState.status = response.status;
-
+      .then(async (response) => {
         if (response.tokens) {
           updateTokensInAction(cookieStore, response.tokens);
         }
 
-        if (response.status === "success" && response.data) {
-          addItemCookieAction(cookieStore, response.data);
-          resetNewStateValues(validate.newState);
-          revalidatePath("/cart-discounts");
+        if (response.status === "error" && response.errors) {
+          setErrorFromServer(response.errors, validate.errors);
         } else {
-          setNewStoreErrorFromServer(response.errors, validate.newState);
+          if (response.data) {
+            addItemCookieAction(cookieStore, response.data);
+          }
+          revalidatePath("/cart-discounts");
         }
+
+        return {
+          ...response,
+          errors: validate.errors,
+        };
       });
-  } else {
-    validate.newState.message = "";
-    validate.newState.status = "";
   }
 
-  return validate.newState;
+  return { status: "error", message: "", data: null, errors: validate.errors };
 };
 
 export const updateCartDiscountAction = async (
-  prevState: CreateCartDiscountFormFields,
-  formData: FormData,
-): Promise<CreateCartDiscountFormFields> => {
-  const validate = getFormActionState<CreateCartDiscountFormFields>(
-    formData,
-    prevState,
-    createCartDiscountSchema,
-  );
+  payload: CreateCartDiscountPayload,
+  id: number,
+): Promise<CartDiscountActionResponse> => {
+  const validate = getValidatePayload(payload, createCartDiscountSchema);
 
-  const id = validate.newState.id;
-
-  if (validate.isValid && id) {
-    validate.payload.min_sum = Number(validate.payload.min_sum);
-    validate.payload.percent = Number(validate.payload.percent);
-    validate.payload.is_active = validate.payload.is_active === "on";
-
+  if (validate.isValid) {
     const cookieStore = await cookies();
 
-    await fetchService
+    return fetchService
       .patch<null>({
         url: `cart-discounts/${id}`,
-        payload: validate.payload,
+        payload: {
+          name: payload.name,
+          min_sum: Number(payload.min_sum),
+          percent: Number(payload.percent),
+          apply_to: payload.apply_to,
+          is_active: payload.is_active,
+        },
       })
-      .then((response) => {
-        validate.newState.message = response.message;
-        validate.newState.status = response.status;
-
+      .then(async (response) => {
         if (response.tokens) {
           updateTokensInAction(cookieStore, response.tokens);
         }
 
-        if (response.status === "success") {
+        if (response.status === "error" && response.errors) {
+          setErrorFromServer(response.errors, validate.errors);
+        } else {
           updateItemCookieAction(cookieStore, id);
           revalidatePath("/cart-discounts");
-        } else {
-          setNewStoreErrorFromServer(response.errors, validate.newState);
         }
+
+        return {
+          ...response,
+          errors: validate.errors,
+        };
       });
-  } else {
-    validate.newState.message = "";
-    validate.newState.status = "";
   }
 
-  return validate.newState;
+  return { status: "error", message: "", data: null, errors: validate.errors };
 };

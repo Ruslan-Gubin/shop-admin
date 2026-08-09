@@ -203,6 +203,14 @@
   }
 }
 
+.valuesSearch .labelActive {
+  top: -7px;
+
+  @media (max-width: 880px) {
+    top: -6px;
+  }
+}
+
 .selectValueButton:focus-within .label {
   font-size: 0.75em;
   color: #171717;
@@ -215,5 +223,13 @@
   @media (max-width: 880px) {
     font-size: 9px;
     top: -11px;
+  }
+}
+
+.selectValueButton:focus-within .valuesSearch .label {
+  top: -7px;
+
+  @media (max-width: 880px) {
+    top: -6px;
   }
 }

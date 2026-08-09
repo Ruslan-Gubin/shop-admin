@@ -5,16 +5,56 @@ import { fetchService } from "@/shared/fetch-api";
 import { updateTokensInAction } from "@/shared/helpers/updateCookieAction";
 import type { MapBoxGetSearchGeocodeResponse } from "@/shared/ui/mapbox/Mapbox";
 import type { QuestionModel } from "./product-questions/action";
+import type { ReviewModel } from "./product-reviews/action";
+import type { TransferModel } from "./transfer/action";
 
 export const fetchConnect = async () => {
   return await fetchService.get<null>({ url: "connect" });
 };
 
-export const fetchQuestionProductUnanswered = async () => {
-  return fetchService.get<{ questions: QuestionModel[]; totalCount: number; paginationPage: 1 }>({
-    url: "product-question/unanswered",
-    params: { limit: "50", page: "1" },
-  });
+export const fetchNotificationHeader = async () => {
+  return await fetchService.fetchChain<
+    [
+      {
+        questions: QuestionModel[];
+        totalCount: number;
+        paginationPage: number;
+      },
+      {
+        reviews: ReviewModel[];
+        totalCount: number;
+        paginationPage: number;
+      },
+      {
+        reviews: TransferModel[];
+        totalCount: number;
+        paginationPage: number;
+      },
+      {
+        reviews: TransferModel[];
+        totalCount: number;
+        paginationPage: number;
+      },
+    ]
+  >([
+    {
+      url: "product-question/unanswered",
+      params: { limit: "1", page: "1" },
+    },
+
+    {
+      url: "product-review/unanswered/list",
+      params: { limit: "1", page: "1" },
+    },
+    {
+      url: "transfers/in-transit/active",
+      params: { limit: "1", page: "1" },
+    },
+    {
+      url: "orders",
+      params: { status: "new", limit: "1", page: "1" },
+    },
+  ]);
 };
 
 export const logoutAction = async () => {

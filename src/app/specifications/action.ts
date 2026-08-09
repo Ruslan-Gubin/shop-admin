@@ -8,9 +8,8 @@ import {
   updateItemCookieAction,
   updateTokensInAction,
 } from "@/shared/helpers/updateCookieAction";
-import { getFormActionState, getValidatePayload } from "@/shared/services/get-form-action-state";
-import { resetNewStateValues } from "@/shared/services/reset-new-store-values";
-import { setNewStoreErrorFromServer } from "@/shared/services/set-new-store-error-from-server";
+import { getValidatePayload } from "@/shared/services/get-form-action-state";
+import { setErrorFromServer } from "@/shared/services/set-new-store-error-from-server";
 import { createProductSpecificationSchema, createSpecificationSchema } from "./schema";
 
 export type SpecificationModel = {
@@ -102,98 +101,89 @@ export const deleteSpecificationAction = async (
     });
 };
 
-export type CreateSpecificationFields = {
-  name: { value: string; error: string };
-  type: { value: string; error: string };
+export type CreateSpecificationPayload = {
+  name: string;
+  type: string;
+};
+
+export type SpecificationActionResponse = {
+  status: "error" | "success";
+  errors: Record<keyof CreateSpecificationPayload, string>;
+  data: SpecificationModel | null;
   message: string;
-  status: string;
-  id: number | null;
 };
 
 export const createSpecificationAction = async (
-  prevState: CreateSpecificationFields,
-  formData: FormData,
-): Promise<CreateSpecificationFields> => {
-  const validate = getFormActionState<CreateSpecificationFields>(
-    formData,
-    prevState,
-    createSpecificationSchema,
-  );
+  payload: CreateSpecificationPayload,
+): Promise<SpecificationActionResponse> => {
+  const validate = getValidatePayload(payload, createSpecificationSchema);
 
   if (validate.isValid) {
     const cookieStore = await cookies();
 
-    await fetchService
+    return fetchService
       .post<SpecificationModel>({
         url: "specifications/create",
-        payload: validate.payload,
+        payload: payload,
       })
-      .then((response) => {
-        validate.newState.message = response.message;
-        validate.newState.status = response.status;
-
+      .then(async (response) => {
         if (response.tokens) {
           updateTokensInAction(cookieStore, response.tokens);
         }
 
-        if (response.status === "success" && response.data) {
-          addItemCookieAction(cookieStore, response.data);
-
-          resetNewStateValues(validate.newState);
-          revalidatePath("/specifications");
+        if (response.status === "error" && response.errors) {
+          setErrorFromServer(response.errors, validate.errors);
         } else {
-          setNewStoreErrorFromServer(response.errors, validate.newState);
+          if (response.data) {
+            addItemCookieAction(cookieStore, response.data);
+          }
+          revalidatePath("/specifications");
         }
+
+        return {
+          ...response,
+          errors: validate.errors,
+        };
       });
-  } else {
-    validate.newState.message = "";
-    validate.newState.status = "";
   }
 
-  return validate.newState;
+  return { status: "error", message: "", data: null, errors: validate.errors };
 };
 
 export const updateSpecificationAction = async (
-  prevState: CreateSpecificationFields,
-  formData: FormData,
-): Promise<CreateSpecificationFields> => {
-  const validate = getFormActionState<CreateSpecificationFields>(
-    formData,
-    prevState,
-    createSpecificationSchema,
-  );
+  payload: CreateSpecificationPayload,
+  id: number,
+): Promise<SpecificationActionResponse> => {
+  const validate = getValidatePayload(payload, createSpecificationSchema);
 
-  const id = validate.newState.id;
-
-  if (validate.isValid && id) {
+  if (validate.isValid) {
     const cookieStore = await cookies();
 
-    await fetchService
+    return fetchService
       .patch<null>({
         url: `specifications/${id}`,
-        payload: validate.payload,
+        payload: payload,
       })
-      .then((response) => {
-        validate.newState.message = response.message;
-        validate.newState.status = response.status;
-
+      .then(async (response) => {
         if (response.tokens) {
           updateTokensInAction(cookieStore, response.tokens);
         }
 
-        if (response.status === "success") {
+        if (response.status === "error" && response.errors) {
+          setErrorFromServer(response.errors, validate.errors);
+        } else {
           updateItemCookieAction(cookieStore, id);
           revalidateTag("Specifications", "max");
-        } else {
-          setNewStoreErrorFromServer(response.errors, validate.newState);
         }
+
+        return {
+          ...response,
+          errors: validate.errors,
+        };
       });
-  } else {
-    validate.newState.message = "";
-    validate.newState.status = "";
   }
 
-  return validate.newState;
+  return { status: "error", message: "", data: null, errors: validate.errors };
 };
 
 export const createSpecification = async (payload: {
