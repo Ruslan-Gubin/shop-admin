@@ -216,6 +216,7 @@ export const ProductFormPhotos = (props: Props) => {
         </FormInstruction>
         <div className={styles.addUrlContainer}>
           <Input
+            name="add link from product photo"
             value={urlPhoto}
             onChange={(e) => setUrlPhoto(e.target.value)}
             variantSize="sm"
