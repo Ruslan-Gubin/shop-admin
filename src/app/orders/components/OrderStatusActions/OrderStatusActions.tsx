@@ -12,7 +12,6 @@ import { TextAreaResize } from "@/shared/ui/text-area-resize/TextAreaResize";
 import { notificationAdapter } from "@/stores/notification/adapter";
 import type { OrderMethodReceipt, OrderStatus } from "../../action";
 import styles from "./OrderStatusActions.module.css";
-import { no } from "zod/v4/locales";
 
 type Props = {
   isNeedTransfer: boolean;
