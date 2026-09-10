@@ -1,5 +1,4 @@
 .modalContent {
-  width: 576px;
   max-height: 90vh;
   display: flex;
   row-gap: 24px;

@@ -101,3 +101,56 @@ export const cancelOrderAction = async (id: number, rejected_reason: string) => 
       return response;
     });
 };
+
+export const updateShortageAction = async (
+  id: number,
+  payload: { id: number; quantity: number }[],
+) => {
+  const cookieStore = await cookies();
+
+  return await fetchService
+    .patch<null>({
+      url: `orders/shortage/${id}`,
+      payload: { items: payload },
+    })
+    .then((response) => {
+      if (response.tokens) {
+        updateTokensInAction(cookieStore, response.tokens);
+      }
+
+      if (
+        response.status === "error" &&
+        response.errors.length > 0 &&
+        typeof response?.errors[0]?.message === "string"
+      ) {
+        response.message = response.errors[0].message;
+      }
+
+      revalidatePath(`/orders/edit/${id}`);
+      revalidatePath("/orders");
+      revalidatePath("/");
+
+      return response;
+    });
+};
+
+export const forcedShortageAction = async (id: number) => {
+  const cookieStore = await cookies();
+
+  return await fetchService
+    .post<null>({
+      url: `orders/accept-shortage/${id}`,
+      payload: {},
+    })
+    .then((response) => {
+      if (response.tokens) {
+        updateTokensInAction(cookieStore, response.tokens);
+      }
+
+      revalidatePath(`/orders/edit/${id}`);
+      revalidatePath("/orders");
+      revalidatePath("/");
+
+      return response;
+    });
+};

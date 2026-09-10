@@ -1,16 +1,12 @@
 "use client";
 import Link from "next/link";
-import { useState, useTransition } from "react";
 import type { ResponseData } from "@/shared/types/response";
 import { Button } from "@/shared/ui/button-main/Button";
-import { Modal } from "@/shared/ui/modal/Modal";
-import { ModalBody } from "@/shared/ui/modal/modal-body/ModalBody";
-import { ModalContent } from "@/shared/ui/modal/modal-content/ModalContent";
-import { ModalFooter } from "@/shared/ui/modal/modal-footer/ModalFooter";
-import { ModalHeader } from "@/shared/ui/modal/modal-header/ModalHeader";
-import { TextAreaResize } from "@/shared/ui/text-area-resize/TextAreaResize";
-import { notificationAdapter } from "@/stores/notification/adapter";
-import type { OrderMethodReceipt, OrderStatus } from "../../action";
+import type { OrderMethodReceipt, OrderShortageStocks, OrderStatus } from "../../action";
+import type { OrderProductModel } from "../../edit/[id]/action";
+import { OrderCancel } from "../OrderCancel/OrderCancel";
+import { OrderShortage } from "../OrderShortage/OrderShortage";
+import { OrderSubmit } from "../OrderSubmit/OrderSubmit";
 import styles from "./OrderStatusActions.module.css";
 
 type Props = {
@@ -18,206 +14,67 @@ type Props = {
   status: OrderStatus;
   order_id: number;
   method_receipt: OrderMethodReceipt;
+  products: OrderProductModel[];
+  shortage_stocks: OrderShortageStocks[];
   changeOrderStatusAction: (order_id: number) => Promise<ResponseData<null>>;
   cancelOrderAction: (order_id: number, rejected_reason: string) => Promise<ResponseData<null>>;
+  updateShortageAction: (
+    order_id: number,
+    payload: { id: number; quantity: number }[],
+  ) => Promise<ResponseData<null>>;
+  forcedShortageAction: (id: number) => Promise<ResponseData<null>>;
 };
 
 export const OrderStatusActions = (props: Props) => {
-  const [disabled, transition] = useTransition();
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalConfirmOpen, setModalConfirmOpen] = useState<{ title: string; subtitle: string }>({
-    title: "",
-    subtitle: "",
-  });
-  const [rejectedReason, setRejectedReason] = useState("");
+  const submitStatuses =
+    props.status === "new" ||
+    props.status === "processing" ||
+    props.status === "ready" ||
+    props.status === "in_delivery";
 
-  const onSubmitCancelOrder = () => {
-    if (rejectedReason.length === 0) {
-      notificationAdapter.add("Причина отказа обязательна", "error");
-    }
-    if (props.order_id && rejectedReason.length > 0) {
-      transition(() => {
-        props
-          .cancelOrderAction(props.order_id, rejectedReason)
-          .then((response) => {
-            notificationAdapter.add(response.message, response.status);
-
-            if (response.status === "success") {
-              setRejectedReason("");
-            }
-          })
-          .finally(() => {
-            setIsModalOpen(false);
-          });
-      });
-    }
-  };
-
-  const handleCloseConfirmModal = () => setModalConfirmOpen({ title: "", subtitle: "" });
-
-  const handleSubmit = (status: OrderStatus) => {
-    if (
-      status === "new" ||
-      status === "processing" ||
-      status === "ready" ||
-      status === "in_delivery"
-    ) {
-      transition(() => {
-        props
-          .changeOrderStatusAction(props.order_id)
-          .then((response) => {
-            notificationAdapter.add(response.message, response.status);
-          })
-          .finally(() => {
-            handleCloseConfirmModal();
-          });
-      });
-    }
-  };
+  const cancelStatuses =
+    props.status !== "completed" &&
+    props.status !== "cancelled_new" &&
+    props.status !== "cancelled_ready" &&
+    props.status !== "cancelled_assembly" &&
+    props.status !== "cancelled_delivery" &&
+    props.status !== "cancelled_customer";
 
   return (
-    <>
-      <Modal active={modalConfirmOpen.title.length > 0} handleCloseAction={handleCloseConfirmModal}>
-        <ModalContent>
-          <ModalHeader title={modalConfirmOpen.title} onClose={handleCloseConfirmModal} />
-          <ModalBody>
-            <span className={styles.subtitle}>{modalConfirmOpen.subtitle}</span>
-          </ModalBody>
-          <ModalFooter
-            cancelAction={{
-              text: "Закрыть",
-              action: handleCloseConfirmModal,
-            }}
-            submitAction={{
-              text: "Подтвердить",
-              variantColor: "green",
-              disabled,
-              action: () => handleSubmit(props.status),
-            }}
+    <div className={styles.actionsRow}>
+      {cancelStatuses && (
+        <OrderCancel order_id={props.order_id} cancelOrderAction={props.cancelOrderAction} />
+      )}
+
+      {(props.status === "new" || props.status === "processing") && props.products.length > 0 && (
+        <OrderShortage
+          shortage_stocks={props.shortage_stocks}
+          order_id={props.order_id}
+          products={props.products}
+          updateShortageAction={props.updateShortageAction}
+          forcedShortageAction={props.forcedShortageAction}
+        />
+      )}
+
+      {!props.isNeedTransfer &&
+        submitStatuses &&
+        props.shortage_stocks.length === 0 &&
+        props.products.length > 0 && (
+          <OrderSubmit
+            order_id={props.order_id}
+            status={props.status}
+            method_receipt={props.method_receipt}
+            changeOrderStatusAction={props.changeOrderStatusAction}
           />
-        </ModalContent>
-      </Modal>
-      <Modal active={isModalOpen} handleCloseAction={() => setIsModalOpen(false)}>
-        <ModalContent>
-          <ModalHeader title="Отмена заказа" onClose={() => setIsModalOpen(false)} />
-          <ModalBody>
-            <TextAreaResize
-              maxHeight={99}
-              name="rejected_reason"
-              label="Укажите причину отмены"
-              value={rejectedReason}
-              onChange={setRejectedReason}
-            />
-          </ModalBody>
-          <ModalFooter
-            cancelAction={{
-              text: "Закрыть",
-              action: () => setIsModalOpen(false),
-            }}
-            submitAction={{
-              text: "Подтвердить",
-              variantColor: "green",
-              disabled,
-              action: onSubmitCancelOrder,
-            }}
-          />
-        </ModalContent>
-      </Modal>
-      <div className={styles.actionsRow}>
-        {props.status !== "completed" &&
-          props.status !== "cancelled_new" &&
-          props.status !== "cancelled_ready" &&
-          props.status !== "cancelled_assembly" &&
-          props.status !== "cancelled_delivery" &&
-          props.status !== "cancelled_customer" && (
-            <Button
-              variant="outline"
-              variantColor="error"
-              size="md"
-              onClick={() => setIsModalOpen(true)}
-            >
-              Отменить заказ
-            </Button>
-          )}
-
-        {props.status === "new" && (
-          <>
-            {props.isNeedTransfer && (
-              <Link href={`/transfer/stock-to-stock/${props.order_id}`}>
-                <Button variant="solid" variantColor="green" size="md">
-                  Создать перемещение
-                </Button>
-              </Link>
-            )}
-
-            {!props.isNeedTransfer && (
-              <Button
-                onClick={() =>
-                  setModalConfirmOpen({
-                    title: "Начать сборку?",
-                    subtitle: "Заказ будет передан в сборку. Статус изменится на «В сборке».",
-                  })
-                }
-                variant="solid"
-                variantColor="green"
-                size="md"
-              >
-                Начать сборку
-              </Button>
-            )}
-          </>
         )}
 
-        {props.status === "processing" && (
-          <Button
-            onClick={() =>
-              setModalConfirmOpen({
-                title: "Завершить сборку?",
-                subtitle: `Вы подтверждаете, что все перемещения доставлены и товары готовы к ${props.method_receipt === "courier" ? "отправке" : "выдаче"}?`,
-              })
-            }
-            variant="solid"
-            variantColor="green"
-            size="md"
-          >
-            Завершить сборку
+      {props.status === "new" && props.isNeedTransfer && props.shortage_stocks.length === 0 && (
+        <Link href={`/transfer/stock-to-stock/${props.order_id}`}>
+          <Button variant="solid" variantColor="green" size="md">
+            Создать перемещение
           </Button>
-        )}
-        {props.status === "ready" && (
-          <Button
-            onClick={() =>
-              setModalConfirmOpen({
-                title: props.method_receipt === "courier" ? "Передать курьеру" : "Завершить выдачу",
-                subtitle:
-                  props.method_receipt === "courier"
-                    ? "Заказ будет передан в доставку. Статус изменится на «В доставке»."
-                    : "Подтвердите, что клиент забрал товары. Статус заказа изменится на завершен.",
-              })
-            }
-            variant="solid"
-            variantColor="green"
-            size="md"
-          >
-            {props.method_receipt === "courier" ? "Передать курьеру" : "Завершить"}
-          </Button>
-        )}
-        {props.status === "in_delivery" && (
-          <Button
-            onClick={() =>
-              setModalConfirmOpen({
-                title: "Завершить доставку?",
-                subtitle:
-                  "Подтвердите, что клиенту доставили товар. Статус заказа изменится на завершен. ",
-              })
-            }
-            variant="solid"
-            variantColor="green"
-            size="md"
-          >
-            Доставлен
-          </Button>
-        )}
-      </div>
-    </>
+        </Link>
+      )}
+    </div>
   );
 };

@@ -6,7 +6,13 @@ import { TransfersList } from "@/widgets/transfers-list/TransfersList";
 import { OrderInfo } from "../../components/OrderInfo/OrderInfo";
 import { OrderProductsTable } from "../../components/OrderProductsTable/OrderProductsTable";
 import { OrderStatusActions } from "../../components/OrderStatusActions/OrderStatusActions";
-import { cancelOrderAction, changeOrderStatusAction, fetchOrderEditPage } from "./action";
+import {
+  cancelOrderAction,
+  changeOrderStatusAction,
+  fetchOrderEditPage,
+  forcedShortageAction,
+  updateShortageAction,
+} from "./action";
 
 export default async function OrderEditPage(req: { params: Promise<{ id: string }> }) {
   const { id } = await req.params;
@@ -25,7 +31,7 @@ export default async function OrderEditPage(req: { params: Promise<{ id: string 
           product.reservations.some((res) => res.warehouse_id !== order?.warehouse?.id),
         )
       : false;
-
+  console.log(products.length === 0);
   return (
     <section className="page-wrapper">
       <PageHeader title={title} fallbackHref="/orders" />
@@ -42,9 +48,18 @@ export default async function OrderEditPage(req: { params: Promise<{ id: string 
       {deliveryData.status === "error" && deliveryData.message && (
         <ErrorAlert message={deliveryData.message} />
       )}
+
       {order && <OrderInfo order={order} />}
+      {products.length === 0 && (
+        <ErrorAlert
+          message={
+            "В заказе нет товаров. Список товаров был очищен из-за отсутствия остатков на складах. В такой заказ невозможно добавить товары, поэтому его дальнейшее продвижение заблокировано. Единственное доступное действие — отмена заказа, которую может выполнить как менеджер, так и сам клиент."
+          }
+        />
+      )}
       {products.length > 0 && order && (
         <OrderProductsTable
+          shortage_stocks={order.shortage_stocks}
           products={products}
           baseId={baseWarehouseId}
           in_delivery={delivery.length > 0 && order.status === "in_delivery"}
@@ -81,12 +96,16 @@ export default async function OrderEditPage(req: { params: Promise<{ id: string 
 
       {order && products && (
         <OrderStatusActions
+          shortage_stocks={order.shortage_stocks || []}
+          products={products}
           isNeedTransfer={isNeedTransfer}
           status={order.status}
           order_id={order.id}
           method_receipt={order.method_receipt}
           changeOrderStatusAction={changeOrderStatusAction}
           cancelOrderAction={cancelOrderAction}
+          updateShortageAction={updateShortageAction}
+          forcedShortageAction={forcedShortageAction}
         />
       )}
     </section>

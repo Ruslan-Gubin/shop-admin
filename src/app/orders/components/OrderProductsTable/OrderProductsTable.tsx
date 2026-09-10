@@ -1,5 +1,6 @@
 import Link from "next/link";
-import type { OrderStatus } from "../../action";
+import { ErrorAlert } from "@/shared/ui/error-alert/ErrorAlert";
+import type { OrderShortageStocks, OrderStatus } from "../../action";
 import type { OrderProductModel, OrderReservation } from "../../edit/[id]/action";
 import styles from "./OrderProductsTable.module.css";
 
@@ -10,6 +11,7 @@ type Props = {
   hasAnyTransfers: boolean;
   method_receipt: "courier" | "pickup";
   order_status: OrderStatus;
+  shortage_stocks: OrderShortageStocks[];
 };
 
 export const OrderProductsTable = (props: Props) => {
@@ -69,47 +71,64 @@ export const OrderProductsTable = (props: Props) => {
     return { text, className };
   };
 
+  const showStockValue = (product_id: number, quantity: number) => {
+    let value = String(quantity);
+    const findShortageStocks = props.shortage_stocks.find((el) => el.id === product_id);
+
+    if (findShortageStocks) {
+      value = `${quantity} -> ${findShortageStocks.quantity}`;
+    }
+
+    return value;
+  };
+
   return (
-    <table className={styles.table}>
-      <thead className={styles.header}>
-        <tr className={styles.headerLine}>
-          <th className={styles.headerCell}>
-            <span className={styles.headerCellText}>Название</span>
-          </th>
-          <th className={styles.headerCell}>
-            <span className={styles.headerCellText}>Наличие</span>
-          </th>
-          <th className={styles.headerCell}>
-            <span className={styles.headerCellText}>Штрих-код</span>
-          </th>
-          <th className={styles.headerCell}>
-            <span className={styles.headerCellText}>Количество</span>
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        {props.products.map((product) => (
-          <tr key={product.id} className={styles.dataRow}>
-            <td className={styles.dataCell}>
-              <Link href={`/product/info/${product.product_id}`} className={styles.link}>
-                {product.name}
-              </Link>
-            </td>
-            <td className={styles.dataCell}>
-              <span
-                className={
-                  getAvailabilityInfo(product.quantity, product.reservations, props.baseId)
-                    .className
-                }
-              >
-                {getAvailabilityInfo(product.quantity, product.reservations, props.baseId).text}
-              </span>
-            </td>
-            <td className={styles.dataCell}>{product.code || "---"}</td>
-            <td className={styles.dataCell}>{product.quantity}</td>
+    <>
+      {props.shortage_stocks.length > 0 && (
+        <ErrorAlert message="Запрос на изменение количества товара. Клиент должен подтвердить или отменить изменение. До подтверждения заказ невозможно перевести на следующий этап. Администратор может принудительно применить изменения — рекомендуется связаться с клиентом перед использованием этой функции." />
+      )}
+
+      <table className={styles.table}>
+        <thead className={styles.header}>
+          <tr className={styles.headerLine}>
+            <th className={styles.headerCell}>
+              <span className={styles.headerCellText}>Название</span>
+            </th>
+            <th className={styles.headerCell}>
+              <span className={styles.headerCellText}>Наличие</span>
+            </th>
+            <th className={styles.headerCell}>
+              <span className={styles.headerCellText}>Штрих-код</span>
+            </th>
+            <th className={styles.headerCell}>
+              <span className={styles.headerCellText}>Количество</span>
+            </th>
           </tr>
-        ))}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {props.products.map((product) => (
+            <tr key={product.id} className={styles.dataRow}>
+              <td className={styles.dataCell}>
+                <Link href={`/product/info/${product.product_id}`} className={styles.link}>
+                  {product.name}
+                </Link>
+              </td>
+              <td className={styles.dataCell}>
+                <span
+                  className={
+                    getAvailabilityInfo(product.quantity, product.reservations, props.baseId)
+                      .className
+                  }
+                >
+                  {getAvailabilityInfo(product.quantity, product.reservations, props.baseId).text}
+                </span>
+              </td>
+              <td className={styles.dataCell}>{product.code || "---"}</td>
+              <td className={styles.dataCell}>{showStockValue(product.id, product.quantity)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </>
   );
 };

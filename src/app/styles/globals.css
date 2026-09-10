@@ -173,3 +173,9 @@ h3 {
   align-items: center;
   justify-content: center;
 }
+
+.modal-subtitle-text {
+  font-size: 14px;
+  color: #696969;
+  line-height: 20px;
+}

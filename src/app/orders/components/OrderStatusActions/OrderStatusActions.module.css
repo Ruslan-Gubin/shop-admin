@@ -4,9 +4,3 @@
   gap: var(--padding-content-block);
   justify-content: flex-end;
 }
-
-.subtitle {
-  font-size: 14px;
-  color: #696969;
-  font-weight: 500;
-}
