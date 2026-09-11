@@ -23,6 +23,7 @@ export type OrderMethodReceipt = "courier" | "pickup";
 export type OrderShortageStocks = {
   id: number;
   quantity: number;
+  warehouse_id: number;
 };
 
 export type OrderModel = {

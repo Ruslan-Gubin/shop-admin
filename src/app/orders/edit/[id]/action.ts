@@ -2,6 +2,7 @@
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import type { TransferModel } from "@/app/transfer/action";
+import type { FetchWarehousesResponse } from "@/app/warehouses/action";
 import { fetchService } from "@/shared/fetch-api";
 import { updateTokensInAction } from "@/shared/helpers/updateCookieAction";
 import type { OrderModel } from "../../action";
@@ -36,7 +37,7 @@ export type OrderProductModel = {
 
 export const fetchOrderEditPage = async (id: string) => {
   return await fetchService.fetchChain<
-    [OrderProductModel[], OrderModel, TransferModel[], TransferModel[]]
+    [OrderProductModel[], OrderModel, TransferModel[], TransferModel[], FetchWarehousesResponse]
   >([
     {
       url: `order-product/order/${id}`,
@@ -57,6 +58,13 @@ export const fetchOrderEditPage = async (id: string) => {
       url: `transfers/delivery-order/${id}`,
       tags: [`DeliveryOrder_${id}`],
       revalidate: 30,
+    },
+    {
+      url: "warehouses",
+      params: {
+        page: "1",
+        limit: "1000",
+      },
     },
   ]);
 };
@@ -104,7 +112,7 @@ export const cancelOrderAction = async (id: number, rejected_reason: string) => 
 
 export const updateShortageAction = async (
   id: number,
-  payload: { id: number; quantity: number }[],
+  payload: { id: number; quantity: number; warehouse_id: number }[],
 ) => {
   const cookieStore = await cookies();
 

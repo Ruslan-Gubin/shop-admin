@@ -1,4 +1,5 @@
 import { useState, useTransition } from "react";
+import type { WarehouseModel } from "@/app/warehouses/action";
 import type { ResponseData } from "@/shared/types/response";
 import { Button } from "@/shared/ui/button-main/Button";
 import { Modal } from "@/shared/ui/modal/Modal";
@@ -14,40 +15,65 @@ import styles from "./OrderShortage.module.css";
 type Props = {
   updateShortageAction: (
     order_id: number,
-    payload: { id: number; quantity: number }[],
+    payload: { id: number; quantity: number; warehouse_id: number }[],
   ) => Promise<ResponseData<null>>;
   order_id: number;
   products: OrderProductModel[];
   shortage_stocks: OrderShortageStocks[];
+  warehouses: WarehouseModel[];
   forcedShortageAction: (id: number) => Promise<ResponseData<null>>;
 };
+
+type ValueItem = { value: string; warehouse_id: number; name: string; max: number };
 
 export const OrderShortage = (props: Props) => {
   const [disabled, transition] = useTransition();
   const [forcedModalOpen, setForcedModalOpen] = useState<boolean>(false);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  const [values, setValues] = useState<Record<string, string>>({});
+  const [values, setValues] = useState<Record<string, ValueItem[]>>({});
 
   const closeModal = () => setIsModalOpen(false);
 
   const handleOpenModal = () => {
-    const updateValues: Record<string, string> = {};
+    const updateValues: Record<string, ValueItem[]> = {};
 
-    const hasShortageStocks = props.shortage_stocks.length > 0;
+    const warehouseMap = new Map(props.warehouses.map((el) => [el.id, el.name]));
 
     for (let i = 0; i < props.products.length; i++) {
       const product = props.products[i];
+      const reservations = product.reservations;
 
-      let value = String(product.quantity);
+      updateValues[product.id] = [];
 
-      if (hasShortageStocks) {
-        const findShortageStocksItem = props.shortage_stocks.find((el) => el.id === product.id);
-        if (findShortageStocksItem) {
-          value = String(findShortageStocksItem.quantity);
+      for (let i = 0; i < reservations.length; i++) {
+        const reservation = reservations[i];
+
+        let value =
+          typeof reservation.quantity === "number" && !Number.isNaN(reservation.quantity)
+            ? String(reservation.quantity)
+            : "";
+
+        const shortageStock = props.shortage_stocks.find(
+          (el) => el.warehouse_id === reservation.warehouse_id,
+        );
+
+        if (
+          shortageStock &&
+          typeof shortageStock.quantity === "number" &&
+          !Number.isNaN(shortageStock.quantity)
+        ) {
+          value = String(shortageStock.quantity);
         }
-      }
 
-      updateValues[String(product.id)] = value;
+        const name = warehouseMap.get(reservation.warehouse_id);
+
+        updateValues[product.id].push({
+          name: name && typeof name === "string" ? name : "",
+          warehouse_id: reservation.warehouse_id,
+          value,
+          max: reservation.quantity,
+        });
+      }
     }
 
     setValues(updateValues);
@@ -55,14 +81,27 @@ export const OrderShortage = (props: Props) => {
   };
 
   const handleSubmit = () => {
-    const payload: { id: number; quantity: number }[] = [];
+    const payload: { id: number; quantity: number; warehouse_id: number }[] = [];
 
     for (const key in values) {
       const id = Number(key);
-      const quantity = Number(values[key]);
 
-      if (!Number.isNaN(id) && id > 0 && !Number.isNaN(quantity)) {
-        payload.push({ id, quantity });
+      if (Array.isArray(values[key]) && values[key].length > 0) {
+        for (let i = 0; i < values[key].length; i++) {
+          const item = values[key][i];
+          const quantity = Number(item.value);
+          const warehouse_id = Number(item.warehouse_id);
+
+          if (
+            !Number.isNaN(id) &&
+            id > 0 &&
+            !Number.isNaN(quantity) &&
+            !Number.isNaN(warehouse_id) &&
+            quantity !== item.max
+          ) {
+            payload.push({ id, quantity, warehouse_id });
+          }
+        }
       }
     }
 
@@ -82,7 +121,7 @@ export const OrderShortage = (props: Props) => {
     }
   };
 
-  const handleBlurInput = (value: string, key: number, maxStocks: number) => {
+  const handleBlurInput = (value: string, key: number, maxStocks: number, warehouse_id: number) => {
     const valueNum = Number(value);
     let changeValue: string = "";
 
@@ -101,19 +140,26 @@ export const OrderShortage = (props: Props) => {
     }
 
     if (changeValue.length > 0) {
-      setValues((prev) => ({ ...prev, [key]: changeValue }));
+      setValues((prev) => ({
+        ...prev,
+        [key]: prev[key].map((el) =>
+          el.warehouse_id === warehouse_id ? { ...el, value: changeValue } : el,
+        ),
+      }));
     }
   };
 
-  const handleChangeQuantity = (value: string, key: number) => {
-    setValues((prev) => ({ ...prev, [key]: value }));
+  const handleChangeQuantity = (value: string, key: number, warehouse_id: number) => {
+    setValues((prev) => ({
+      ...prev,
+      [key]: prev[key].map((el) => (el.warehouse_id === warehouse_id ? { ...el, value } : el)),
+    }));
   };
 
   const handleCloseForcedModal = () => setForcedModalOpen(false);
 
   const handleForcedSubmit = () => {
     transition(() => {
-      console.log("forced");
       props
         .forcedShortageAction(props.order_id)
         .then((response) => {
@@ -125,6 +171,7 @@ export const OrderShortage = (props: Props) => {
     });
   };
 
+  // console.log(values);
   return (
     <>
       <Modal active={forcedModalOpen} handleCloseAction={handleCloseForcedModal}>
@@ -165,7 +212,10 @@ export const OrderShortage = (props: Props) => {
                     <span className={styles.headerCellText}>Название</span>
                   </th>
                   <th className={styles.headerCell}>
-                    <span className={styles.headerCellText}>Необходимо</span>
+                    <span className={styles.headerCellText}>Надо</span>
+                  </th>
+                  <th className={styles.headerCell}>
+                    <span className={styles.headerCellText}>Склад</span>
                   </th>
                   <th className={styles.headerCell}>
                     <span className={styles.headerCellText}>Остаток</span>
@@ -179,16 +229,44 @@ export const OrderShortage = (props: Props) => {
                     <td className={styles.dataCell}>
                       <span>{stock.quantity}</span>
                     </td>
-                    <td className={styles.dataCell}>
-                      <input
-                        onBlur={(e) => handleBlurInput(e.target.value, stock.id, stock.quantity)}
-                        onChange={(e) => handleChangeQuantity(e.target.value, stock.id)}
-                        value={values[stock.id] || ""}
-                        className={styles.cellInput}
-                        type="number"
-                        min={0}
-                        max={stock.quantity}
-                      />
+                    <td className={styles.dataCellStocks}>
+                      <ul>
+                        {values[stock.id]?.length > 0 &&
+                          values[stock.id].map((item) => (
+                            <li
+                              key={`${item?.name}_${item?.warehouse_id}_${stock.id}`}
+                              className={styles.stockItem}
+                            >
+                              <div className={styles.stockItemCell}>
+                                <span className={styles.stockName}>{item?.name}</span>
+                              </div>
+                              <div className={styles.stockItemCellInput}>
+                                <input
+                                  onBlur={(e) =>
+                                    handleBlurInput(
+                                      e.target.value,
+                                      stock.id,
+                                      item.max,
+                                      item.warehouse_id,
+                                    )
+                                  }
+                                  onChange={(e) =>
+                                    handleChangeQuantity(
+                                      e.target.value,
+                                      stock.id,
+                                      item.warehouse_id,
+                                    )
+                                  }
+                                  value={item?.value || ""}
+                                  className={styles.cellInput}
+                                  type="number"
+                                  min={0}
+                                  max={item.max}
+                                />
+                              </div>
+                            </li>
+                          ))}
+                      </ul>
                     </td>
                   </tr>
                 ))}

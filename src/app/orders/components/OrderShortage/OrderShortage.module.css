@@ -20,12 +20,12 @@
   position: sticky;
   top: 0;
   z-index: 1;
-  min-width: 600px;
+  min-width: 700px;
 }
 
 .headerLine {
   display: grid;
-  grid-template-columns: 1fr 110px 110px;
+  grid-template-columns: 1fr 90px 150px 100px;
   min-height: 50px;
   background-color: #f5f7f6;
 }
@@ -56,7 +56,7 @@
 
 .dataCell {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   border-right: 1px solid lightgray;
   overflow: hidden;
   padding-inline: 16px 5px;
@@ -72,15 +72,41 @@
   }
 }
 
+.dataCellStocks {
+  overflow: hidden;
+  color: #333333;
+  font-size: 14px;
+  background-color: white;
+}
+
+.stockItem {
+  display: grid;
+  grid-template-columns: 149px 100px;
+  align-items: center;
+  height: 50px;
+
+  &:nth-last-child(1) {
+    border-bottom: 1px solid lightgray;
+  }
+}
+
 .dataRow {
   display: grid;
-  grid-template-columns: 1fr 110px 110px;
+  grid-template-columns: 1fr 90px 250px;
   min-height: 50px;
-  min-width: 600px;
+  min-width: 700px;
 
   &:nth-last-child(1) {
     .dataCell {
       border-bottom: none;
+    }
+    .dataCellStocks {
+      border-bottom: none;
+      .stockItem {
+        &:nth-last-child(1) {
+          border-bottom: none;
+        }
+      }
     }
   }
 
@@ -89,7 +115,29 @@
       transition: background-color 0.1s linear;
       background-color: #f5fafe;
     }
+    .dataCellStocks {
+      transition: background-color 0.1s linear;
+      background-color: #f5fafe;
+    }
   }
+}
+
+.productName {
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.productNameEmpty {
+  display: block;
+}
+
+.warehouseName {
+  color: #666;
+  font-size: 13px;
+  white-space: nowrap;
 }
 
 .link {
@@ -111,6 +159,7 @@
   padding-inline: 4px;
   cursor: pointer;
   padding-block: 4px;
+  height: 24px;
 
   &:focus {
     cursor: default;
@@ -121,4 +170,23 @@
 .footer {
   display: flex;
   justify-content: flex-end;
+}
+
+.stockName {
+  padding-right: 5px;
+  text-wrap: nowrap;
+}
+
+.stockItemCell {
+  padding-inline: 16px 5px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+.stockItemCellInput {
+  display: flex;
+  padding-inline: 16px 5px;
+  border-left: 1px solid lightgray;
+  height: 100%;
+  align-items: center;
 }

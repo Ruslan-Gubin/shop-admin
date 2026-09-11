@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import type { WarehouseModel } from "@/app/warehouses/action";
 import type { ResponseData } from "@/shared/types/response";
 import { Button } from "@/shared/ui/button-main/Button";
 import type { OrderMethodReceipt, OrderShortageStocks, OrderStatus } from "../../action";
@@ -16,11 +17,12 @@ type Props = {
   method_receipt: OrderMethodReceipt;
   products: OrderProductModel[];
   shortage_stocks: OrderShortageStocks[];
+  warehouses: WarehouseModel[];
   changeOrderStatusAction: (order_id: number) => Promise<ResponseData<null>>;
   cancelOrderAction: (order_id: number, rejected_reason: string) => Promise<ResponseData<null>>;
   updateShortageAction: (
     order_id: number,
-    payload: { id: number; quantity: number }[],
+    payload: { id: number; quantity: number; warehouse_id: number }[],
   ) => Promise<ResponseData<null>>;
   forcedShortageAction: (id: number) => Promise<ResponseData<null>>;
 };
@@ -48,6 +50,7 @@ export const OrderStatusActions = (props: Props) => {
 
       {(props.status === "new" || props.status === "processing") && props.products.length > 0 && (
         <OrderShortage
+          warehouses={props.warehouses}
           shortage_stocks={props.shortage_stocks}
           order_id={props.order_id}
           products={props.products}

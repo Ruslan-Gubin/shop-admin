@@ -16,9 +16,11 @@ import {
 
 export default async function OrderEditPage(req: { params: Promise<{ id: string }> }) {
   const { id } = await req.params;
-  const [productsData, orderData, transfersData, deliveryData] = await fetchOrderEditPage(id);
+  const [productsData, orderData, transfersData, deliveryData, warehousesData] =
+    await fetchOrderEditPage(id);
 
   const products = productsData.data || [];
+  const warehouses = warehousesData.data?.warehouses || [];
   const order = orderData.data;
   const transfers = transfersData.data || [];
   const title = order ? `Заказ # ${order.order_number}` : "Заказ";
@@ -31,11 +33,11 @@ export default async function OrderEditPage(req: { params: Promise<{ id: string 
           product.reservations.some((res) => res.warehouse_id !== order?.warehouse?.id),
         )
       : false;
-  console.log(products.length === 0);
+
   return (
     <section className="page-wrapper">
       <PageHeader title={title} fallbackHref="/orders" />
-      {deliveryData?.tokens && <UpdateToken tokens={deliveryData.tokens} />}
+      {warehousesData?.tokens && <UpdateToken tokens={warehousesData.tokens} />}
       {productsData.status === "error" && productsData.message && (
         <ErrorAlert message={productsData.message} />
       )}
@@ -48,13 +50,14 @@ export default async function OrderEditPage(req: { params: Promise<{ id: string 
       {deliveryData.status === "error" && deliveryData.message && (
         <ErrorAlert message={deliveryData.message} />
       )}
+      {warehousesData.status === "error" && warehousesData.message && (
+        <ErrorAlert message={warehousesData.message} />
+      )}
 
       {order && <OrderInfo order={order} />}
       {products.length === 0 && (
         <ErrorAlert
-          message={
-            "В заказе нет товаров. Список товаров был очищен из-за отсутствия остатков на складах. В такой заказ невозможно добавить товары, поэтому его дальнейшее продвижение заблокировано. Единственное доступное действие — отмена заказа, которую может выполнить как менеджер, так и сам клиент."
-          }
+          message={`В заказе нет товаров. Список товаров был очищен из-за отсутствия остатков на складах. В такой заказ невозможно добавить товары, поэтому его дальнейшее продвижение заблокировано. ${order?.status.startsWith("cancelled") ? "" : "Единственное доступное действие — отмена заказа, которую может выполнить как менеджер, так и сам клиент."}`}
         />
       )}
       {products.length > 0 && order && (
@@ -96,6 +99,7 @@ export default async function OrderEditPage(req: { params: Promise<{ id: string 
 
       {order && products && (
         <OrderStatusActions
+          warehouses={warehouses}
           shortage_stocks={order.shortage_stocks || []}
           products={products}
           isNeedTransfer={isNeedTransfer}
