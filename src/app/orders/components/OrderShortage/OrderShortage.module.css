@@ -56,15 +56,21 @@
 
 .dataCell {
   display: flex;
-  align-items: flex-start;
   border-right: 1px solid lightgray;
   overflow: hidden;
   padding-inline: 16px 5px;
-  padding-block: 5px;
+  padding-block: 18px 5px;
   color: #333333;
   font-size: 14px;
   background-color: white;
   border-bottom: 1px solid lightgray;
+
+  & p {
+    max-width: 100%;
+    text-wrap: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+  }
 
   &:nth-last-child(1) {
     border-right: none;

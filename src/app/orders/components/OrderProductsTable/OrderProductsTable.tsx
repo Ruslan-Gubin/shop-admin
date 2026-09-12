@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ErrorAlert } from "@/shared/ui/error-alert/ErrorAlert";
-import type { OrderShortageStocks, OrderStatus } from "../../action";
+import type { OrderStatus } from "../../action";
 import type { OrderProductModel, OrderReservation } from "../../edit/[id]/action";
 import styles from "./OrderProductsTable.module.css";
 
@@ -11,7 +11,7 @@ type Props = {
   hasAnyTransfers: boolean;
   method_receipt: "courier" | "pickup";
   order_status: OrderStatus;
-  shortage_stocks: OrderShortageStocks[];
+  isHasShortageStocksProblem: boolean;
 };
 
 export const OrderProductsTable = (props: Props) => {
@@ -71,12 +71,31 @@ export const OrderProductsTable = (props: Props) => {
     return { text, className };
   };
 
-  const showStockValue = (product_id: number, quantity: number) => {
+  const showStockValue = (
+    quantity: number,
+    shortage_stocks: OrderReservation[],
+    reservations: OrderReservation[],
+  ) => {
     let value = String(quantity);
-    const findShortageStocks = props.shortage_stocks.find((el) => el.id === product_id);
 
-    if (findShortageStocks) {
-      value = `${quantity} -> ${findShortageStocks.quantity}`;
+    if (Array.isArray(shortage_stocks) && shortage_stocks.length > 0) {
+      let diff = 0;
+
+      for (let i = 0; i < shortage_stocks.length; i++) {
+        const reservationItem = reservations.find(
+          (el) =>
+            el.stock_id === shortage_stocks[i].stock_id &&
+            el.warehouse_id === shortage_stocks[i].warehouse_id,
+        );
+
+        if (reservationItem) {
+          diff += reservationItem.quantity - shortage_stocks[i].quantity;
+        }
+      }
+
+      if (diff > 0) {
+        value = `${quantity} -> ${quantity - diff}`;
+      }
     }
 
     return value;
@@ -84,7 +103,7 @@ export const OrderProductsTable = (props: Props) => {
 
   return (
     <>
-      {props.shortage_stocks.length > 0 && (
+      {props.isHasShortageStocksProblem && (
         <ErrorAlert message="Запрос на изменение количества товара. Клиент должен подтвердить или отменить изменение. До подтверждения заказ невозможно перевести на следующий этап. Администратор может принудительно применить изменения — рекомендуется связаться с клиентом перед использованием этой функции." />
       )}
 
@@ -124,7 +143,9 @@ export const OrderProductsTable = (props: Props) => {
                 </span>
               </td>
               <td className={styles.dataCell}>{product.code || "---"}</td>
-              <td className={styles.dataCell}>{showStockValue(product.id, product.quantity)}</td>
+              <td className={styles.dataCell}>
+                {showStockValue(product.quantity, product.shortage_stocks, product.reservations)}
+              </td>
             </tr>
           ))}
         </tbody>

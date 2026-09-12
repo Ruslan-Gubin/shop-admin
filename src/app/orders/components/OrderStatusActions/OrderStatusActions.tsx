@@ -3,7 +3,7 @@ import Link from "next/link";
 import type { WarehouseModel } from "@/app/warehouses/action";
 import type { ResponseData } from "@/shared/types/response";
 import { Button } from "@/shared/ui/button-main/Button";
-import type { OrderMethodReceipt, OrderShortageStocks, OrderStatus } from "../../action";
+import type { OrderMethodReceipt, OrderStatus } from "../../action";
 import type { OrderProductModel } from "../../edit/[id]/action";
 import { OrderCancel } from "../OrderCancel/OrderCancel";
 import { OrderShortage } from "../OrderShortage/OrderShortage";
@@ -16,8 +16,8 @@ type Props = {
   order_id: number;
   method_receipt: OrderMethodReceipt;
   products: OrderProductModel[];
-  shortage_stocks: OrderShortageStocks[];
   warehouses: WarehouseModel[];
+  isHasShortageStocksProblem: boolean;
   changeOrderStatusAction: (order_id: number) => Promise<ResponseData<null>>;
   cancelOrderAction: (order_id: number, rejected_reason: string) => Promise<ResponseData<null>>;
   updateShortageAction: (
@@ -50,8 +50,8 @@ export const OrderStatusActions = (props: Props) => {
 
       {(props.status === "new" || props.status === "processing") && props.products.length > 0 && (
         <OrderShortage
+          isHasShortageStocksProblem={props.isHasShortageStocksProblem}
           warehouses={props.warehouses}
-          shortage_stocks={props.shortage_stocks}
           order_id={props.order_id}
           products={props.products}
           updateShortageAction={props.updateShortageAction}
@@ -61,7 +61,7 @@ export const OrderStatusActions = (props: Props) => {
 
       {!props.isNeedTransfer &&
         submitStatuses &&
-        props.shortage_stocks.length === 0 &&
+        !props.isHasShortageStocksProblem &&
         props.products.length > 0 && (
           <OrderSubmit
             order_id={props.order_id}
@@ -71,7 +71,7 @@ export const OrderStatusActions = (props: Props) => {
           />
         )}
 
-      {props.status === "new" && props.isNeedTransfer && props.shortage_stocks.length === 0 && (
+      {props.status === "new" && props.isNeedTransfer && !props.isHasShortageStocksProblem && (
         <Link href={`/transfer/stock-to-stock/${props.order_id}`}>
           <Button variant="solid" variantColor="green" size="md">
             Создать перемещение

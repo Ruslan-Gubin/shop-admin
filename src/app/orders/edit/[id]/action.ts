@@ -33,6 +33,7 @@ export type OrderProductModel = {
   updated_at: string;
   reservations: OrderReservation[];
   transfers: OrderReservation[];
+  shortage_stocks: OrderReservation[];
 };
 
 export const fetchOrderEditPage = async (id: string) => {

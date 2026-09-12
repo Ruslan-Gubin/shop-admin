@@ -34,6 +34,9 @@ export default async function OrderEditPage(req: { params: Promise<{ id: string 
         )
       : false;
 
+  const isHasShortageStocksProblem =
+    products.length > 0 ? products.some((el) => el.shortage_stocks.length > 0) : false;
+
   return (
     <section className="page-wrapper">
       <PageHeader title={title} fallbackHref="/orders" />
@@ -62,7 +65,7 @@ export default async function OrderEditPage(req: { params: Promise<{ id: string 
       )}
       {products.length > 0 && order && (
         <OrderProductsTable
-          shortage_stocks={order.shortage_stocks}
+          isHasShortageStocksProblem={isHasShortageStocksProblem}
           products={products}
           baseId={baseWarehouseId}
           in_delivery={delivery.length > 0 && order.status === "in_delivery"}
@@ -99,8 +102,8 @@ export default async function OrderEditPage(req: { params: Promise<{ id: string 
 
       {order && products && (
         <OrderStatusActions
+          isHasShortageStocksProblem={isHasShortageStocksProblem}
           warehouses={warehouses}
-          shortage_stocks={order.shortage_stocks || []}
           products={products}
           isNeedTransfer={isNeedTransfer}
           status={order.status}

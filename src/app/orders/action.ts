@@ -20,12 +20,6 @@ export type OrderStatus =
 export type OrderPaymentMethod = "cash" | "card";
 export type OrderMethodReceipt = "courier" | "pickup";
 
-export type OrderShortageStocks = {
-  id: number;
-  quantity: number;
-  warehouse_id: number;
-};
-
 export type OrderModel = {
   status: OrderStatus;
   payment_method: OrderPaymentMethod;
@@ -48,7 +42,6 @@ export type OrderModel = {
   subtotal: number;
   total: number | string;
   warehouse: WarehouseModel | null;
-  shortage_stocks: OrderShortageStocks[];
   created_at: string;
   updated_at: string | null;
 };

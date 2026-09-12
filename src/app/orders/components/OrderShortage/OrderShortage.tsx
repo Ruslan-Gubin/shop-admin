@@ -8,7 +8,6 @@ import { ModalContent } from "@/shared/ui/modal/modal-content/ModalContent";
 import { ModalFooter } from "@/shared/ui/modal/modal-footer/ModalFooter";
 import { ModalHeader } from "@/shared/ui/modal/modal-header/ModalHeader";
 import { notificationAdapter } from "@/stores/notification/adapter";
-import type { OrderShortageStocks } from "../../action";
 import type { OrderProductModel } from "../../edit/[id]/action";
 import styles from "./OrderShortage.module.css";
 
@@ -19,12 +18,18 @@ type Props = {
   ) => Promise<ResponseData<null>>;
   order_id: number;
   products: OrderProductModel[];
-  shortage_stocks: OrderShortageStocks[];
   warehouses: WarehouseModel[];
   forcedShortageAction: (id: number) => Promise<ResponseData<null>>;
+  isHasShortageStocksProblem: boolean;
 };
 
-type ValueItem = { value: string; warehouse_id: number; name: string; max: number };
+type ValueItem = {
+  value: string;
+  warehouse_id: number;
+  name: string;
+  max: number;
+  stock_id: number;
+};
 
 export const OrderShortage = (props: Props) => {
   const [disabled, transition] = useTransition();
@@ -53,8 +58,9 @@ export const OrderShortage = (props: Props) => {
             ? String(reservation.quantity)
             : "";
 
-        const shortageStock = props.shortage_stocks.find(
-          (el) => el.warehouse_id === reservation.warehouse_id,
+        const shortageStock = product.shortage_stocks.find(
+          (el) =>
+            el.warehouse_id === reservation.warehouse_id && el.stock_id === reservation.stock_id,
         );
 
         if (
@@ -72,6 +78,7 @@ export const OrderShortage = (props: Props) => {
           warehouse_id: reservation.warehouse_id,
           value,
           max: reservation.quantity,
+          stock_id: reservation.stock_id,
         });
       }
     }
@@ -81,7 +88,7 @@ export const OrderShortage = (props: Props) => {
   };
 
   const handleSubmit = () => {
-    const payload: { id: number; quantity: number; warehouse_id: number }[] = [];
+    const payload: { id: number; quantity: number; warehouse_id: number; stock_id: number }[] = [];
 
     for (const key in values) {
       const id = Number(key);
@@ -91,15 +98,21 @@ export const OrderShortage = (props: Props) => {
           const item = values[key][i];
           const quantity = Number(item.value);
           const warehouse_id = Number(item.warehouse_id);
+          const stock_id = item.stock_id;
+          const hasShortage = props.products.some((el) =>
+            el.shortage_stocks.some(
+              (el) => el.stock_id === item.stock_id && el.warehouse_id === item.warehouse_id,
+            ),
+          );
 
           if (
             !Number.isNaN(id) &&
             id > 0 &&
             !Number.isNaN(quantity) &&
             !Number.isNaN(warehouse_id) &&
-            quantity !== item.max
+            (quantity !== item.max || hasShortage)
           ) {
-            payload.push({ id, quantity, warehouse_id });
+            payload.push({ id, quantity, warehouse_id, stock_id });
           }
         }
       }
@@ -171,7 +184,6 @@ export const OrderShortage = (props: Props) => {
     });
   };
 
-  // console.log(values);
   return (
     <>
       <Modal active={forcedModalOpen} handleCloseAction={handleCloseForcedModal}>
@@ -225,9 +237,11 @@ export const OrderShortage = (props: Props) => {
               <tbody>
                 {props.products.map((stock) => (
                   <tr key={stock.id} className={styles.dataRow}>
-                    <td className={styles.dataCell}>{stock.name}</td>
                     <td className={styles.dataCell}>
-                      <span>{stock.quantity}</span>
+                      <p>{stock.name}</p>
+                    </td>
+                    <td className={styles.dataCell}>
+                      <p>{stock.quantity}</p>
                     </td>
                     <td className={styles.dataCellStocks}>
                       <ul>
@@ -238,7 +252,7 @@ export const OrderShortage = (props: Props) => {
                               className={styles.stockItem}
                             >
                               <div className={styles.stockItemCell}>
-                                <span className={styles.stockName}>{item?.name}</span>
+                                <span className={styles.stockName}>{item?.name || ""}</span>
                               </div>
                               <div className={styles.stockItemCellInput}>
                                 <input
@@ -291,7 +305,7 @@ export const OrderShortage = (props: Props) => {
       <Button onClick={handleOpenModal} variant="solid" variantColor="pink" size="md">
         Изменить количество
       </Button>
-      {props.shortage_stocks.length > 0 && (
+      {props.isHasShortageStocksProblem && (
         <Button
           onClick={() => setForcedModalOpen(true)}
           variant="solid"
