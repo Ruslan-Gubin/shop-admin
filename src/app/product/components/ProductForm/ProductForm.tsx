@@ -16,11 +16,11 @@ import { getCategoryFullPath } from "@/shared/helpers/getCategoryFullPath";
 import { Button } from "@/shared/ui/button-main/Button";
 import { notificationAdapter } from "@/stores/notification/adapter";
 import type { PhotoItem } from "../../action";
-import {
-  FullInfoSuggestionModal,
-  type FullInfoRow,
-} from "./components/GeneralInfo/FullInfoSuggestionModal/FullInfoSuggestionModal";
 import { ProductFormAdditionally } from "./components/Additionally/ProductFormAdditionally";
+import {
+  type FullInfoRow,
+  FullInfoSuggestionModal,
+} from "./components/GeneralInfo/FullInfoSuggestionModal/FullInfoSuggestionModal";
 import { ProductFormGeneralInfo } from "./components/GeneralInfo/ProductFormGeneralInfo";
 import { ProductFormPhotos } from "./components/Photo/ProductFormPhotos";
 import { ProductFormPrices } from "./components/Prices/ProductFormPrices";
@@ -57,7 +57,7 @@ type Props = {
     updateTypesPricesValues: Record<string, string> | null;
     updateValues: ProductFormPayloadValues | null;
     updateRemains: RemainsItem[] | null;
-    updatePhotos: PhotoItem[];
+    updatePhotos?: PhotoItem[];
   }>;
   priceTypes: PriceTypeModel[];
   initialPriceTypesValues: Record<string, string>;
@@ -115,31 +115,33 @@ export const ProductForm = (props: Props) => {
 
   const submitForm = () => {
     transition(() => {
-      props.submitAction(values, typePriceValues, specificationValues, remains, photoValues).then((response) => {
-        if (response.errors) {
-          setErrors(response.errors);
-        }
+      props
+        .submitAction(values, typePriceValues, specificationValues, remains, photoValues)
+        .then((response) => {
+          if (response.errors) {
+            setErrors(response.errors);
+          }
 
-        if (response.notification) {
-          notificationAdapter.add(response.notification.message, response.notification.status);
-        }
+          if (response.notification) {
+            notificationAdapter.add(response.notification.message, response.notification.status);
+          }
 
-        if (response.updateTypesPricesValues) {
-          setTypePriceValues(response.updateTypesPricesValues);
-        }
+          if (response.updateTypesPricesValues) {
+            setTypePriceValues(response.updateTypesPricesValues);
+          }
 
-        if (response.updateValues) {
-          setValues(response.updateValues);
-        }
+          if (response.updateValues) {
+            setValues(response.updateValues);
+          }
 
-        if (response.updateRemains) {
-          setRemains(response.updateRemains);
-        }
+          if (response.updateRemains) {
+            setRemains(response.updateRemains);
+          }
 
-        if (response.updatePhotos) {
-          setPhotoValues(response.updatePhotos);
-        }
-      });
+          if (response.updatePhotos) {
+            setPhotoValues(response.updatePhotos);
+          }
+        });
     });
   };
 
@@ -167,7 +169,10 @@ export const ProductForm = (props: Props) => {
             setIsFullInfoModalOpen(true);
           }
         } else {
-          notificationAdapter.add(response.message || "Не удалось сгенерировать информацию", response.status);
+          notificationAdapter.add(
+            response.message || "Не удалось сгенерировать информацию",
+            response.status,
+          );
         }
       })
       .finally(() => {
@@ -197,7 +202,10 @@ export const ProductForm = (props: Props) => {
       const specItem = props.specifications.find((s) => s.name === spec.name);
       const listId = prev.length > 0 ? Math.max(...prev.map((el) => el.listId)) + 1 : 1;
 
-      return [...prev, { listId, specificationId: specItem?.id ?? null, label: spec.name, value: spec.value }];
+      return [
+        ...prev,
+        { listId, specificationId: specItem?.id ?? null, label: spec.name, value: spec.value },
+      ];
     });
   };
 
@@ -299,7 +307,11 @@ export const ProductForm = (props: Props) => {
           generatingFullInfo={generatingFullInfo}
           onGenerateFullInfo={handleGenerateFullInfo}
         />
-        <ProductFormAdditionally values={values} errors={errors} handleChangeValues={handleChangeValues} />
+        <ProductFormAdditionally
+          values={values}
+          errors={errors}
+          handleChangeValues={handleChangeValues}
+        />
         <ProductFormSpecifications
           specificationValues={specificationValues}
           specifications={props.specifications}
@@ -318,7 +330,9 @@ export const ProductForm = (props: Props) => {
         <ProductFormPhotos
           name={values.name}
           description={values.description}
-          specifications={specificationValues.filter((el) => el.value.length > 0 && el.label.length > 0)}
+          specifications={specificationValues.filter(
+            (el) => el.value.length > 0 && el.label.length > 0,
+          )}
           price={previewPrice}
           photos={filterUrlPhoto}
           setPhotos={setPhotoValues}
@@ -332,7 +346,14 @@ export const ProductForm = (props: Props) => {
         />
 
         <div className={styles.actionForm}>
-          <Button size="sm" variant="solid" variantColor="green" onClick={submitForm} type="button" disabled={pending}>
+          <Button
+            size="sm"
+            variant="solid"
+            variantColor="green"
+            onClick={submitForm}
+            type="button"
+            disabled={pending}
+          >
             {props.variant === "create" ? <AddSvg /> : <EditSvg />}
             {props.variant === "create" ? "Создать товар" : "Редактировать"}
           </Button>

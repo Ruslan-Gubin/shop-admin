@@ -7,7 +7,6 @@ type CellType = "date" | "shortDate" | "boolean" | "badge" | "avatar" | "transla
 
 export type RenderTableOptions<T> = {
   key: keyof T;
-  nextKey?: string;
   type?: CellType;
   typeConfig?: {
     booleanLabels?: string[];
@@ -58,23 +57,20 @@ export const MainTable = <T extends { id: number }>(props: Props<T>) => {
             className={styles.dataRow}
           >
             {props.tableOptions.map((cell) => (
-              <td
-                key={`${cell.key as string} ${cell.nextKey as string}`}
-                className={styles.dataCell}
-              >
+              <td key={`${cell.key as string}`} className={styles.dataCell}>
                 {!cell.type && typeof cell.key === "string" && (
-                  <p className={styles.textOverflowLine}>
-                    {cell.nextKey
-                      ? (item[cell.key][cell.nextKey] as string) || "---"
-                      : (item[cell.key] as string) || "---"}
-                  </p>
+                  <p className={styles.textOverflowLine}>{(item[cell.key] as string) || "---"}</p>
                 )}
 
                 {cell.key && cell.type === "status" && cell?.typeConfig?.status && (
                   <p
+                    //@ts-ignore
                     className={`${styles.textOverflowLine} ${styles[`status_${item[cell.key][cell.typeConfig.status.key]}`]}`}
                   >
-                    {item[cell.key][cell.typeConfig.status.value]}
+                    {
+                      //@ts-ignore
+                      item[cell.key][cell.typeConfig.status.value]
+                    }
                   </p>
                 )}
 
@@ -112,7 +108,9 @@ export const MainTable = <T extends { id: number }>(props: Props<T>) => {
                   )}
 
                 {cell.type === "avatar" && typeof item[cell.key] === "string" && (
-                  <img className={styles.avatar} src={item[cell.key] as string} alt="Avatar" />
+                  <picture>
+                    <img className={styles.avatar} src={item[cell.key] as string} alt="Avatar" />
+                  </picture>
                 )}
               </td>
             ))}

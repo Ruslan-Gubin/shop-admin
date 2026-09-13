@@ -124,7 +124,7 @@ export const MainMobileTable = <T extends { id: number }>(props: Props<T>) => {
           headerContent={
             <ul className={styles.cartHeaderList}>
               {props.tableOptions.map((cell, index) => (
-                <li key={`${cell.key as string} ${cell.nextKey as string}`}>
+                <li key={`${cell.key as string}`}>
                   <div
                     style={{
                       minWidth: props.headerRowWidth[index],
@@ -142,11 +142,7 @@ export const MainMobileTable = <T extends { id: number }>(props: Props<T>) => {
 
                     <div className={styles.headerListValue}>
                       {!cell.type && typeof cell.key === "string" && (
-                        <p>
-                          {cell.nextKey
-                            ? (item[cell.key][cell.nextKey] as string) || "---"
-                            : (item[cell.key] as string) || "---"}
-                        </p>
+                        <p>{(item[cell.key] as string) || "---"}</p>
                       )}
 
                       {cell.type === "translate" &&
@@ -173,9 +169,13 @@ export const MainMobileTable = <T extends { id: number }>(props: Props<T>) => {
 
                       {cell.type === "status" && cell.typeConfig?.status && (
                         <p
+                          //@ts-ignore
                           className={styles[`status_${item[cell.key][cell.typeConfig.status.key]}`]}
                         >
-                          {item[cell.key][cell.typeConfig.status.value] || "---"}
+                          {
+                            //@ts-ignore
+                            item[cell.key][cell.typeConfig.status.value] || "---"
+                          }
                         </p>
                       )}
 
@@ -193,11 +193,13 @@ export const MainMobileTable = <T extends { id: number }>(props: Props<T>) => {
                         )}
 
                       {cell.type === "avatar" && typeof item[cell.key] === "string" && (
-                        <img
-                          className={styles.avatar}
-                          src={item[cell.key] as string}
-                          alt="Avatar"
-                        />
+                        <picture>
+                          <img
+                            className={styles.avatar}
+                            src={item[cell.key] as string}
+                            alt="Avatar"
+                          />
+                        </picture>
                       )}
                     </div>
                   </div>
@@ -208,20 +210,13 @@ export const MainMobileTable = <T extends { id: number }>(props: Props<T>) => {
           content={
             <ul className={styles.cardBody}>
               {props.tableOptions.map((cell) => (
-                <li
-                  key={`${cell.key as string} ${cell.nextKey as string}`}
-                  className={styles.cellRow}
-                >
+                <li key={`${cell.key as string} `} className={styles.cellRow}>
                   <span className={styles.cellLabel}>
                     {props.headerRowLabels[props.tableOptions.indexOf(cell)]}
                   </span>
                   <div className={styles.cellValue}>
                     {!cell.type && typeof cell.key === "string" && (
-                      <p>
-                        {cell.nextKey
-                          ? (item[cell.key][cell.nextKey] as string) || "---"
-                          : (item[cell.key] as string) || "---"}
-                      </p>
+                      <p>{(item[cell.key] as string) || "---"}</p>
                     )}
 
                     {cell.type === "translate" &&
@@ -247,8 +242,12 @@ export const MainMobileTable = <T extends { id: number }>(props: Props<T>) => {
                     )}
 
                     {cell.type === "status" && cell.typeConfig?.status && (
+                      //@ts-ignore
                       <p className={styles[`status_${item[cell.key][cell.typeConfig.status.key]}`]}>
-                        {item[cell.key][cell.typeConfig.status.value] || "---"}
+                        {
+                          //@ts-ignore
+                          item[cell.key][cell.typeConfig.status.value] || "---"
+                        }
                       </p>
                     )}
 
@@ -266,7 +265,13 @@ export const MainMobileTable = <T extends { id: number }>(props: Props<T>) => {
                       )}
 
                     {cell.type === "avatar" && typeof item[cell.key] === "string" && (
-                      <img className={styles.avatar} src={item[cell.key] as string} alt="Avatar" />
+                      <picture>
+                        <img
+                          className={styles.avatar}
+                          src={item[cell.key] as string}
+                          alt="Avatar"
+                        />
+                      </picture>
                     )}
                   </div>
                 </li>

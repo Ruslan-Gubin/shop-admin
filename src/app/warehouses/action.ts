@@ -45,6 +45,11 @@ export const fetchWarehouses = async (limit: string, page?: string, name?: strin
   });
 };
 
+export interface WarehouseModelTable extends WarehouseModel {
+  address_name: string;
+  address_place: string;
+}
+
 export const fetchWarehouse = async (id: string) => {
   "use server";
   const cookieStore = await cookies();
@@ -59,7 +64,18 @@ export const fetchWarehouse = async (id: string) => {
         updateTokensInAction(cookieStore, response.tokens);
       }
 
-      return response;
+      const updateData: WarehouseModelTable | null = response.data
+        ? {
+            ...response.data,
+            address_place: response.data?.address?.place || "",
+            address_name: response.data?.address?.name || "",
+          }
+        : null;
+
+      return {
+        ...response,
+        data: updateData,
+      };
     });
 };
 

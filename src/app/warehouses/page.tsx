@@ -34,6 +34,13 @@ export default async function WarehousesPage(req: {
     limit,
   );
 
+  const warehouses =
+    tableData?.data?.warehouses.map((el) => ({
+      ...el,
+      address_name: el.address?.name || "",
+      address_place: el.address?.place || "",
+    })) || [];
+
   return (
     <section className="page-wrapper">
       <PageHeader title="Справочник складов." />
@@ -43,7 +50,7 @@ export default async function WarehousesPage(req: {
       )}
       <section className="table-container">
         <WarehousesTableWrapper
-          warehouses={tableData?.data?.warehouses || []}
+          warehouses={warehouses}
           onDeleteItemAction={deleteWarehouseAction}
           redirectPageAfterDeleteAction={redirectPageAfterDelete}
           name={searchParams.name || ""}

@@ -29,7 +29,6 @@ export interface ProductModel {
   id: number;
   name: string;
   code: string;
-  brand_id: number | null;
   brand_name: string;
   category_id: number;
   description: string;

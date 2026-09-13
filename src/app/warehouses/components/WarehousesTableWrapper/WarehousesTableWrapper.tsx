@@ -8,17 +8,17 @@ import { MainMobileTable } from "@/widgets/main-mobile-table/MainMobileTable";
 import { MainTable, type RenderTableOptions } from "@/widgets/main-table/MainTable";
 import { ModalDelete } from "@/widgets/modals/modal-delete/ModalDelete";
 import { TableControls } from "@/widgets/table-controls/TableControls";
-import type { WarehouseModel } from "../../action";
+import type { WarehouseModel, WarehouseModelTable } from "../../action";
 
 type Props = {
-  warehouses: WarehouseModel[];
+  warehouses: WarehouseModelTable[];
   onDeleteItemAction: (id: number) => Promise<{ status: "error" | "success"; message: string }>;
   redirectPageAfterDeleteAction: () => void;
   name: string;
   isLoadMoreDisabled: boolean;
   patch: string;
   searchParams: { [key: string]: string | string[] | undefined };
-  fetchTableElementAction: (id: string) => Promise<ResponseData<WarehouseModel>>;
+  fetchTableElementAction: (id: string) => Promise<ResponseData<WarehouseModelTable>>;
 };
 
 export const WarehousesTableWrapper = (props: Props) => {
@@ -71,11 +71,11 @@ export const WarehousesTableWrapper = (props: Props) => {
     }
   };
 
-  const tableOptions: RenderTableOptions<WarehouseModel>[] = [
+  const tableOptions: RenderTableOptions<WarehouseModelTable>[] = [
     { key: "id" },
     { key: "name" },
-    { key: "address", nextKey: "name" },
-    { key: "address", nextKey: "place" },
+    { key: "address_name" },
+    { key: "address_place" },
     { key: "is_active", type: "boolean", typeConfig: { booleanLabels: ["Да", "Нет"] } },
     { key: "is_public", type: "boolean", typeConfig: { booleanLabels: ["Да", "Нет"] } },
     { key: "default_warehouse", type: "boolean", typeConfig: { booleanLabels: ["Да", "Нет"] } },
