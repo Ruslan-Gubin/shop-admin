@@ -1,14 +1,8 @@
-.sectionHeader {
+.sectionActions {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  column-gap: var(--gap-info-block);
-  row-gap: 12px;
-
-  @media (max-width: 880px) {
-    align-items: flex-start;
-  }
+  justify-content: flex-end;
+  gap: 8px;
 }
 
 .sectionDescription {
@@ -45,8 +39,6 @@
   }
 }
 
-/* Draw всегда рисует контейнер своих кнопок (ui.js:102), даже пустым — прячем целиком.
-   controls.trash оставлен, чтобы Backspace/Delete продолжали работать (events.js:135). */
 .mapWrapper :global(.mapboxgl-ctrl-group) {
   display: none;
 }
@@ -159,8 +151,6 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
-  margin-top: 16px;
-  list-style: none;
 }
 
 .sectorItem {
@@ -172,12 +162,36 @@
   border-radius: var(--border-radius-main);
 }
 
+.sectorItemActive {
+  border-color: #0075f2;
+  background-color: #0075f20f;
+}
+
+.sectorSelect {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background-color: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
 .sectorChip {
   flex-shrink: 0;
   width: 20px;
   height: 20px;
   border-radius: 50%;
   box-shadow: inset 0 0 0 1px rgb(0 0 0 / 12%);
+}
+
+.sectorItemActive .sectorChip {
+  box-shadow:
+    inset 0 0 0 1px rgb(0 0 0 / 12%),
+    0 0 0 2px #0075f2;
 }
 
 .sectorName {
@@ -193,9 +207,23 @@
   font-size: 13px;
 }
 
+.sectorItemActive .sectorPrice {
+  color: #0075f2;
+  font-weight: 500;
+}
+
+.sectorListButton {
+  color: black;
+  max-width: max-content;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 4px;
+}
+
 .zonesMap {
   height: 312px;
-  margin-top: 16px;
   border-radius: var(--border-radius-main);
   overflow: hidden;
 

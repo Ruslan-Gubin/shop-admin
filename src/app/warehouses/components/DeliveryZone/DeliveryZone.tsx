@@ -4,6 +4,8 @@ import "@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { Map as MapMain, Marker } from "react-map-gl/mapbox";
 import { AddSvg } from "@/app/category/components/category-item/svg/AddSvg";
+import { DeleteSvg } from "@/app/category/components/category-item/svg/DeleteSvg";
+import { EditSvg } from "@/app/category/components/category-item/svg/EditSvg";
 import { Button } from "@/shared/ui/button-main/Button";
 import { Input } from "@/shared/ui/input-main/Input";
 import { CustomMarker } from "@/shared/ui/mapbox/map-marker/CustomMarker";
@@ -13,9 +15,9 @@ import { ModalContent } from "@/shared/ui/modal/modal-content/ModalContent";
 import { ModalFooter } from "@/shared/ui/modal/modal-footer/ModalFooter";
 import { ModalHeader } from "@/shared/ui/modal/modal-header/ModalHeader";
 import { FormSection } from "@/widgets/form-section/FormSection";
+import { DeliveryZonesMap } from "../DeliveryZonesMap/DeliveryZonesMap";
 import { DrawControl, type DrawEventFeature } from "../DrawControl/DrawControl";
 import styles from "./DeliveryZone.module.css";
-import { DeliveryZonesMap } from "./DeliveryZonesMap";
 
 export interface Sector extends DrawEventFeature {
   color: string;
@@ -50,6 +52,7 @@ export const DeliveryZone = (props: Props) => {
   const [draftPolygon, setDraftPolygon] = useState<DrawEventFeature[]>([]);
   const [sectors, setSectors] = useState<Sector[]>([]);
   const [editSector, setEditSector] = useState<Sector | null>(null);
+  const [selectedSectorId, setSelectedSectorId] = useState<string | null>(null);
 
   const resetDraft = () => {
     setDraftPolygon([]);
@@ -110,6 +113,11 @@ export const DeliveryZone = (props: Props) => {
 
   const handleRemoveSector = (id: string) => {
     setSectors((prev) => prev.filter((sector) => sector.id !== id));
+    setSelectedSectorId((prev) => (prev === id ? null : prev));
+  };
+
+  const handleSelectSector = (id: string) => {
+    setSelectedSectorId((prev) => (prev === id ? null : id));
   };
 
   const onUpdate = (value: { features: DrawEventFeature[]; action: string }) => {
@@ -139,6 +147,8 @@ export const DeliveryZone = (props: Props) => {
     setEditSector(sector);
     setDraftPolygon([sector]);
   };
+
+  const selectedSector = sectors.find((sector) => sector.id === selectedSectorId) ?? null;
 
   return (
     <>
@@ -245,11 +255,19 @@ export const DeliveryZone = (props: Props) => {
         </ModalContent>
       </Modal>
       <FormSection title="Настройка доставки">
-        <div className={styles.sectionHeader}>
-          <p className={styles.sectionDescription}>
-            Секторы стоимости доставки для самовывоза. Каждый сектор — отдельная зона на карте со
-            своей ценой.
-          </p>
+        <div className={styles.sectionActions}>
+          {selectedSector && (
+            <Button
+              variant="outline"
+              variantColor="blue"
+              size="sm"
+              type="button"
+              onClick={() => handleEditSector(selectedSector)}
+            >
+              <EditSvg />
+              Редактировать выбранный
+            </Button>
+          )}
           <Button
             variant="solid"
             variantColor="blue"
@@ -267,41 +285,44 @@ export const DeliveryZone = (props: Props) => {
           <>
             <ul className={styles.sectorList}>
               {sectors.map((sector) => (
-                <li key={sector.id} className={styles.sectorItem}>
-                  <span
-                    className={styles.sectorChip}
-                    style={{ backgroundColor: sector.color }}
-                    aria-hidden="true"
-                  />
-                  <span className={styles.sectorName}>
-                    <span className={styles.sectorPrice}>
-                      {sector.price.toLocaleString("ru-RU")} ₽
-                    </span>
-                  </span>
-                  <Button
-                    variant="ghost"
-                    variantColor="blue"
-                    size="sm"
+                <li
+                  key={sector.id}
+                  className={`${styles.sectorItem} ${
+                    sector.id === selectedSectorId ? styles.sectorItemActive : ""
+                  }`}
+                >
+                  <button
                     type="button"
-                    onClick={() => handleEditSector(sector)}
+                    className={styles.sectorSelect}
+                    onClick={() => handleSelectSector(sector.id)}
+                    aria-pressed={sector.id === selectedSectorId}
                   >
-                    Редактировать
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    variantColor="error"
-                    size="sm"
+                    <span
+                      className={styles.sectorChip}
+                      style={{ backgroundColor: sector.color }}
+                      aria-hidden="true"
+                    />
+                    <span className={styles.sectorName}>
+                      <span className={styles.sectorPrice}>
+                        {sector.price.toLocaleString("ru-RU")} ₽
+                      </span>
+                    </span>
+                  </button>
+                  <button
+                    title="Удалить"
+                    className={styles.sectorListButton}
                     type="button"
                     onClick={() => handleRemoveSector(sector.id)}
                   >
-                    Удалить
-                  </Button>
+                    <DeleteSvg fill="#727280" />
+                  </button>
                 </li>
               ))}
             </ul>
             <div className={styles.zonesMap}>
               <DeliveryZonesMap
                 sectors={sectors}
+                selectedSectorId={selectedSectorId}
                 center={props.initCenter}
                 mapToken={props.mapToken}
                 mapStyle={props.mapStyle}
@@ -309,6 +330,10 @@ export const DeliveryZone = (props: Props) => {
             </div>
           </>
         )}
+        <p className={styles.sectionDescription}>
+          Секторы стоимости доставки для самовывоза. Каждый сектор — отдельная зона на карте со
+          своей ценой.
+        </p>
       </FormSection>
     </>
   );

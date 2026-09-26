@@ -1,5 +1,4 @@
 import MapboxDraw from "@mapbox/mapbox-gl-draw";
-import { useRef } from "react";
 import { type ControlPosition, useControl } from "react-map-gl/mapbox";
 
 export type DrawEventFeature = GeoJSON.Feature<GeoJSON.Polygon> & { id: string };
@@ -13,17 +12,11 @@ type DrawControlProps = ConstructorParameters<typeof MapboxDraw>[0] & {
 };
 
 export const DrawControl = (props: DrawControlProps) => {
-  const drawRef = useRef<MapboxDraw | null>(null);
-
-  useControl<MapboxDraw>(
+  const draw = useControl<MapboxDraw>(
     () => {
-      const instance = new MapboxDraw(props);
-      drawRef.current = instance;
-      return instance;
+      return new MapboxDraw(props);
     },
     ({ map }) => {
-      const draw = drawRef.current;
-
       if (draw && props.initialFeature) {
         draw.set({ type: "FeatureCollection", features: [props.initialFeature] });
         draw.changeMode("direct_select", { featureId: props.initialFeature.id });

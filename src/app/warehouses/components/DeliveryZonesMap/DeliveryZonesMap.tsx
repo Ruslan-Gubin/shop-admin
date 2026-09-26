@@ -1,10 +1,11 @@
 import { Layer, Map as MapMain, Marker, Source } from "react-map-gl/mapbox";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { CustomMarker } from "@/shared/ui/mapbox/map-marker/CustomMarker";
-import type { Sector } from "./DeliveryZone";
+import type { Sector } from "../DeliveryZone/DeliveryZone";
 
 type Props = {
   sectors: Sector[];
+  selectedSectorId: string | null;
   center: { lat: number; lng: number };
   mapToken: string;
   mapStyle: string;
@@ -16,7 +17,11 @@ export const DeliveryZonesMap = (props: Props) => {
     features: props.sectors.map((sector) => ({
       type: "Feature",
       id: sector.id,
-      properties: { color: sector.color, price: sector.price },
+      properties: {
+        color: sector.color,
+        price: sector.price,
+        selected: sector.id === props.selectedSectorId,
+      },
       geometry: sector.geometry,
     })),
   };
@@ -44,7 +49,7 @@ export const DeliveryZonesMap = (props: Props) => {
           type="fill"
           paint={{
             "fill-color": ["get", "color"],
-            "fill-opacity": 0.25,
+            "fill-opacity": ["case", ["get", "selected"], 0.45, 0.25],
           }}
         />
         <Layer
@@ -52,7 +57,7 @@ export const DeliveryZonesMap = (props: Props) => {
           type="line"
           paint={{
             "line-color": ["get", "color"],
-            "line-width": 2,
+            "line-width": ["case", ["get", "selected"], 4, 2],
           }}
         />
       </Source>
