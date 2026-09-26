@@ -1,0 +1,205 @@
+.sectionHeader {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  column-gap: var(--gap-info-block);
+  row-gap: 12px;
+
+  @media (max-width: 880px) {
+    align-items: flex-start;
+  }
+}
+
+.sectionDescription {
+  color: var(--text-color-placeholder);
+  font-size: 14px;
+}
+
+.modalDescription {
+  padding-bottom: 12px;
+  color: var(--text-color-placeholder);
+  font-size: 14px;
+}
+
+.modalDescription kbd {
+  padding: 1px 5px;
+  border: 1px solid var(--border-color-block, #e2e8f0);
+  border-radius: 4px;
+  background-color: #f4f6f5;
+  color: var(--text-color-main, #0f172a);
+  font-family: inherit;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.mapWrapper {
+  position: relative;
+  width: 100%;
+  height: 312px;
+  border-radius: var(--border-radius-main);
+  overflow: hidden;
+
+  @media (max-width: 880px) {
+    height: 268px;
+  }
+}
+
+/* Draw всегда рисует контейнер своих кнопок (ui.js:102), даже пустым — прячем целиком.
+   controls.trash оставлен, чтобы Backspace/Delete продолжали работать (events.js:135). */
+.mapWrapper :global(.mapboxgl-ctrl-group) {
+  display: none;
+}
+
+.drawerRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  column-gap: var(--gap-info-block);
+  row-gap: 16px;
+  padding-inline: 24px;
+
+  @media (max-width: 560px) {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+.priceField {
+  flex: 0 0 200px;
+
+  @media (max-width: 560px) {
+    flex: 1 1 auto;
+  }
+}
+
+.palette {
+  border: none;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+
+.paletteLegend {
+  padding: 0;
+  margin-bottom: 8px;
+  color: var(--text-color-placeholder);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.paletteList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.swatchLabel {
+  display: block;
+  padding: 4px;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.swatchInput {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.swatch {
+  display: block;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 12%);
+}
+
+.swatchInput:checked + .swatch {
+  box-shadow:
+    inset 0 0 0 1px rgb(0 0 0 / 12%),
+    0 0 0 2px var(--color-bg-main, #fff),
+    0 0 0 4px var(--swatch);
+}
+
+.swatchInput:focus-visible + .swatch {
+  outline: 2px solid var(--color-border-accent, #f1117e);
+  outline-offset: 2px;
+}
+
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.emptyState {
+  margin-top: 16px;
+  padding: 16px;
+  border: 1px dashed var(--border-color-block, #e2e8f0);
+  border-radius: var(--border-radius-main);
+  color: var(--text-color-placeholder);
+  font-size: 14px;
+  text-align: center;
+}
+
+.sectorList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 16px;
+  list-style: none;
+}
+
+.sectorItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--border-color-block, #e2e8f0);
+  border-radius: var(--border-radius-main);
+}
+
+.sectorChip {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 12%);
+}
+
+.sectorName {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  font-size: 14px;
+  line-height: 1.3;
+}
+
+.sectorPrice {
+  color: var(--text-color-placeholder);
+  font-size: 13px;
+}
+
+.zonesMap {
+  height: 312px;
+  margin-top: 16px;
+  border-radius: var(--border-radius-main);
+  overflow: hidden;
+
+  @media (max-width: 880px) {
+    height: 268px;
+  }
+}

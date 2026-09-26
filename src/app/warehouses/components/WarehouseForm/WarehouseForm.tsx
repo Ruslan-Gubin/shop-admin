@@ -9,6 +9,7 @@ import { Input } from "@/shared/ui/input-main/Input";
 import { type AddressItem, MapBox } from "@/shared/ui/mapbox/Mapbox";
 import { notificationAdapter } from "@/stores/notification/adapter";
 import type { WarehousePayload } from "../../create/action";
+import { DeliveryZone } from "../DeliveryZone/DeliveryZone";
 import styles from "./WarehouseForm.module.css";
 
 type Props = {
@@ -223,24 +224,29 @@ export const WarehouseForm = (props: Props) => {
         </div>
       </div>
 
-      <Checkbox
-        onChange={() => handleChangeValues("is_active", !values.is_active)}
-        checked={values.is_active}
-        name="warehouse_is_active"
-        labelText="Активен"
-      />
-      <Checkbox
-        onChange={() => handleChangeValues("is_public", !values.is_public)}
-        checked={values.is_public}
-        name="warehouse_is_public"
-        labelText="Публичный (виден клиентам)"
-      />
-      <Checkbox
-        onChange={() => handleChangeValues("default_warehouse", !values.default_warehouse)}
-        checked={values.default_warehouse}
-        name="warehouse_default_warehouse"
-        labelText="Склад по умолчанию"
-      />
+      <div style={{ display: "flex", gap: "24px", flexWrap: "wrap" }}>
+        <Checkbox
+          onChange={() => handleChangeValues("is_active", !values.is_active)}
+          checked={values.is_active}
+          name="warehouse_is_active"
+          labelText="Активен"
+        />
+        <Checkbox
+          onChange={() => handleChangeValues("is_public", !values.is_public)}
+          checked={values.is_public}
+          name="warehouse_is_public"
+          labelText="Публичный (виден клиентам)"
+        />
+        <Checkbox
+          onChange={() => handleChangeValues("default_warehouse", !values.default_warehouse)}
+          checked={values.default_warehouse}
+          name="warehouse_default_warehouse"
+          labelText="Склад по умолчанию"
+        />
+      </div>
+      {active.lat > 0 && active.lng > 0 && (
+        <DeliveryZone initCenter={active} mapStyle={props.mapStyle} mapToken={props.mapToken} />
+      )}
 
       <div className={styles.actionForm}>
         <Button
