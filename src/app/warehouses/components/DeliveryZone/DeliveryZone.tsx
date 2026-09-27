@@ -18,6 +18,7 @@ import { FormSection } from "@/widgets/form-section/FormSection";
 import { DeliveryZonesMap } from "../DeliveryZonesMap/DeliveryZonesMap";
 import { DrawControl, type DrawEventFeature } from "../DrawControl/DrawControl";
 import styles from "./DeliveryZone.module.css";
+import { priceFormatter } from "@/shared/helpers/formatPrice";
 
 export interface Sector extends DrawEventFeature {
   color: string;
@@ -304,7 +305,7 @@ export const DeliveryZone = (props: Props) => {
                     />
                     <span className={styles.sectorName}>
                       <span className={styles.sectorPrice}>
-                        {sector.price.toLocaleString("ru-RU")} ₽
+                        {priceFormatter.format(Number(sector.price))}
                       </span>
                     </span>
                   </button>

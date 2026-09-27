@@ -163,8 +163,7 @@
 }
 
 .sectorItemActive {
-  border-color: #0075f2;
-  background-color: #0075f20f;
+  border-color: #757575;
 }
 
 .sectorSelect {
@@ -186,12 +185,6 @@
   height: 20px;
   border-radius: 50%;
   box-shadow: inset 0 0 0 1px rgb(0 0 0 / 12%);
-}
-
-.sectorItemActive .sectorChip {
-  box-shadow:
-    inset 0 0 0 1px rgb(0 0 0 / 12%),
-    0 0 0 2px #0075f2;
 }
 
 .sectorName {
