@@ -8,12 +8,17 @@ import { Checkbox } from "@/shared/ui/checkbox/Checkbox";
 import { Input } from "@/shared/ui/input-main/Input";
 import { type AddressItem, MapBox } from "@/shared/ui/mapbox/Mapbox";
 import { notificationAdapter } from "@/stores/notification/adapter";
+import type { SectorModel } from "../../action";
 import type { WarehousePayload } from "../../create/action";
-import { DeliveryZone } from "../DeliveryZone/DeliveryZone";
+import type { SectionItemPayload } from "../../edit/[id]/action";
+import { DeliveryZone, type Sector } from "../DeliveryZone/DeliveryZone";
 import styles from "./WarehouseForm.module.css";
 
 type Props = {
-  submitAction: (payload: WarehousePayload) => Promise<{
+  submitAction: (
+    payload: WarehousePayload,
+    sectionsPayload: SectionItemPayload[],
+  ) => Promise<{
     errors: Record<keyof WarehousePayload, string> | null;
     notification: {
       status: "error" | "success";
@@ -36,6 +41,7 @@ type Props = {
     name: string;
     place: string;
   }>;
+  sectors: SectorModel[];
 };
 
 export const WarehouseForm = (props: Props) => {
@@ -43,12 +49,28 @@ export const WarehouseForm = (props: Props) => {
   const [values, setValues] = useState<WarehousePayload>(props.initValues);
   const [errors, setErrors] = useState<Record<keyof WarehousePayload, string>>(props.initErrors);
   const [active, setActive] = useState<{ lng: number; lat: number }>({ lng: 0, lat: 0 });
+  const [sectors, setSectors] = useState<Sector[]>([]);
 
   useLayoutEffect(() => {
     setValues(props.initValues);
     setErrors(props.initErrors);
     if (props.initValues.lng && props.initValues.lat) {
       setActive({ lng: props.initValues.lng, lat: props.initValues.lat });
+    }
+    if (props.sectors) {
+      const updateSectors: Sector[] = [];
+      for (let i = 0; i < props.sectors.length; i++) {
+        const sector = props.sectors[i];
+        updateSectors.push({
+          color: sector.color,
+          geometry: { coordinates: [sector.coordinates], type: "Polygon" },
+          price: sector.price,
+          properties: {},
+          type: "Feature",
+          id: String(sector.id),
+        });
+      }
+      setSectors(updateSectors);
     }
   }, []);
 
@@ -58,7 +80,31 @@ export const WarehouseForm = (props: Props) => {
 
   const submitForm = () => {
     transition(() => {
-      props.submitAction(values).then((response) => {
+      const payloadSectors: SectionItemPayload[] = [];
+
+      for (let i = 0; i < sectors.length; i++) {
+        const sector = sectors[i];
+
+        const payloadItem: SectionItemPayload = {
+          color: sector.color,
+          price:
+            typeof Number(sector.price) === "number" && !Number.isNaN(Number(sector.price))
+              ? sector.price
+              : 0,
+          coordinates:
+            Array.isArray(sector.geometry.coordinates) && sector.geometry.coordinates.length > 0
+              ? sector.geometry.coordinates[0]
+              : [],
+        };
+
+        if (typeof sector.id === "number") {
+          payloadItem.id = sector.id;
+        }
+
+        payloadSectors.push(payloadItem);
+      }
+
+      props.submitAction(values, payloadSectors).then((response) => {
         if (response.errors) {
           setErrors(response.errors);
         }
@@ -245,7 +291,13 @@ export const WarehouseForm = (props: Props) => {
         />
       </div>
       {active.lat > 0 && active.lng > 0 && (
-        <DeliveryZone initCenter={active} mapStyle={props.mapStyle} mapToken={props.mapToken} />
+        <DeliveryZone
+          sectors={sectors}
+          setSectors={setSectors}
+          initCenter={active}
+          mapStyle={props.mapStyle}
+          mapToken={props.mapToken}
+        />
       )}
 
       <div className={styles.actionForm}>

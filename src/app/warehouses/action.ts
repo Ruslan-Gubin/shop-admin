@@ -20,6 +20,15 @@ export type WarehouseModel = {
   updated_at: string | null;
 };
 
+export type SectorModel = {
+  id: number;
+  color: string;
+  price: number;
+  coordinates: number[][];
+  created_at: string;
+  updated_at: string | null;
+};
+
 export type ProductStockModel = {
   id: number;
   quantity: number;

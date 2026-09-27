@@ -7,7 +7,12 @@ import { PageHeader } from "@/shared/ui/page-header/PageHeader";
 import { UpdateToken } from "@/views/UpdateToken/UpdateToken";
 import { WarehouseForm } from "../../components/WarehouseForm/WarehouseForm";
 import type { WarehousePayload } from "../../create/action";
-import { fetchWarehouseEditPage, updateWarehouseAction } from "./action";
+import {
+  fetchWarehouseEditPage,
+  type SectionItemPayload,
+  updateSectionAction,
+  updateWarehouseAction,
+} from "./action";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -15,9 +20,10 @@ type Props = {
 
 export default async function EditWarehousePage(props: Props) {
   const { id } = await props.params;
-  const warehouseData = await fetchWarehouseEditPage(id);
+  const [warehouseData, sectorsData] = await fetchWarehouseEditPage(id);
 
   const warehouse = warehouseData.data;
+  const sectors = sectorsData.data || [];
 
   const defaultCenter =
     warehouse?.address?.lng && warehouse?.address?.lat
@@ -40,9 +46,8 @@ export default async function EditWarehousePage(props: Props) {
     is_public: warehouse ? warehouse.is_public : false,
   };
 
-  const submitAction = async (payload: WarehousePayload) => {
+  const submitAction = async (payload: WarehousePayload, sectionsPayload: SectionItemPayload[]) => {
     "use server";
-
     let notification: { status: "error" | "success"; message: string } | null = null;
     let errors: Record<keyof WarehousePayload, string> | null = null;
 
@@ -50,7 +55,23 @@ export default async function EditWarehousePage(props: Props) {
       errors = response.errors;
 
       if (response.status === "success") {
-        revalidatePath("product/edit");
+        if (sectionsPayload.length > 0) {
+          updateSectionAction(sectionsPayload, id)
+            .then((response) => {
+              if (response.status === "success") {
+                revalidatePath("product/edit");
+              } else {
+                throw response.message;
+              }
+            })
+            .catch((error) => {
+              notification = {
+                status: "error",
+                message: error || "Ошибка при редактировании сектора",
+              };
+            });
+        }
+
         notification = {
           status: "success",
           message: "Склад удачно изменен",
@@ -68,10 +89,14 @@ export default async function EditWarehousePage(props: Props) {
 
   return (
     <section className="page-wrapper">
-      {warehouseData.tokens && <UpdateToken tokens={warehouseData.tokens} />}
+      {sectorsData.tokens && <UpdateToken tokens={sectorsData.tokens} />}
       <PageHeader title="Редактировать склад" fallbackHref="/warehouses" />
       {!warehouseData.data && <ErrorAlert message={warehouseData.message || "Склад не найден"} />}
+      {!sectorsData.data && sectorsData.status === "error" && sectorsData.message.length > 0 && (
+        <ErrorAlert message={sectorsData.message} />
+      )}
       <WarehouseForm
+        sectors={sectors}
         mapStyle={CONFIG_APP.MAPBOX_STYLE}
         mapToken={CONFIG_APP.MAPBOX_ACCESS_TOKEN}
         fetchReverseAction={fetchReverseAction}

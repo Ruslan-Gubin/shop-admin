@@ -1,11 +1,11 @@
-"use client";
-import { type CSSProperties, useState } from "react";
+import { type CSSProperties, type Dispatch, type SetStateAction, useState } from "react";
 import "@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { Map as MapMain, Marker } from "react-map-gl/mapbox";
 import { AddSvg } from "@/app/category/components/category-item/svg/AddSvg";
 import { DeleteSvg } from "@/app/category/components/category-item/svg/DeleteSvg";
 import { EditSvg } from "@/app/category/components/category-item/svg/EditSvg";
+import { priceFormatter } from "@/shared/helpers/formatPrice";
 import { Button } from "@/shared/ui/button-main/Button";
 import { Input } from "@/shared/ui/input-main/Input";
 import { CustomMarker } from "@/shared/ui/mapbox/map-marker/CustomMarker";
@@ -15,21 +15,10 @@ import { ModalContent } from "@/shared/ui/modal/modal-content/ModalContent";
 import { ModalFooter } from "@/shared/ui/modal/modal-footer/ModalFooter";
 import { ModalHeader } from "@/shared/ui/modal/modal-header/ModalHeader";
 import { FormSection } from "@/widgets/form-section/FormSection";
+import { ModalDelete } from "@/widgets/modals/modal-delete/ModalDelete";
 import { DeliveryZonesMap } from "../DeliveryZonesMap/DeliveryZonesMap";
 import { DrawControl, type DrawEventFeature } from "../DrawControl/DrawControl";
 import styles from "./DeliveryZone.module.css";
-import { priceFormatter } from "@/shared/helpers/formatPrice";
-
-export interface Sector extends DrawEventFeature {
-  color: string;
-  price: number;
-}
-
-type Props = {
-  initCenter: { lat: number; lng: number };
-  mapToken: string;
-  mapStyle: string;
-};
 
 const ZONE_COLORS = [
   { value: "#29ae29", label: "Зелёный" },
@@ -46,14 +35,27 @@ const ZONE_COLORS = [
   { value: "#ae29ae", label: "Пурпурный" },
 ];
 
+export interface Sector extends DrawEventFeature {
+  color: string;
+  price: number;
+}
+
+type Props = {
+  initCenter: { lat: number; lng: number };
+  mapToken: string;
+  mapStyle: string;
+  sectors: Sector[];
+  setSectors: Dispatch<SetStateAction<Sector[]>>;
+};
+
 export const DeliveryZone = (props: Props) => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [color, setColor] = useState<string>("");
   const [price, setPrice] = useState<string>("");
   const [draftPolygon, setDraftPolygon] = useState<DrawEventFeature[]>([]);
-  const [sectors, setSectors] = useState<Sector[]>([]);
   const [editSector, setEditSector] = useState<Sector | null>(null);
   const [selectedSectorId, setSelectedSectorId] = useState<string | null>(null);
+  const [deleteSectorId, setDeleteSectorId] = useState<string | null>(null);
 
   const resetDraft = () => {
     setDraftPolygon([]);
@@ -70,10 +72,7 @@ export const DeliveryZone = (props: Props) => {
   const priceNumber = Number(price);
 
   const isPriceValid =
-    price.trim() !== "" &&
-    !Number.isNaN(priceNumber) &&
-    Number.isFinite(priceNumber) &&
-    priceNumber > 0;
+    !Number.isNaN(priceNumber) && Number.isFinite(priceNumber) && priceNumber >= 0;
 
   const isValidPolygon =
     draftPolygon.length > 0 &&
@@ -85,21 +84,21 @@ export const DeliveryZone = (props: Props) => {
       if (editSector) {
         const updateSectors = [];
 
-        for (let i = 0; i < sectors.length; i++) {
-          if (sectors[i].id === editSector.id) {
+        for (let i = 0; i < props.sectors.length; i++) {
+          if (props.sectors[i].id === editSector.id) {
             updateSectors.push({
               ...draftPolygon[0],
               color,
               price: priceNumber,
             });
           } else {
-            updateSectors.push(sectors[i]);
+            updateSectors.push(props.sectors[i]);
           }
         }
 
-        setSectors(updateSectors);
+        props.setSectors(updateSectors);
       } else {
-        setSectors((prev) => [
+        props.setSectors((prev) => [
           ...prev,
           {
             ...draftPolygon[0],
@@ -112,9 +111,12 @@ export const DeliveryZone = (props: Props) => {
     }
   };
 
-  const handleRemoveSector = (id: string) => {
-    setSectors((prev) => prev.filter((sector) => sector.id !== id));
-    setSelectedSectorId((prev) => (prev === id ? null : prev));
+  const handleRemoveSector = () => {
+    if (deleteSectorId) {
+      props.setSectors((prev) => prev.filter((sector) => sector.id !== deleteSectorId));
+      setSelectedSectorId(null);
+      setDeleteSectorId(null);
+    }
   };
 
   const handleSelectSector = (id: string) => {
@@ -130,8 +132,8 @@ export const DeliveryZone = (props: Props) => {
   };
 
   const selectColors = editSector
-    ? sectors.map((el) => el.color !== editSector.color && el.color)
-    : sectors.map((el) => el.color);
+    ? props.sectors.map((el) => el.color !== editSector.color && el.color)
+    : props.sectors.map((el) => el.color);
 
   const handleOpenModal = () => {
     const firstColor = ZONE_COLORS.find((el) => !selectColors.includes(el.value));
@@ -149,12 +151,21 @@ export const DeliveryZone = (props: Props) => {
     setDraftPolygon([sector]);
   };
 
-  const selectedSector = sectors.find((sector) => sector.id === selectedSectorId) ?? null;
+  const selectedSector = props.sectors.find((sector) => sector.id === selectedSectorId) ?? null;
 
   return (
     <>
+      <ModalDelete
+        isOpen={deleteSectorId !== null}
+        title="Вы действительно хотите удалить  сектор?"
+        showSubTitle={false}
+        submit={handleRemoveSector}
+        onClose={() => setDeleteSectorId(null)}
+        disabled={deleteSectorId === null}
+      />
+
       <Modal active={isModalOpen} handleCloseAction={handleCloseModal}>
-        <ModalContent>
+        <ModalContent width={1054}>
           <ModalHeader
             title={editSector ? "Редактировать сектор доставки" : "Новый сектор доставки"}
             onClose={handleCloseModal}
@@ -280,12 +291,12 @@ export const DeliveryZone = (props: Props) => {
             Добавить сектор
           </Button>
         </div>
-        {sectors.length === 0 ? (
+        {props.sectors.length === 0 ? (
           <p className={styles.emptyState}>Секторов пока нет. Нарисуйте первый на карте.</p>
         ) : (
           <>
             <ul className={styles.sectorList}>
-              {sectors.map((sector) => (
+              {props.sectors.map((sector) => (
                 <li
                   key={sector.id}
                   className={`${styles.sectorItem} ${
@@ -313,7 +324,7 @@ export const DeliveryZone = (props: Props) => {
                     title="Удалить"
                     className={styles.sectorListButton}
                     type="button"
-                    onClick={() => handleRemoveSector(sector.id)}
+                    onClick={() => setDeleteSectorId(sector.id)}
                   >
                     <DeleteSvg fill="#727280" />
                   </button>
@@ -322,7 +333,8 @@ export const DeliveryZone = (props: Props) => {
             </ul>
             <div className={styles.zonesMap}>
               <DeliveryZonesMap
-                sectors={sectors}
+                onClickSector={handleSelectSector}
+                sectors={props.sectors}
                 selectedSectorId={selectedSectorId}
                 center={props.initCenter}
                 mapToken={props.mapToken}

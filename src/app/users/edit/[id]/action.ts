@@ -33,7 +33,6 @@ export const updateUserAction = async (
   message: string;
 }> => {
   const validate = getValidatePayload(payload, updateUserSchema);
-  console.log(validate);
 
   if (validate.isValid) {
     const cookieStore = await cookies();
