@@ -23,6 +23,7 @@ export const DeliveryZonesMap = (props: Props) => {
         id: sector.id,
         color: sector.color,
         price: sector.price,
+        min_sum: sector.min_sum,
         selected: sector.id === props.selectedSectorId,
       },
       geometry: sector.geometry,

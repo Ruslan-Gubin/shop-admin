@@ -4,6 +4,7 @@ import { CONFIG_APP } from "@/shared/config/config";
 import { PageHeader } from "@/shared/ui/page-header/PageHeader";
 import { UpdateToken } from "@/views/UpdateToken/UpdateToken";
 import { WarehouseForm } from "../components/WarehouseForm/WarehouseForm";
+import { type SectionItemPayload, updateSectionAction } from "../edit/[id]/action";
 import { createWarehouseAction, fetchDefaultWarehouse, type WarehousePayload } from "./action";
 
 export default async function CreateWarehousePage() {
@@ -29,7 +30,7 @@ export default async function CreateWarehousePage() {
     is_public: true,
   };
 
-  const submitAction = async (payload: WarehousePayload) => {
+  const submitAction = async (payload: WarehousePayload, sectionsPayload: SectionItemPayload[]) => {
     "use server";
 
     let notification: { status: "error" | "success"; message: string } | null = null;
@@ -40,6 +41,20 @@ export default async function CreateWarehousePage() {
       errors = response.errors;
 
       if (response.status === "success" && response.data) {
+        if (sectionsPayload.length > 0 && typeof response.data.id === "number") {
+          updateSectionAction(sectionsPayload, String(response.data.id))
+            .then((response) => {
+              if (response.status === "error") {
+                throw response.message;
+              }
+            })
+            .catch((error) => {
+              notification = {
+                status: "error",
+                message: error || "Ошибка при редактировании сектора",
+              };
+            });
+        }
         notification = {
           status: "success",
           message: "Склад удачно создан",
@@ -63,6 +78,7 @@ export default async function CreateWarehousePage() {
       <section className="page-wrapper">
         <PageHeader title="Создать склад" fallbackHref="/warehouses" />
         <WarehouseForm
+          sectors={[]}
           initCenter={defaultCenter}
           fetchReverseAction={fetchReverseAction}
           mapStyle={CONFIG_APP.MAPBOX_STYLE}

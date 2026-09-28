@@ -65,6 +65,7 @@ export const WarehouseForm = (props: Props) => {
           color: sector.color,
           geometry: { coordinates: [sector.coordinates], type: "Polygon" },
           price: sector.price,
+          min_sum: sector.min_sum,
           properties: {},
           type: "Feature",
           id: String(sector.id),
@@ -91,6 +92,7 @@ export const WarehouseForm = (props: Props) => {
             typeof Number(sector.price) === "number" && !Number.isNaN(Number(sector.price))
               ? sector.price
               : 0,
+          min_sum: sector.min_sum,
           coordinates:
             Array.isArray(sector.geometry.coordinates) && sector.geometry.coordinates.length > 0
               ? sector.geometry.coordinates[0]
@@ -115,6 +117,7 @@ export const WarehouseForm = (props: Props) => {
 
         if (response.updateValues) {
           setValues(response.updateValues);
+          setSectors([]);
         }
       });
     });

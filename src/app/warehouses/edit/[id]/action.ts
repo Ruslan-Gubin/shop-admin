@@ -56,6 +56,7 @@ export const updateWarehouseAction = async (
 export type SectionItemPayload = {
   color: string;
   price: number;
+  min_sum: number;
   coordinates: number[][];
   id?: number;
 };

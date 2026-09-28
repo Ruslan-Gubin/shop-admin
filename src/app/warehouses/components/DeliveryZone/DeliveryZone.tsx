@@ -38,6 +38,7 @@ const ZONE_COLORS = [
 export interface Sector extends DrawEventFeature {
   color: string;
   price: number;
+  min_sum: number;
 }
 
 type Props = {
@@ -52,6 +53,7 @@ export const DeliveryZone = (props: Props) => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [color, setColor] = useState<string>("");
   const [price, setPrice] = useState<string>("");
+  const [minSum, setMinSum] = useState<string>("");
   const [draftPolygon, setDraftPolygon] = useState<DrawEventFeature[]>([]);
   const [editSector, setEditSector] = useState<Sector | null>(null);
   const [selectedSectorId, setSelectedSectorId] = useState<string | null>(null);
@@ -61,6 +63,7 @@ export const DeliveryZone = (props: Props) => {
     setDraftPolygon([]);
     setColor("");
     setPrice("");
+    setMinSum("");
     setEditSector(null);
   };
 
@@ -70,9 +73,14 @@ export const DeliveryZone = (props: Props) => {
   };
 
   const priceNumber = Number(price);
+  const minSumNumber = Number(minSum);
 
-  const isPriceValid =
-    !Number.isNaN(priceNumber) && Number.isFinite(priceNumber) && priceNumber >= 0;
+  const isValidPrice =
+    typeof priceNumber === "number" && !Number.isNaN(priceNumber) && Number.isFinite(priceNumber);
+  const isValidMinSum =
+    typeof minSumNumber === "number" &&
+    !Number.isNaN(minSumNumber) &&
+    Number.isFinite(minSumNumber);
 
   const isValidPolygon =
     draftPolygon.length > 0 &&
@@ -80,7 +88,7 @@ export const DeliveryZone = (props: Props) => {
     draftPolygon[0]?.geometry?.coordinates?.length > 0;
 
   const handleAddSector = () => {
-    if (isValidPolygon && isPriceValid) {
+    if (isValidPolygon && isValidPrice && isValidMinSum) {
       if (editSector) {
         const updateSectors = [];
 
@@ -90,6 +98,7 @@ export const DeliveryZone = (props: Props) => {
               ...draftPolygon[0],
               color,
               price: priceNumber,
+              min_sum: minSumNumber,
             });
           } else {
             updateSectors.push(props.sectors[i]);
@@ -104,6 +113,7 @@ export const DeliveryZone = (props: Props) => {
             ...draftPolygon[0],
             color,
             price: priceNumber,
+            min_sum: minSumNumber,
           },
         ]);
       }
@@ -147,6 +157,7 @@ export const DeliveryZone = (props: Props) => {
     setIsModalOpen(true);
     setColor(sector.color);
     setPrice(String(sector.price));
+    setMinSum(String(sector.min_sum));
     setEditSector(sector);
     setDraftPolygon([sector]);
   };
@@ -239,18 +250,43 @@ export const DeliveryZone = (props: Props) => {
                 ))}
               </div>
             </fieldset>
-            <div className={styles.priceField}>
-              <Input
-                value={price}
-                name="delivery_price"
-                id="delivery_price"
-                variant="standard"
-                variantSize="lg"
-                min={0}
-                inputMode="numeric"
-                label="Цена доставки, ₽"
-                onChange={(e) => setPrice(e.target.value)}
-              />
+            <div className={styles.priceFields}>
+              <div className={styles.priceField}>
+                <Input
+                  value={price}
+                  name="delivery_price"
+                  id="delivery_price"
+                  variant="standard"
+                  variantSize="lg"
+                  min={0}
+                  inputMode="numeric"
+                  label="Цена доставки, ₽"
+                  error={isValidPrice ? "" : "Укажите число не меньше 0"}
+                  aria-describedby="delivery_price_hint"
+                  onChange={(e) => setPrice(e.target.value)}
+                />
+                <p id="delivery_price_hint" className={styles.fieldHint}>
+                  0 ₽ — бесплатная доставка
+                </p>
+              </div>
+              <div className={styles.priceField}>
+                <Input
+                  value={minSum}
+                  name="min_sum"
+                  id="min_sum"
+                  variant="standard"
+                  variantSize="lg"
+                  min={0}
+                  inputMode="numeric"
+                  label="Мин. сумма заказа, ₽"
+                  error={isValidMinSum ? "" : "Укажите число не меньше 0"}
+                  aria-describedby="min_sum_hint"
+                  onChange={(e) => setMinSum(e.target.value)}
+                />
+                <p id="min_sum_hint" className={styles.fieldHint}>
+                  0 — без ограничения по сумме
+                </p>
+              </div>
             </div>
           </div>
           <ModalFooter
@@ -260,7 +296,7 @@ export const DeliveryZone = (props: Props) => {
             }}
             submitAction={{
               text: editSector ? "Редактировать" : "Добавить",
-              disabled: !isValidPolygon || !isPriceValid || !color,
+              disabled: !isValidPolygon || !isValidPrice || !isValidMinSum || !color,
               action: handleAddSector,
             }}
           />
@@ -299,9 +335,7 @@ export const DeliveryZone = (props: Props) => {
               {props.sectors.map((sector) => (
                 <li
                   key={sector.id}
-                  className={`${styles.sectorItem} ${
-                    sector.id === selectedSectorId ? styles.sectorItemActive : ""
-                  }`}
+                  className={`${styles.sectorItem} ${sector.id === selectedSectorId ? styles.sectorItemActive : ""}`}
                 >
                   <button
                     type="button"
@@ -315,8 +349,15 @@ export const DeliveryZone = (props: Props) => {
                       aria-hidden="true"
                     />
                     <span className={styles.sectorName}>
-                      <span className={styles.sectorPrice}>
-                        {priceFormatter.format(Number(sector.price))}
+                      {!Number.isNaN(Number(sector.price)) && (
+                        <span className={styles.sectorPrice}>
+                          {priceFormatter.format(sector.price)}
+                        </span>
+                      )}
+                      <span className={styles.sectorMinSum}>
+                        {!Number.isNaN(Number(sector.min_sum)) && Number(sector.min_sum) > 0
+                          ? `от ${priceFormatter.format(sector.min_sum)}`
+                          : "без мин. суммы"}
                       </span>
                     </span>
                   </button>
@@ -345,7 +386,7 @@ export const DeliveryZone = (props: Props) => {
         )}
         <p className={styles.sectionDescription}>
           Секторы стоимости доставки для самовывоза. Каждый сектор — отдельная зона на карте со
-          своей ценой.
+          своей ценой и минимальной суммой заказа (0 — без ограничения).
         </p>
       </FormSection>
     </>

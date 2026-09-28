@@ -55,22 +55,20 @@ export default async function EditWarehousePage(props: Props) {
       errors = response.errors;
 
       if (response.status === "success") {
-        if (sectionsPayload.length > 0) {
-          updateSectionAction(sectionsPayload, id)
-            .then((response) => {
-              if (response.status === "success") {
-                revalidatePath("product/edit");
-              } else {
-                throw response.message;
-              }
-            })
-            .catch((error) => {
-              notification = {
-                status: "error",
-                message: error || "Ошибка при редактировании сектора",
-              };
-            });
-        }
+        updateSectionAction(sectionsPayload, id)
+          .then((response) => {
+            if (response.status === "success") {
+              revalidatePath("product/edit");
+            } else {
+              throw response.message;
+            }
+          })
+          .catch((error) => {
+            notification = {
+              status: "error",
+              message: error || "Ошибка при редактировании сектора",
+            };
+          });
 
         notification = {
           status: "success",

@@ -24,6 +24,7 @@ export type SectorModel = {
   id: number;
   color: string;
   price: number;
+  min_sum: number;
   coordinates: number[][];
   created_at: string;
   updated_at: string | null;
@@ -88,9 +89,7 @@ export const fetchWarehouse = async (id: string) => {
     });
 };
 
-export const deleteWarehouseAction = async (
-  id: number,
-): Promise<{ status: "error" | "success"; message: string }> => {
+export const deleteWarehouseAction = async (id: number): Promise<{ status: "error" | "success"; message: string }> => {
   "use server";
   const cookieStore = await cookies();
 
@@ -119,9 +118,7 @@ type ProductStockPayload = {
   in_stock?: boolean;
 };
 
-export const createProductStock = async (
-  payload: ProductStockPayload,
-): Promise<"error" | "success"> => {
+export const createProductStock = async (payload: ProductStockPayload): Promise<"error" | "success"> => {
   const { isValid } = getValidatePayload(payload, createProductStockSchema);
 
   if (isValid) {
@@ -144,10 +141,7 @@ export const createProductStock = async (
   return "error";
 };
 
-export const updateProductStock = async (
-  payload: ProductStockPayload,
-  id: number,
-): Promise<"error" | "success"> => {
+export const updateProductStock = async (payload: ProductStockPayload, id: number): Promise<"error" | "success"> => {
   const { isValid } = getValidatePayload(payload, createProductStockSchema);
 
   if (isValid) {

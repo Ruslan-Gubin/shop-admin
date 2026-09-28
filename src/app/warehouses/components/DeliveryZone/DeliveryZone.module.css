@@ -58,11 +58,32 @@
   }
 }
 
+.priceFields {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 16px var(--gap-info-block);
+}
+
 .priceField {
   flex: 0 0 200px;
+  min-width: 0;
 
-  @media (max-width: 560px) {
-    flex: 1 1 auto;
+  @media (max-width: 700px) {
+    flex: 1 1 160px;
+  }
+}
+
+.fieldHint {
+  margin-top: 6px;
+  padding-inline: 8px;
+  color: var(--text-color-placeholder);
+  font-size: 12px;
+  line-height: 1.3;
+
+  @media (max-width: 500px) {
+    padding-inline: 6px;
+    font-size: 11px;
   }
 }
 
@@ -150,6 +171,7 @@
 
 .sectorList {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
   flex-direction: row;
 }
@@ -198,6 +220,11 @@
 }
 
 .sectorPrice {
+  color: var(--text-color-main);
+  font-size: 14px;
+}
+
+.sectorMinSum {
   color: var(--text-color-placeholder);
   font-size: 13px;
 }
@@ -205,6 +232,10 @@
 .sectorItemActive .sectorPrice {
   color: #0075f2;
   font-weight: 500;
+}
+
+.sectorItemActive .sectorMinSum {
+  color: #0075f2;
 }
 
 .sectorListButton {
