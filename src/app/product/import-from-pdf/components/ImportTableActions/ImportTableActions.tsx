@@ -28,7 +28,9 @@ export const ImportTableActions = (props: Props) => {
         >
           {props.isProcess ? (
             <>
-              <div className="spinner" />
+              <div className="buttonContentIcon">
+                <div className="spinner" />
+              </div>
               <span>В процессе</span>
             </>
           ) : (
@@ -48,7 +50,9 @@ export const ImportTableActions = (props: Props) => {
         >
           {props.isProcess ? (
             <>
-              <div className="spinner" />
+              <div className="buttonContentIcon">
+                <div className="spinner" />
+              </div>
               <span>В процессе</span>
             </>
           ) : (
@@ -68,7 +72,9 @@ export const ImportTableActions = (props: Props) => {
         >
           {props.isProcess ? (
             <>
-              <div className="spinner" />
+              <div className="buttonContentIcon">
+                <div className="spinner" />
+              </div>
               <span>В процессе</span>
             </>
           ) : (

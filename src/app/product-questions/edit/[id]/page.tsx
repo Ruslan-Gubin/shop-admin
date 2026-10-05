@@ -4,10 +4,8 @@ import { ErrorAlert } from "@/shared/ui/error-alert/ErrorAlert";
 import { PageHeader } from "@/shared/ui/page-header/PageHeader";
 import { UpdateToken } from "@/views/UpdateToken/UpdateToken";
 import {
-  type AnswerSuggestionPayload,
   deleteProductQuestionAction,
   fetchProductQuestionEdit,
-  getAnswerSuggestionAction,
   updateProductQuestionAction,
 } from "../../action";
 import { ProductQuestionEditForm } from "../../components/ProductQuestionEditForm/ProductQuestionEditForm";
@@ -58,26 +56,6 @@ export default async function EditProductQuestionPage(searchParams: {
     return { errors, notification };
   };
 
-  const generateAnswerAction = async (payload: AnswerSuggestionPayload) => {
-    "use server";
-
-    let notification: { status: "error" | "success"; message: string } | null = null;
-    let answer = "";
-
-    await getAnswerSuggestionAction(payload).then((response) => {
-      if (response.status === "success" && typeof response.data === "string") {
-        answer = response.data;
-      } else {
-        notification = {
-          status: "error",
-          message: response.message || "Не удалось сгенерировать ответ",
-        };
-      }
-    });
-
-    return { notification, answer };
-  };
-
   return (
     <section className="page-wrapper">
       {questionData.tokens && <UpdateToken tokens={questionData.tokens} />}
@@ -85,7 +63,6 @@ export default async function EditProductQuestionPage(searchParams: {
       {!question && <ErrorAlert message={questionData.message || "Вопрос не найден"} />}
       {question && (
         <ProductQuestionEditForm
-          generateAnswerAction={generateAnswerAction}
           question={question}
           submitAction={submitAction}
           deleteAction={deleteAction}

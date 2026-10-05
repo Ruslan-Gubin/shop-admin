@@ -7,6 +7,13 @@ import { fetchService } from "@/shared/fetch-api";
 import { updateTokensInAction } from "@/shared/helpers/updateCookieAction";
 import type { OrderModel } from "../../action";
 
+// export const createPaymentAction = async (order_id: string) => {
+//   return await fetchService.get<null>({
+//     url: `payments/test-create-payment`,
+//     params: { order_id },
+//   });
+// };
+
 export type OrderReservation = {
   quantity: number;
   stock_id: number;

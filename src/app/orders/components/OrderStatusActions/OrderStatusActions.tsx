@@ -42,8 +42,17 @@ export const OrderStatusActions = (props: Props) => {
     props.status !== "cancelled_delivery" &&
     props.status !== "cancelled_customer";
 
+  // const handleCreatePayment = () => {
+  //   createPaymentAction("174").then((response) => {
+  //     console.log(response);
+  //   });
+  // };
+
   return (
     <div className={styles.actionsRow}>
+      {/* <button type="button" onClick={handleCreatePayment}> */}
+      {/*   Test create payment */}
+      {/* </button> */}
       {cancelStatuses && (
         <OrderCancel order_id={props.order_id} cancelOrderAction={props.cancelOrderAction} />
       )}

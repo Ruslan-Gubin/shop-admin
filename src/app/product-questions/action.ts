@@ -4,7 +4,9 @@ import { cookies } from "next/headers";
 import { fetchService } from "@/shared/fetch-api";
 import { deleteItemCookieAction, updateTokensInAction } from "@/shared/helpers/updateCookieAction";
 import { getValidatePayload } from "@/shared/services/get-form-action-state";
+import type { CategoryModel } from "../category/action";
 import type { ProductModel } from "../product/action";
+import type { ProductSpecificationModel } from "../specifications/action";
 import { updateAnswerSchema } from "./schema";
 
 export type QuestionModel = {
@@ -57,6 +59,42 @@ export const fetchProductQuestion = async (id: string) => {
     });
 };
 
+export const fetchProductSpecificationsClient = async (id: number) => {
+  const cookieStore = await cookies();
+
+  return await fetchService
+    .get<ProductSpecificationModel[]>({
+      url: `product-specifications/product/${id}`,
+      tags: [`ProductSpecifications_${id}`],
+      revalidate: 30,
+    })
+    .then((response) => {
+      if (response.tokens) {
+        updateTokensInAction(cookieStore, response.tokens);
+      }
+
+      return response;
+    });
+};
+
+export const fetchProductCategoriesClient = async (id: number) => {
+  const cookieStore = await cookies();
+
+  return await fetchService
+    .get<CategoryModel[]>({
+      url: `product/full-path-categories/${id}`,
+      tags: [`ProductCategories_${id}`],
+      revalidate: 30,
+    })
+    .then((response) => {
+      if (response.tokens) {
+        updateTokensInAction(cookieStore, response.tokens);
+      }
+
+      return response;
+    });
+};
+
 export const deleteProductQuestionAction = async (
   id: number,
 ): Promise<{ status: "error" | "success"; message: string }> => {
@@ -82,29 +120,6 @@ export const deleteProductQuestionAction = async (
 
 export type UpdateAnswerPayload = {
   answer: string;
-};
-
-export type AnswerSuggestionPayload = {
-  question: string;
-  product_id: number;
-  context?: string;
-};
-
-export const getAnswerSuggestionAction = async (payload: AnswerSuggestionPayload) => {
-  const cookieStore = await cookies();
-
-  return fetchService
-    .post<string>({
-      url: "product-question/generate-answer",
-      payload,
-    })
-    .then((response) => {
-      if (response.tokens) {
-        updateTokensInAction(cookieStore, response.tokens);
-      }
-
-      return response;
-    });
 };
 
 export const updateProductQuestionAction = async (

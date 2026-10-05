@@ -1,10 +1,15 @@
 "use client";
 import { useRef, useState, useTransition } from "react";
+import { generateProductAction } from "@/app/product/action";
 import type { ImportPdfItem } from "@/shared/helpers/parse-catalog";
 import { Button } from "@/shared/ui/button-main/Button";
 import { notificationAdapter } from "@/stores/notification/adapter";
-import { generateProductAction } from "@/app/product/action";
-import { addProductAction, type CheckItemStatus, checkBarcodeAction, uploadAndParsePdfAction } from "../../action";
+import {
+  addProductAction,
+  type CheckItemStatus,
+  checkBarcodeAction,
+  uploadAndParsePdfAction,
+} from "../../action";
 import { ImportTableActions } from "../ImportTableActions/ImportTableActions";
 import styles from "./ImportForm.module.css";
 
@@ -33,8 +38,10 @@ export const ImportForm = () => {
       uploadAndParsePdfAction(file).then(async (fileItems) => {
         const chunkSize = 500;
 
-        const statuses: Record<string, { status: CheckItemStatus; error_message: string; product_id: number | null }> =
-          {};
+        const statuses: Record<
+          string,
+          { status: CheckItemStatus; error_message: string; product_id: number | null }
+        > = {};
         let isError = false;
 
         for (let i = 0; i < fileItems.length; i += chunkSize) {
@@ -166,7 +173,10 @@ export const ImportForm = () => {
                 ...prev,
                 [item.id]: {
                   status: response.data?.clear_name && response.data?.product ? "record" : "error",
-                  error_message: response.data?.clear_name && response.data?.product ? "" : "Нет полного описания",
+                  error_message:
+                    response.data?.clear_name && response.data?.product
+                      ? ""
+                      : "Нет полного описания",
                   product_id: null,
                 },
               }));
@@ -282,10 +292,14 @@ export const ImportForm = () => {
   return (
     <section className={styles.section}>
       <div className={styles.uploadArea}>
-        <label className={`${styles.fileLabel} ${parseLoading || isHasProcess ? styles.fileLabelDisabled : ""}`}>
+        <label
+          className={`${styles.fileLabel} ${parseLoading || isHasProcess ? styles.fileLabelDisabled : ""}`}
+        >
           {parseLoading ? (
             <>
-              <span className="spinner" />
+              <div className="buttonContentIcon">
+                <span className="spinner" />
+              </div>
               Формируем PDF…
             </>
           ) : (
@@ -307,15 +321,30 @@ export const ImportForm = () => {
         <>
           <div className={styles.massActions}>
             {counts.needGenerate > 0 && (
-              <Button variantColor="blue" size="sm" disabled={isHasProcess} onClick={handleGenerateAll}>
-                {generateLoading && <div className="spinner" />}
-                {generateLoading ? `Генерация (${counts.needGenerate})` : `Сгенерировать все (${counts.needGenerate})`}
+              <Button
+                variantColor="blue"
+                size="sm"
+                disabled={isHasProcess}
+                onClick={handleGenerateAll}
+              >
+                {generateLoading && (
+                  <div className="buttonContentIcon">
+                    <div className="spinner" />
+                  </div>
+                )}
+                {generateLoading
+                  ? `Генерация (${counts.needGenerate})`
+                  : `Сгенерировать все (${counts.needGenerate})`}
               </Button>
             )}
 
             {counts.needAdd > 0 && (
               <Button size="sm" variantColor="green" disabled={isHasProcess} onClick={handleAddAll}>
-                {addLoading && <div className="spinner" />}
+                {addLoading && (
+                  <div className="buttonContentIcon">
+                    <div className="spinner" />
+                  </div>
+                )}
                 {addLoading ? `Добавление (${counts.needAdd})` : `Добавить все (${counts.needAdd})`}
               </Button>
             )}
@@ -338,7 +367,11 @@ export const ImportForm = () => {
             </thead>
             <tbody className={styles.tableBody}>
               {pdfItems.map((p) => (
-                <tr key={p.id} className={styles.dataRow} style={{ gridTemplateColumns: gridColumns }}>
+                <tr
+                  key={p.id}
+                  className={styles.dataRow}
+                  style={{ gridTemplateColumns: gridColumns }}
+                >
                   <td className={styles.dataCell} title={p.name}>
                     <p className={styles.textOverflow}>{p.name}</p>
                     {statuses[p.id].status === "error" && statuses[p.id].error_message && (

@@ -1,13 +1,19 @@
 "use client";
 import Link from "next/link";
 import { useRef, useState, useTransition } from "react";
+import {
+  fetchProductCategoriesClient,
+  fetchProductSpecificationsClient,
+} from "@/app/product-questions/action";
+import { generateAnswer } from "@/shared/llm/generateAnswer";
+import { AiSvg } from "@/shared/svg/AiSvg";
 import { Button } from "@/shared/ui/button-main/Button";
 import { InputTextarea } from "@/shared/ui/input-textarea/InputTextarea";
 import { notificationAdapter } from "@/stores/notification/adapter";
-import { AiSvg } from "@/shared/svg/AiSvg";
-import { ModalDelete } from "@/widgets/modals/modal-delete/ModalDelete";
 import { AnswerSuggestionModal } from "@/widgets/answer-suggestion-modal/AnswerSuggestionModal";
-import { type AnswerSuggestionPayload, type ReviewModel } from "../../action";
+import { ModalDelete } from "@/widgets/modals/modal-delete/ModalDelete";
+import type { ReviewModel } from "../../action";
+import { promptAnswerFromProductReview } from "../../prompt";
 import styles from "./ProductReviewEditForm.module.css";
 
 type Props = {
@@ -19,10 +25,6 @@ type Props = {
   deleteAction: () => Promise<void>;
   initErrors: { answer: string };
   initValues: { answer: string };
-  generateAnswerAction: (payload: AnswerSuggestionPayload) => Promise<{
-    notification: { status: "error" | "success"; message: string } | null;
-    answer: string;
-  }>;
 };
 
 export const ProductReviewEditForm = (props: Props) => {
@@ -55,27 +57,47 @@ export const ProductReviewEditForm = (props: Props) => {
   };
 
   const handleGenerate = () => {
-    const reviewId = props.review?.id;
+    generateTransition(async () => {
+      const product = props?.review?.product;
 
-    if (!reviewId) {
-      notificationAdapter.add("Не удалось сгенерировать ответ: отзыв не указан", "error");
-      return;
-    }
+      if (!product?.id) {
+        notificationAdapter.add("Не удалось сгенерировать ответ: товар не указан", "error");
+        return;
+      }
 
-    generateTransition(() => {
-      const payload = {
-        review_id: reviewId,
+      const specifications = await fetchProductSpecificationsClient(product.id);
+      const categoriesData = await fetchProductCategoriesClient(product.id);
+
+      const prompt = await promptAnswerFromProductReview({
+        brand_name: product.brand_name,
+        categories: categoriesData.data || [],
+        country: product.country,
+        description: product.description,
+        equipment: product.equipment,
+        name: product.name,
+        product_type: product.product_type,
+        specifications: specifications.data || [],
         context: answer.trim() || "",
-      };
-
-      props.generateAnswerAction(payload).then((response) => {
-        if (response.answer) {
-          setSuggestion(response.answer);
-          setIsModalOpen(true);
-        } else if (response.notification) {
-          notificationAdapter.add(response.notification.message, response.notification.status);
-        }
+        comment: props.review.comment,
+        dignities: props.review.dignities,
+        disadvantages: props.review.disadvantages,
+        rating: props.review.rating,
       });
+
+      if (prompt.length > 0) {
+        await generateAnswer(prompt)
+          .then((response) => {
+            if (typeof response === "string" && response.length > 0) {
+              setSuggestion(response);
+              setIsModalOpen(true);
+            } else {
+              throw "Не удалось получить сгенерированный ответ";
+            }
+          })
+          .catch((error) => {
+            notificationAdapter.add(error, "error");
+          });
+      }
     });
   };
 

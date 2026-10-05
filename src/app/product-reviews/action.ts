@@ -87,28 +87,6 @@ export type AnswerReviewPayload = {
   answer: string;
 };
 
-export type AnswerSuggestionPayload = {
-  review_id: number;
-  context?: string;
-};
-
-export const getAnswerSuggestionAction = async (payload: AnswerSuggestionPayload) => {
-  const cookieStore = await cookies();
-
-  return fetchService
-    .post<string>({
-      url: "product-review/generate-answer",
-      payload,
-    })
-    .then((response) => {
-      if (response.tokens) {
-        updateTokensInAction(cookieStore, response.tokens);
-      }
-
-      return response;
-    });
-};
-
 export const answerProductReviewAction = async (
   payload: AnswerReviewPayload,
   id: number,

@@ -5,11 +5,9 @@ import { ErrorAlert } from "@/shared/ui/error-alert/ErrorAlert";
 import { PageHeader } from "@/shared/ui/page-header/PageHeader";
 import { UpdateToken } from "@/views/UpdateToken/UpdateToken";
 import {
-  type AnswerSuggestionPayload,
   answerProductReviewAction,
   deleteProductReviewAction,
   fetchProductReviewEdit,
-  getAnswerSuggestionAction,
 } from "../../action";
 import { ProductReviewEditForm } from "../../components/ProductReviewEditForm/ProductReviewEditForm";
 
@@ -57,26 +55,6 @@ export default async function EditProductReviewPage(searchParams: {
     return { errors, notification };
   };
 
-  const generateAnswerAction = async (payload: AnswerSuggestionPayload) => {
-    "use server";
-
-    let notification: { status: "error" | "success"; message: string } | null = null;
-    let answer = "";
-
-    await getAnswerSuggestionAction(payload).then((response) => {
-      if (response.status === "success" && typeof response.data === "string") {
-        answer = response.data;
-      } else {
-        notification = {
-          status: "error",
-          message: response.message || "Не удалось сгенерировать ответ",
-        };
-      }
-    });
-
-    return { notification, answer };
-  };
-
   return (
     <section className="page-wrapper">
       {reviewData.tokens && <UpdateToken tokens={reviewData.tokens} />}
@@ -84,7 +62,6 @@ export default async function EditProductReviewPage(searchParams: {
       {!review && <ErrorAlert message={reviewData.message || "Отзыв не найден"} />}
       {review && (
         <ProductReviewEditForm
-          generateAnswerAction={generateAnswerAction}
           review={review}
           submitAction={submitAction}
           deleteAction={deleteAction}
