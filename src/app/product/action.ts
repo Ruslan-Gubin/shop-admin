@@ -13,7 +13,7 @@ import type {
   ProductSpecificationModel,
 } from "../specifications/action";
 import type { FetchWarehousesResponse, ProductStockModel } from "../warehouses/action";
-import { categorySuggestionSchema, createProductPriceSchema } from "./schema";
+import { createProductPriceSchema } from "./schema";
 
 export type PhotoItem = {
   created_at: string;
@@ -422,74 +422,9 @@ export type SeoModel = {
   keywords: string;
 };
 
-export type SeoSuggestionPayload = {
-  name: string;
-  description?: string;
-  brand_name?: string;
-  category_name?: string;
-  seo?: {
-    seo_title?: string;
-    seo_description?: string;
-    slug?: string;
-    og_title?: string;
-    og_description?: string;
-    og_type?: string;
-    keywords?: string;
-  };
-};
-
-export const getSeoSuggestionAction = async (payload: SeoSuggestionPayload) => {
-  const cookieStore = await cookies();
-
-  return fetchService
-    .post<SeoModel>({
-      url: "product-source-record/generate-seo",
-      payload,
-    })
-    .then((response) => {
-      if (response.tokens) {
-        updateTokensInAction(cookieStore, response.tokens);
-      }
-
-      return response;
-    });
-};
-
 export type CategorySuggestion = {
   category_id: number | null;
   create_categories: { name: string; parent_id: number | null }[];
-};
-
-export type CategorySuggestionPayload = {
-  name: string;
-  description: string;
-};
-
-export const getCategorySuggestionAction = async (payload: CategorySuggestionPayload) => {
-  const { isValid, errors } = getValidatePayload(payload, categorySuggestionSchema);
-
-  if (isValid) {
-    const cookieStore = await cookies();
-
-    return fetchService
-      .post<CategorySuggestion>({
-        url: "product-source-record/suggest-category",
-        payload,
-      })
-      .then((response) => {
-        if (response.tokens) {
-          updateTokensInAction(cookieStore, response.tokens);
-        }
-
-        if (response.status === "error" && response.errors) {
-          setErrorFromServer(response.errors, errors);
-        }
-
-        return { ...response, errors };
-      });
-  } else {
-    return { data: null, status: "error", message: "", errors, tokens: null };
-  }
 };
 
 export const applyCategorySuggestionAction = async (

@@ -1,12 +1,10 @@
 import { useMemo, useState } from "react";
 import type { CategoryModel } from "@/app/category/action";
-import {
-  type CategorySuggestion,
-  type GenerateProductType,
-  getCategorySuggestionAction,
-} from "@/app/product/action";
+import type { CategorySuggestion, GenerateProductType } from "@/app/product/action";
 import type { ProductFormPayloadValues } from "@/app/product/create/action";
+import { promptCategoryFromProduct } from "@/app/product/prompt";
 import { getCategoryFullPath } from "@/shared/helpers/getCategoryFullPath";
+import { generateAnswer } from "@/shared/llm/generateAnswer";
 import { Button } from "@/shared/ui/button-main/Button";
 import { Checkbox } from "@/shared/ui/checkbox/Checkbox";
 import { Modal } from "@/shared/ui/modal/Modal";
@@ -297,13 +295,23 @@ export const FullInfoSuggestionModal = (props: Props) => {
     setSuggesting(true);
     setCategoryError("");
 
-    getCategorySuggestionAction({ name, description })
+    promptCategoryFromProduct({
+      name,
+      description,
+      categories: props.categories,
+    })
+      .then((prompt) => generateAnswer<CategorySuggestion>(prompt))
       .then((response) => {
-        if (response.status === "success" && response.data) {
-          setCategorySuggestion(response.data);
+        const suggestion = response.answer;
+
+        if (suggestion.category_id || suggestion.create_categories?.length > 0) {
+          setCategorySuggestion(suggestion);
         } else {
-          setCategoryError(response.message || "Не удалось определить категорию");
+          setCategoryError("Не удалось определить категорию");
         }
+      })
+      .catch((error) => {
+        setCategoryError(typeof error === "string" ? error : "Не удалось определить категорию");
       })
       .finally(() => {
         setSuggesting(false);

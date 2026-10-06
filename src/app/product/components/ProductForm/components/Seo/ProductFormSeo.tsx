@@ -1,12 +1,10 @@
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import type { CategoryModel } from "@/app/category/action";
-import {
-  getSeoSuggestionAction,
-  type SeoModel,
-  type SeoSuggestionPayload,
-} from "@/app/product/action";
+import type { SeoModel } from "@/app/product/action";
 import type { ProductFormPayloadValues } from "@/app/product/create/action";
+import { promptSeoFromProduct } from "@/app/product/prompt";
 import { getCategoryFullPath } from "@/shared/helpers/getCategoryFullPath";
+import { generateAnswer } from "@/shared/llm/generateAnswer";
 import { AiSvg } from "@/shared/svg/AiSvg";
 import { CancelSvg } from "@/shared/svg/CancelSvg";
 import { Button } from "@/shared/ui/button-main/Button";
@@ -25,52 +23,51 @@ type Props = {
 };
 
 export const ProductFormSeo = (props: Props) => {
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, transition] = useTransition();
   const [recommendations, setRecommendations] = useState<SeoModel | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleGenerate = () => {
-    const payload: SeoSuggestionPayload = {
-      name: props.values.name,
-      description: props.values.description || undefined,
-      brand_name: props.values.brand_name || undefined,
-      category_name: getCategoryFullPath(props.categories, props.values.category_id) || undefined,
-      seo: {
-        seo_title: props.values.seo_title,
-        seo_description: props.values.seo_description,
-        slug: props.values.slug,
-        og_title: props.values.og_title,
-        og_description: props.values.og_description,
-        og_type: props.values.og_type,
-        keywords: props.values.keywords,
-      },
-    };
-
-    setIsLoading(true);
-
-    getSeoSuggestionAction(payload)
-      .then((response) => {
-        if (response.status === "success" && response.data) {
-          setRecommendations({
-            seo_title: response.data?.seo_title || "",
-            seo_description: response.data?.seo_description || "",
-            slug: response.data?.slug || "",
-            og_title: response.data?.og_title || "",
-            og_description: response.data?.og_description || "",
-            og_type: response.data?.og_type || "",
-            keywords: response.data?.keywords || "",
-          });
-          setIsModalOpen(true);
-        } else {
-          notificationAdapter.add(
-            response.message || "Не удалось сгенерировать SEO",
-            response.status,
-          );
-        }
-      })
-      .finally(() => {
-        setIsLoading(false);
+    transition(async () => {
+      const prompt = await promptSeoFromProduct({
+        name: props.values.name,
+        description: props.values.description || undefined,
+        brand_name: props.values.brand_name || undefined,
+        category_name: getCategoryFullPath(props.categories, props.values.category_id) || undefined,
+        seo: {
+          seo_title: props.values.seo_title,
+          seo_description: props.values.seo_description,
+          slug: props.values.slug,
+          og_title: props.values.og_title,
+          og_description: props.values.og_description,
+          og_type: props.values.og_type,
+          keywords: props.values.keywords,
+        },
       });
+
+      if (prompt.length > 0) {
+        await generateAnswer<SeoModel>(prompt)
+          .then((response) => {
+            if (Object.hasOwn(response, "answer")) {
+              setRecommendations({
+                seo_title: response.answer?.seo_title || "",
+                seo_description: response.answer?.seo_description || "",
+                slug: response.answer?.slug || "",
+                og_title: response.answer?.og_title || "",
+                og_description: response.answer?.og_description || "",
+                og_type: response.answer?.og_type || "",
+                keywords: response.answer?.keywords || "",
+              });
+              setIsModalOpen(true);
+            } else {
+              throw "Не удалось сгенерировать SEO";
+            }
+          })
+          .catch((error) => {
+            notificationAdapter.add(error, "error");
+          });
+      }
+    });
   };
 
   const handleCloseModal = () => {

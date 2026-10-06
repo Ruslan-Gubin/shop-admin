@@ -1,4 +1,4 @@
-export const generateAnswer = async (prompt: string, clearAnswer?: boolean): Promise<string> => {
+export const generateAnswer = async <T>(prompt: string): Promise<{ answer: T }> => {
   return fetch("http://localhost:8080/v1/chat/completions", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -28,26 +28,20 @@ export const generateAnswer = async (prompt: string, clearAnswer?: boolean): Pro
       if (Object.hasOwn(response, "error") && typeof response.error.message === "string") {
         throw response.error.message;
       }
+      const emptyAnswerErrorText = "не удалось получить ответ";
 
       const content = response.choices?.[0]?.message?.content ?? "";
-      if (typeof content !== "string") throw "ответ без текста";
+      if (typeof content !== "string") throw emptyAnswerErrorText;
 
-      let answer = "";
+      const match = content.match(/\{[\s\S]*\}/);
 
-      if (!clearAnswer) {
-        const match = content.match(/\{[\s\S]*\}/);
+      if (!match) throw emptyAnswerErrorText;
 
-        if (!match) throw "ответ без текста";
-        const json = JSON.parse(match[0]);
+      const json = JSON.parse(match[0]);
 
-        answer = typeof json.answer === "string" ? json.answer : "";
-      } else {
-        answer = content;
-      }
+      if (!Object.hasOwn(json, "answer")) throw emptyAnswerErrorText;
 
-      if (answer.length === 0) throw "ответ без текста";
-
-      return answer;
+      return json;
     })
     .catch((error) => {
       throw `Запрос к локальной LLM завершился с ошибкой: ${error}`;

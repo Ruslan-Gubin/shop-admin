@@ -154,30 +154,31 @@ export const ProductForm = (props: Props) => {
   };
 
   const handleGenerateFullInfo = () => {
-    setGeneratingFullInfo(true);
-
-    generateProductAction(values.name, values.code)
-      .then((response) => {
-        if (response.status === "success" && response.data) {
-          if (response.data.error_message) {
-            notificationAdapter.add(response.data.error_message, "error");
-          }
-
-          if (response.data.product) {
-            setFullInfoClearName(response.data.clear_name || "");
-            setFullInfoProduct(response.data.product);
-            setIsFullInfoModalOpen(true);
-          }
-        } else {
-          notificationAdapter.add(
-            response.message || "Не удалось сгенерировать информацию",
-            response.status,
-          );
-        }
-      })
-      .finally(() => {
-        setGeneratingFullInfo(false);
-      });
+    console.log("rerender");
+    // setGeneratingFullInfo(true);
+    //
+    // generateProductAction(values.name, values.code)
+    //   .then((response) => {
+    //     if (response.status === "success" && response.data) {
+    //       if (response.data.error_message) {
+    //         notificationAdapter.add(response.data.error_message, "error");
+    //       }
+    //
+    //       if (response.data.product) {
+    //         setFullInfoClearName(response.data.clear_name || "");
+    //         setFullInfoProduct(response.data.product);
+    //         setIsFullInfoModalOpen(true);
+    //       }
+    //     } else {
+    //       notificationAdapter.add(
+    //         response.message || "Не удалось сгенерировать информацию",
+    //         response.status,
+    //       );
+    //     }
+    //   })
+    //   .finally(() => {
+    //     setGeneratingFullInfo(false);
+    //   });
   };
 
   const handleCloseFullInfoModal = () => {

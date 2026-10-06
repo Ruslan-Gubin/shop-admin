@@ -85,10 +85,10 @@ export const ProductReviewEditForm = (props: Props) => {
       });
 
       if (prompt.length > 0) {
-        await generateAnswer(prompt)
+        await generateAnswer<string>(prompt)
           .then((response) => {
-            if (typeof response === "string" && response.length > 0) {
-              setSuggestion(response);
+            if (typeof response.answer === "string" && response.answer.length > 0) {
+              setSuggestion(response.answer);
               setIsModalOpen(true);
             } else {
               throw "Не удалось получить сгенерированный ответ";

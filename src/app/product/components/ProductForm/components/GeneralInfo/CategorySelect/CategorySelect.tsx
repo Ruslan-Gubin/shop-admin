@@ -1,13 +1,10 @@
 import Link from "next/link";
 import { Activity, useMemo, useState, useTransition } from "react";
 import type { CategoryModel } from "@/app/category/action";
-import {
-  applyCategorySuggestionAction,
-  type CategorySuggestion,
-  getCategorySuggestionAction,
-} from "@/app/product/action";
+import { applyCategorySuggestionAction, type CategorySuggestion } from "@/app/product/action";
+import { promptCategoryFromProduct } from "@/app/product/prompt";
 import { getCategoryFullPath } from "@/shared/helpers/getCategoryFullPath";
-import { getFirstErrorMessage } from "@/shared/helpers/getFirstErrorMessage";
+import { generateAnswer } from "@/shared/llm/generateAnswer";
 import { AiSvg } from "@/shared/svg/AiSvg";
 import { CancelSvg } from "@/shared/svg/CancelSvg";
 import { Button } from "@/shared/ui/button-main/Button";
@@ -48,25 +45,31 @@ export const CategorySelect = (props: Props) => {
 
   const handleSuggestCategory = () => {
     transition(() => {
-      getCategorySuggestionAction({
+      return promptCategoryFromProduct({
         name: props.values.name,
         description: props.values.description,
-      }).then((response) => {
-        if (
-          response.status === "success" &&
-          response.data &&
-          (response.data.category_id || Array.isArray(response.data.create_categories))
-        ) {
-          setCategorySuggestion(response.data);
-          setIsCategoryModalOpen(true);
-        } else {
-          const errorMessage = getFirstErrorMessage(response.errors, response.message);
-
-          if (errorMessage) {
-            notificationAdapter.add(errorMessage, "error");
+        categories: props.categories,
+      })
+        .then((prompt) => {
+          if (typeof prompt === "string") {
+            return generateAnswer<CategorySuggestion>(prompt).then((response) => {
+              if (
+                Object.hasOwn(response, "answer") &&
+                (response.answer?.category_id || Array.isArray(response.answer?.create_categories))
+              ) {
+                setCategorySuggestion(response.answer);
+                setIsCategoryModalOpen(true);
+              } else {
+                throw "Не удалось сгенерировать рекомендуемую категорию";
+              }
+            });
+          } else {
+            throw "Не удалось составить вопрос к ллм";
           }
-        }
-      });
+        })
+        .catch((error) => {
+          notificationAdapter.add(error, "error");
+        });
     });
   };
 
