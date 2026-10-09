@@ -353,21 +353,32 @@ export const createPhotoAction = async (payload: {
     });
 };
 
-export const getParsePhotoAction = async (name: string) => {
-  const cookieStore = await cookies();
+//TODO REMOVE
+// export type ProductSourceRecordModel = {
+//   id: number;
+//   value: string;
+//   clear_name: string;
+//   source_names: string[];
+//   error_message: string;
+//   product: GenerateProductType | null;
+// };
 
-  return fetchService
-    .get<string[]>({
-      url: `product-source-record/pick-images?query=${name}`,
-    })
-    .then((response) => {
-      if (response.tokens) {
-        updateTokensInAction(cookieStore, response.tokens);
-      }
-
-      return response;
-    });
-};
+//TODO REMOVE
+// export const getRecordAction = async (id: string) => {
+//   const cookieStore = await cookies();
+//
+//   return fetchService
+//     .get<ProductSourceRecordModel>({
+//       url: `product-source-record/get-record/${id}`,
+//     })
+//     .then((response) => {
+//       if (response.tokens) {
+//         updateTokensInAction(cookieStore, response.tokens);
+//       }
+//
+//       return response;
+//     });
+// };
 
 export type GenerateProductType = {
   brand_name?: string;
@@ -375,8 +386,8 @@ export type GenerateProductType = {
   country?: string;
   description?: string;
   equipment?: string;
-  height?: number;
-  length?: number;
+  height?: number | null;
+  length?: number | null;
   name?: string;
   code?: string;
   photos?: string[];
@@ -391,10 +402,11 @@ export type GenerateProductType = {
     keywords: string;
   };
   specifications?: { name: string; value: string }[];
-  weight?: number;
-  width?: number;
+  weight?: number | null;
+  width?: number | null;
 };
 
+//TODO REMOVE
 export const generateProductAction = async (name: string, barcode: string) => {
   const cookieStore = await cookies();
 

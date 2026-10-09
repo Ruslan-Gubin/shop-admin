@@ -30,7 +30,10 @@ type Props = {
 };
 
 export const ProductFormGeneralInfo = (props: Props) => {
-  const isValidBarcode = /^\d{8,14}$/.test(props.values.code.trim());
+  const name = props.values.name.trim();
+  const code = props.values.code.trim();
+
+  const canGenerate = code.length > 0 ? /^\d{8,14}$/.test(code) : name.length > 0;
 
   return (
     <FormSection title="Общие данные">
@@ -65,7 +68,7 @@ export const ProductFormGeneralInfo = (props: Props) => {
         variantColor="blue"
         size="sm"
         onClick={props.onGenerateFullInfo}
-        disabled={props.generatingFullInfo || !isValidBarcode}
+        disabled={props.generatingFullInfo || !canGenerate}
       >
         <div className="buttonContentIcon">
           <div>{props.generatingFullInfo ? <div className="spinner" /> : <AiSvg />}</div>

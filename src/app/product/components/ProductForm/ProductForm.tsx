@@ -8,7 +8,6 @@ import {
   applyCategorySuggestionAction,
   type CategorySuggestion,
   type GenerateProductType,
-  generateProductAction,
 } from "@/app/product/action";
 import type { ProductFormPayloadValues } from "@/app/product/create/action";
 import type { SpecificationModel } from "@/app/specifications/action";
@@ -16,6 +15,7 @@ import { getCategoryFullPath } from "@/shared/helpers/getCategoryFullPath";
 import { Button } from "@/shared/ui/button-main/Button";
 import { notificationAdapter } from "@/stores/notification/adapter";
 import type { PhotoItem } from "../../action";
+import { generateProductData } from "../../generate-product/generateProductData";
 import { ProductFormAdditionally } from "./components/Additionally/ProductFormAdditionally";
 import {
   type FullInfoRow,
@@ -154,31 +154,22 @@ export const ProductForm = (props: Props) => {
   };
 
   const handleGenerateFullInfo = () => {
-    console.log("rerender");
-    // setGeneratingFullInfo(true);
-    //
-    // generateProductAction(values.name, values.code)
-    //   .then((response) => {
-    //     if (response.status === "success" && response.data) {
-    //       if (response.data.error_message) {
-    //         notificationAdapter.add(response.data.error_message, "error");
-    //       }
-    //
-    //       if (response.data.product) {
-    //         setFullInfoClearName(response.data.clear_name || "");
-    //         setFullInfoProduct(response.data.product);
-    //         setIsFullInfoModalOpen(true);
-    //       }
-    //     } else {
-    //       notificationAdapter.add(
-    //         response.message || "Не удалось сгенерировать информацию",
-    //         response.status,
-    //       );
-    //     }
-    //   })
-    //   .finally(() => {
-    //     setGeneratingFullInfo(false);
-    //   });
+    setGeneratingFullInfo(true);
+
+    generateProductData(values.name, values.code)
+      .then((response) => {
+        if (Object.hasOwn(response, "answer")) {
+          setFullInfoClearName(response?.answer?.name || "");
+          setFullInfoProduct(response.answer);
+          setIsFullInfoModalOpen(true);
+        }
+      })
+      .catch((error) => {
+        notificationAdapter.add(error, "error");
+      })
+      .finally(() => {
+        setGeneratingFullInfo(false);
+      });
   };
 
   const handleCloseFullInfoModal = () => {

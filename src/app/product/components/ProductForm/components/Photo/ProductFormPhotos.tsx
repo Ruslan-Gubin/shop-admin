@@ -1,5 +1,6 @@
 import { type DragEvent, useLayoutEffect, useState } from "react";
-import { getParsePhotoAction, type PhotoItem } from "@/app/product/action";
+import type { PhotoItem } from "@/app/product/action";
+import { searchDuckDuckGoImages } from "@/app/product/generate-product/action";
 import { priceFormatter } from "@/shared/helpers/formatPrice";
 import { Button } from "@/shared/ui/button-main/Button";
 import { Checkbox } from "@/shared/ui/checkbox/Checkbox";
@@ -122,34 +123,30 @@ export const ProductFormPhotos = (props: Props) => {
   const handleGetRecommendedPhotos = () => {
     setIsLoadingRecommended(true);
 
-    getParsePhotoAction(props.name)
-      .then((response) => {
-        if (response.status === "success" && response.data) {
-          const recommendedPhotos = [];
+    searchDuckDuckGoImages(props.name)
+      .then((images) => {
+        const recommendedPhotos: PhotoItem[] = [];
 
-          for (let i = 0; i < response.data.length; i++) {
-            const url = response.data[i];
+        for (let i = 0; i < images.length; i++) {
+          const url = images[i].image || images[i].thumbnail || "";
 
-            if (!props.photos.some((el) => el.url === url)) {
-              recommendedPhotos.push({
-                created_at: "",
-                id: Date.now() + i,
-                parent_id: 0,
-                parent_type: "product",
-                position: 0,
-                updated_at: "",
-                url,
-              });
-            }
+          if (url && !props.photos.some((el) => el.url === url)) {
+            recommendedPhotos.push({
+              created_at: "",
+              id: Date.now() + i,
+              parent_id: 0,
+              parent_type: "product",
+              position: 0,
+              updated_at: "",
+              url,
+            });
           }
-
-          setRecommendedPhotos(recommendedPhotos);
-        } else {
-          notificationAdapter.add(
-            typeof response.message === "string" ? response.message : "Не удалось получить фото",
-            response.status,
-          );
         }
+
+        setRecommendedPhotos(recommendedPhotos);
+      })
+      .catch(() => {
+        notificationAdapter.add("Не удалось получить фото", "error");
       })
       .finally(() => {
         setIsLoadingRecommended(false);
