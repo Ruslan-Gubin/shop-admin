@@ -1,5 +1,10 @@
 import { parseDuckDuckGo } from "./action";
-import type { SearchSource } from "./types";
+
+export type SearchSource = {
+  content: string;
+  url: string;
+  title: string;
+};
 
 const parseHtml = (html: string): Document => new DOMParser().parseFromString(html, "text/html");
 
@@ -25,7 +30,7 @@ const parseResult = (result: Element): SearchSource | null => {
   const content = result.querySelector(".result__snippet")?.textContent?.trim() ?? "";
   const title = link?.textContent?.trim() ?? "";
 
-  return { content, title, url, thumbnail: "" };
+  return { content, title, url };
 };
 
 export const parseWebProductInfo = async (
@@ -49,4 +54,3 @@ export const parseWebProductInfo = async (
     throw `Не удалось получить DuckDuckGo информацию для товара, ${message}`;
   }
 };
-

@@ -1,6 +1,6 @@
 "use server";
 
-import type { SearchSource } from "./types";
+import type { SearchSource } from "./parseWebProductInfo";
 
 const formatSearchSources = (parseInfo: SearchSource[] = []): string => {
   if (parseInfo.length === 0) return "данных предварительного поиска нет";

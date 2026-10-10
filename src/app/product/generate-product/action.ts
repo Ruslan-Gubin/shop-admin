@@ -39,6 +39,6 @@ export const searchDuckDuckGoImages = async (q: string): Promise<DuckDuckGoImage
   return ((data as { results?: DuckDuckGoImage[] }).results ?? []).slice(0, 50);
 };
 
-export const getUnoRouterApiKey = async () => {
+export const getUnoRouterApiKey = async (): Promise<string> => {
   return process.env.UNO_ROUTER_API || "";
 };
