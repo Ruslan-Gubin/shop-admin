@@ -17,9 +17,9 @@ export const generateAnswer = async <T>(
     apiKeyUnoRouter = await getUnoRouterApiKey();
   }
 
-  if (!currentModel) {
-    return localGenerate(prompt);
-  }
+  // if (!currentModel) {
+  //   return localGenerate(prompt);
+  // }
 
   return fetch("https://api.unorouter.com/v1/chat/completions", {
     method: "POST",
@@ -28,7 +28,8 @@ export const generateAnswer = async <T>(
       Authorization: `Bearer ${apiKeyUnoRouter}`,
     },
     body: JSON.stringify({
-      model: currentModel,
+      // model: currentModel,
+      model: "deepseek-v4-flash:free", //gemini-3.6-flash:free
       messages: [
         {
           role: "user",
@@ -46,6 +47,7 @@ export const generateAnswer = async <T>(
       return response.json();
     })
     .then((response) => {
+      console.log("response:", response);
       if (Object.hasOwn(response, "error") && typeof response.error.message === "string") {
         throw response.error.message;
       }
@@ -72,6 +74,6 @@ export const generateAnswer = async <T>(
       console.log("catch error:", error, ",model:", currentModel);
 
       modelSaveStatistics(currentModel, "error-model-statistics");
-      return generateAnswer(prompt, currentModelId + 1, apiKeyUnoRouter);
+      // return generateAnswer(prompt, currentModelId + 1, apiKeyUnoRouter);
     });
 };

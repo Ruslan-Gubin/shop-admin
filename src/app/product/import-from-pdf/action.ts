@@ -58,3 +58,25 @@ export const addProductAction = async (barcode: string, price: number) => {
       return response;
     });
 };
+
+export type SaveGeneratedRecordPayload = {
+  barcode: string;
+  clear_name: string;
+  product: object;
+};
+
+export const saveGeneratedRecordAction = async (payload: SaveGeneratedRecordPayload) => {
+  const cookieStore = await cookies();
+
+  return await fetchService
+    .post<{ id: number }>({
+      url: "product-source-record/save-record",
+      payload,
+    })
+    .then((response) => {
+      if (response.tokens) {
+        updateTokensInAction(cookieStore, response.tokens);
+      }
+      return response;
+    });
+};
