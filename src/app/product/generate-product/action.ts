@@ -1,9 +1,11 @@
 "use server";
 
 export const parseDuckDuckGo = async (q: string) => {
-  return fetch(`https://duckduckgo.com/html/?q=${encodeURIComponent(q)}&s=10`).then((res) =>
-    res.text(),
-  );
+  return fetch(`https://duckduckgo.com/html/?q=${encodeURIComponent(q)}&s=10`)
+    .then((res) => res.text())
+    .catch((error) => {
+      return `Ошибка парсера ${error.message}`;
+    });
 };
 
 export type DuckDuckGoImage = {

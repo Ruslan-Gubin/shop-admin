@@ -3,7 +3,11 @@ import { localGenerate } from "./localGenerate";
 import { modelSaveStatistics } from "./modelStatistics";
 import { unoRouterModels } from "./unoRouterModels";
 
-export const generateAnswer = async <T>(
+export const generateAnswer = async <T>(prompt: string): Promise<{ answer: T }> => {
+  return localGenerate(prompt);
+};
+
+export const generateAnswerOld = async <T>(
   prompt: string,
   initModelId?: number,
   initApiKey?: string,
@@ -17,9 +21,9 @@ export const generateAnswer = async <T>(
     apiKeyUnoRouter = await getUnoRouterApiKey();
   }
 
-  // if (!currentModel) {
-  //   return localGenerate(prompt);
-  // }
+  if (!currentModel) {
+    return localGenerate(prompt);
+  }
 
   return fetch("https://api.unorouter.com/v1/chat/completions", {
     method: "POST",

@@ -11,7 +11,7 @@ export const localGenerate = async (prompt: string) => {
         },
       ],
     }),
-    signal: AbortSignal.timeout(60000),
+    signal: AbortSignal.timeout(120000),
   })
     .then((response) => {
       if (!response.ok) {
