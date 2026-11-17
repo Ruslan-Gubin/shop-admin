@@ -14,7 +14,7 @@ import type { SpecificationModel } from "@/app/specifications/action";
 import { getCategoryFullPath } from "@/shared/helpers/getCategoryFullPath";
 import { Button } from "@/shared/ui/button-main/Button";
 import { notificationAdapter } from "@/stores/notification/adapter";
-import type { PhotoItem } from "../../action";
+import type { PhotoItem, PhotoItemForm } from "../../action";
 import { generateProductData } from "../../generate-product/generateProductData";
 import { ProductFormAdditionally } from "./components/Additionally/ProductFormAdditionally";
 import {
@@ -42,6 +42,7 @@ type Props = {
   specifications: SpecificationModel[];
   categories: CategoryModel[];
   variant: "create" | "edit";
+  backend_url: string;
   submitAction: (
     values: ProductFormPayloadValues,
     typePriceValues: Record<string, string>,
@@ -58,6 +59,7 @@ type Props = {
     updateValues: ProductFormPayloadValues | null;
     updateRemains: RemainsItem[] | null;
     updatePhotos?: PhotoItem[];
+    productId?: number | null;
   }>;
   priceTypes: PriceTypeModel[];
   initialPriceTypesValues: Record<string, string>;
@@ -96,7 +98,7 @@ export const ProductForm = (props: Props) => {
   const [typePriceValues, setTypePriceValues] = useState<Record<string, string>>({});
   const [specificationValues, setSpecificationsValues] = useState<SpecificationValueItem[]>([]);
   const [remains, setRemains] = useState<RemainsItem[]>([]);
-  const [photoValues, setPhotoValues] = useState<PhotoItem[]>(props.photos);
+  const [photoValues, setPhotoValues] = useState<PhotoItemForm[]>(props.photos);
   const [generatingFullInfo, setGeneratingFullInfo] = useState(false);
   const [fullInfoProduct, setFullInfoProduct] = useState<GenerateProductType | null>(null);
   const [isFullInfoModalOpen, setIsFullInfoModalOpen] = useState(false);
@@ -106,7 +108,7 @@ export const ProductForm = (props: Props) => {
     setTypePriceValues(props.initialPriceTypesValues);
     setValues(props.initialValues);
     setRemains(props.initialRemains);
-    setPhotoValues(props.photos);
+    setPhotoValues(props.photos.map((el) => ({ ...el, file: null })));
   }, []);
 
   useLayoutEffect(() => {
@@ -114,16 +116,12 @@ export const ProductForm = (props: Props) => {
   }, [props.initialProductSpecificationValues]);
 
   const submitForm = () => {
-    transition(() => {
-      props
+    transition(async () => {
+      await props
         .submitAction(values, typePriceValues, specificationValues, remains, photoValues)
         .then((response) => {
           if (response.errors) {
             setErrors(response.errors);
-          }
-
-          if (response.notification) {
-            notificationAdapter.add(response.notification.message, response.notification.status);
           }
 
           if (response.updateTypesPricesValues) {
@@ -230,7 +228,7 @@ export const ProductForm = (props: Props) => {
           created_at: "",
           id: Date.now() + index,
           parent_id: 0,
-          parent_type: "product" as const,
+          parent_type: "product",
           position: prev.length + index + 1,
           updated_at: "",
           url,
@@ -263,6 +261,7 @@ export const ProductForm = (props: Props) => {
     () => photoValues.filter((el) => el.url).sort((a, b) => a.position - b.position),
     [photoValues],
   );
+  console.log(filterUrlPhoto.length);
 
   const previewPrice = useMemo(() => {
     for (const key in typePriceValues) {
@@ -320,6 +319,7 @@ export const ProductForm = (props: Props) => {
         />
         <ProductFormStocks variant={props.variant} remains={remains} onChangeRemains={setRemains} />
         <ProductFormPhotos
+          backend_url={props.backend_url}
           name={values.name}
           description={values.description}
           specifications={specificationValues.filter(

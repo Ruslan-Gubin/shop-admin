@@ -15,7 +15,7 @@ import type {
 import type { FetchWarehousesResponse, ProductStockModel } from "../warehouses/action";
 import { createProductPriceSchema } from "./schema";
 
-export type PhotoItem = {
+export interface PhotoItem {
   created_at: string;
   id: number;
   parent_id: number;
@@ -23,7 +23,11 @@ export type PhotoItem = {
   position: number;
   updated_at: string;
   url: string;
-};
+}
+
+export interface PhotoItemForm extends PhotoItem {
+  file?: File | null;
+}
 
 export interface ProductModel {
   id: number;
@@ -353,32 +357,22 @@ export const createPhotoAction = async (payload: {
     });
 };
 
-//TODO REMOVE
-// export type ProductSourceRecordModel = {
-//   id: number;
-//   value: string;
-//   clear_name: string;
-//   source_names: string[];
-//   error_message: string;
-//   product: GenerateProductType | null;
-// };
+export const uploadPhotoAction = async (formData: FormData) => {
+  const cookieStore = await cookies();
 
-//TODO REMOVE
-// export const getRecordAction = async (id: string) => {
-//   const cookieStore = await cookies();
-//
-//   return fetchService
-//     .get<ProductSourceRecordModel>({
-//       url: `product-source-record/get-record/${id}`,
-//     })
-//     .then((response) => {
-//       if (response.tokens) {
-//         updateTokensInAction(cookieStore, response.tokens);
-//       }
-//
-//       return response;
-//     });
-// };
+  return fetchService
+    .post<PhotoItem>({
+      url: "product/upload-photo",
+      payload: formData,
+    })
+    .then((response) => {
+      if (response.tokens) {
+        updateTokensInAction(cookieStore, response.tokens);
+      }
+
+      return response;
+    });
+};
 
 export type GenerateProductType = {
   brand_name?: string;

@@ -1,3 +1,4 @@
+import { CONFIG_APP } from "@/shared/config/config";
 import { declOfNum } from "@/shared/helpers/declOfNum";
 import { priceFormatter } from "@/shared/helpers/formatPrice";
 import { FormSection } from "@/widgets/form-section/FormSection";
@@ -200,7 +201,11 @@ export const ProductInfo = (props: Props) => {
                     <img
                       draggable={false}
                       className={styles.image}
-                      src={photo.url}
+                      src={
+                        photo.url.startsWith("uploads/")
+                          ? `${CONFIG_APP.BACKEND_URL}${photo.url}`
+                          : photo.url
+                      }
                       alt={photo.url}
                     />
                   </picture>
@@ -229,21 +234,6 @@ export const ProductInfo = (props: Props) => {
           <p className={styles.emptyText}>Фотографии не найдены</p>
         )}
       </FormSection>
-      {/* <FormSection title="Фото товара"> */}
-      {/*   {product.photos.length > 0 ? ( */}
-      {/*     <div className={styles.productPhotoGrid}> */}
-      {/*       {product.photos.map((photo) => ( */}
-      {/*         <div key={photo.id} className={styles.photoItemGrid}> */}
-      {/*           <picture> */}
-      {/*             <img className={styles.image} src={photo.url} alt={product.name} /> */}
-      {/*           </picture> */}
-      {/*         </div> */}
-      {/*       ))} */}
-      {/*     </div> */}
-      {/*   ) : ( */}
-      {/*     <p className={styles.emptyText}>Фотографии не найдены</p> */}
-      {/*   )} */}
-      {/* </FormSection> */}
 
       <FormSection title="SEO">
         <div className={styles.mainContentContainer}>

@@ -1,6 +1,7 @@
 import type { PriceTypeModel } from "@/app/price-types/action";
 import { createProductSpecificationAction, createSpecification } from "@/app/specifications/action";
 import { createProductStock, type WarehouseModel } from "@/app/warehouses/action";
+import { CONFIG_APP } from "@/shared/config/config";
 import { getFillValues } from "@/shared/helpers/get-fill-values";
 import { ErrorAlert } from "@/shared/ui/error-alert/ErrorAlert";
 import { PageHeader } from "@/shared/ui/page-header/PageHeader";
@@ -9,7 +10,8 @@ import {
   createPhotoAction,
   createProductPriceAction,
   fetchProductFormData,
-  type PhotoItem,
+  type PhotoItemForm,
+  uploadPhotoAction,
 } from "../action";
 import type { RemainsItem } from "../components/ProductForm/components/Stocks/ProductFormStocks";
 import { ProductForm, type SpecificationValueItem } from "../components/ProductForm/ProductForm";
@@ -85,7 +87,7 @@ export default async function CreateProductPage() {
     typePriceValues: Record<string, string>,
     specificationsValues: SpecificationValueItem[],
     remains: RemainsItem[],
-    photos: PhotoItem[],
+    photos: PhotoItemForm[],
   ) => {
     "use server";
 
@@ -94,12 +96,14 @@ export default async function CreateProductPage() {
     let updateValues: ProductFormPayloadValues | null = null;
     let updateTypesPricesValues: Record<string, string> | null = null;
     let updateRemains: RemainsItem[] | null = null;
+    let createdProductId: number | null = null;
 
     await createProductAction(payload).then(async (response) => {
       errors = response.errors;
 
       if (response.status === "success" && response.data) {
         const product_id = response.data.id;
+        createdProductId = product_id;
 
         for (const key in typePriceValues) {
           const price =
@@ -183,7 +187,7 @@ export default async function CreateProductPage() {
 
         for (let i = 0; i < photos.length; i++) {
           const photo = photos[i];
-          if (photo.url.length > 0) {
+          if (!photo.file && photo.url.length > 0) {
             await createPhotoAction({
               url: photo.url,
               position: photo.position,
@@ -193,7 +197,22 @@ export default async function CreateProductPage() {
               if (response === "error") {
                 notification = {
                   status: "error",
-                  message: "Не удалось изменить позицию фото для товара",
+                  message: "Не удалось добавить фото для товара",
+                };
+              }
+            });
+          } else if (photo.file instanceof File && photo.file !== null && photo.url.length > 0) {
+            const formData = new FormData();
+            formData.append("file", photo.file);
+            formData.append("parent_id", String(product_id));
+            formData.append("parent_type", "product");
+            formData.append("position", String(photo.position));
+
+            uploadPhotoAction(formData).then((response) => {
+              if (response.status === "error") {
+                notification = {
+                  status: "error",
+                  message: "Не удалось загрузить фото для товара",
                 };
               }
             });
@@ -243,6 +262,7 @@ export default async function CreateProductPage() {
       updateValues,
       updateRemains,
       updatePhotos: [],
+      productId: createdProductId,
     };
   };
 
@@ -268,6 +288,7 @@ export default async function CreateProductPage() {
       )}
 
       <ProductForm
+        backend_url={CONFIG_APP.BACKEND_URL}
         initialProductSpecificationValues={[
           { listId: 1, specificationId: null, label: "", value: "" },
         ]}

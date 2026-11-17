@@ -20,6 +20,7 @@ type Props = {
   variant: "delete" | "add";
   onDeletePhoto: (photoId: number) => void;
   onAddPhoto: (photo: PhotoItem) => void;
+  backend_url: string;
 };
 
 export const ProductPhotoPreviewModal = (props: Props) => {
@@ -82,9 +83,19 @@ export const ProductPhotoPreviewModal = (props: Props) => {
             <ArrowRightSvg />
           </button>
         )}
-        <picture className={styles.imagePicture}>
-          {currentPhoto && <img className={styles.image} src={currentPhoto.url} alt={props.name} />}
-        </picture>
+        {currentPhoto && (
+          <picture className={styles.imagePicture}>
+            <img
+              className={styles.image}
+              src={
+                currentPhoto.url.includes("uploads/products")
+                  ? `${props.backend_url}${currentPhoto.url}`
+                  : currentPhoto.url
+              }
+              alt={props.name}
+            />
+          </picture>
+        )}
         {photosList.length > 1 && (
           <button
             type="button"

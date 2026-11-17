@@ -57,7 +57,7 @@ export class FetchService {
     params,
   }: {
     url: string;
-    payload: object;
+    payload: object | FormData;
     params?: Record<string, string>;
   }): Promise<ResponseData<T>> {
     return baseFetch({ url, payload, method: "PATCH", params });

@@ -1,7 +1,8 @@
-import { type DragEvent, useLayoutEffect, useState } from "react";
-import type { PhotoItem } from "@/app/product/action";
+import { type ChangeEvent, type DragEvent, useLayoutEffect, useRef, useState } from "react";
+import type { PhotoItemForm } from "@/app/product/action";
 import { searchDuckDuckGoImages } from "@/app/product/generate-product/action";
 import { priceFormatter } from "@/shared/helpers/formatPrice";
+import { AiSvg } from "@/shared/svg/AiSvg";
 import { Button } from "@/shared/ui/button-main/Button";
 import { Checkbox } from "@/shared/ui/checkbox/Checkbox";
 import { Input } from "@/shared/ui/input-main/Input";
@@ -11,26 +12,31 @@ import { FormInstruction } from "@/widgets/form-instruction/FormInstruction";
 import { FormSection } from "@/widgets/form-section/FormSection";
 import { ModalDelete } from "@/widgets/modals/modal-delete/ModalDelete";
 import styles from "./ProductFormPhotos.module.css";
-import { AiSvg } from "@/shared/svg/AiSvg";
 
 type Props = {
-  photos: PhotoItem[];
-  setPhotos: (photos: PhotoItem[]) => void;
+  photos: PhotoItemForm[];
+  setPhotos: (photos: PhotoItemForm[]) => void;
   name: string;
   price: number | null;
   description: string;
   brand_name: string;
   specifications: { label: string; value: string }[];
+  backend_url: string;
 };
 
+const MAX_FILE_SIZE = 50 * 1024 * 1024;
+const ACCEPTED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/jpg"];
+const ACCEPTED_EXTENSIONS = [".jpg", ".jpeg", ".png", ".webp"];
+
 export const ProductFormPhotos = (props: Props) => {
+  const fileRef = useRef<HTMLInputElement | null>(null);
   const [selected, setSelected] = useState<number[]>([]);
   const [deleteOpen, setDeleteOpen] = useState<boolean>(false);
   const [draggedId, setDraggedId] = useState<number | null>(null);
   const [urlPhoto, setUrlPhoto] = useState<string>("");
   const [previewPhotoId, setPreviewPhotoId] = useState<number | null>(null);
   const [variantModal, setVariantModal] = useState<"delete" | "add">("delete");
-  const [recommendedPhotos, setRecommendedPhotos] = useState<PhotoItem[] | null>(null);
+  const [recommendedPhotos, setRecommendedPhotos] = useState<PhotoItemForm[] | null>(null);
   const [isLoadingRecommended, setIsLoadingRecommended] = useState(false);
 
   useLayoutEffect(() => {
@@ -47,7 +53,7 @@ export const ProductFormPhotos = (props: Props) => {
     setSelected((prev) => (prev.includes(id) ? prev.filter((el) => el !== id) : [...prev, id]));
   };
 
-  const checkPhotoPosition = (photos: PhotoItem[]) => {
+  const checkPhotoPosition = (photos: PhotoItemForm[]) => {
     for (let i = 0; i < photos.length; i++) {
       const photo = photos[i];
       if (photo.position !== i + 1) {
@@ -106,7 +112,7 @@ export const ProductFormPhotos = (props: Props) => {
   };
 
   const handleAddUrlPhoto = () => {
-    const newPhotoItem: PhotoItem = {
+    const newPhotoItem: PhotoItemForm = {
       created_at: "",
       id: Date.now(),
       parent_id: 0,
@@ -120,12 +126,66 @@ export const ProductFormPhotos = (props: Props) => {
     setUrlPhoto("");
   };
 
+  const validateFile = (file: File) => {
+    const fileName = file.name.toLowerCase();
+    const hasValidExtension = ACCEPTED_EXTENSIONS.some((ext) => fileName.endsWith(ext));
+    const hasValidType = ACCEPTED_TYPES.includes(file.type) || file.type.startsWith("image/");
+
+    if (!hasValidType || !hasValidExtension) {
+      return "Поддерживаются только изображения JPG, JPEG, PNG и WEBP";
+    }
+
+    if (file.size > MAX_FILE_SIZE) {
+      return "Максимальный размер файла — 50 МБ";
+    }
+
+    return "";
+  };
+
+  const handleChangeFiles = (e: ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    const additions: PhotoItemForm[] = [];
+    const startPosition = props.photos.length + 1;
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      const error = validateFile(file);
+      if (error) {
+        notificationAdapter.add(error, "error");
+        continue;
+      }
+
+      const url = URL.createObjectURL(file);
+
+      additions.push({
+        created_at: "",
+        id: Date.now() + i,
+        parent_id: 0,
+        parent_type: "product",
+        position: startPosition + additions.length,
+        updated_at: "",
+        url,
+        file,
+      });
+    }
+
+    if (additions.length > 0) {
+      props.setPhotos(checkPhotoPosition([...props.photos, ...additions]));
+    }
+
+    if (fileRef.current) {
+      fileRef.current.value = "";
+    }
+  };
+
   const handleGetRecommendedPhotos = () => {
     setIsLoadingRecommended(true);
 
     searchDuckDuckGoImages(props.name)
       .then((images) => {
-        const recommendedPhotos: PhotoItem[] = [];
+        const recommendedPhotos: PhotoItemForm[] = [];
 
         for (let i = 0; i < images.length; i++) {
           const url = images[i].image || images[i].thumbnail || "";
@@ -162,7 +222,7 @@ export const ProductFormPhotos = (props: Props) => {
     }
   };
 
-  const handleAddRecommendedPhoto = (photo: PhotoItem) => {
+  const handleAddRecommendedPhoto = (photo: PhotoItemForm) => {
     photo.position = props.photos.length + 1;
     props.setPhotos(checkPhotoPosition([...props.photos, photo]));
   };
@@ -184,6 +244,7 @@ export const ProductFormPhotos = (props: Props) => {
   return (
     <>
       <ProductPhotoPreviewModal
+        backend_url={props.backend_url}
         key={previewPhotoId}
         initialPhotoId={previewPhotoId}
         photos={props.photos}
@@ -209,8 +270,27 @@ export const ProductFormPhotos = (props: Props) => {
 
       <FormSection title="Фото товара">
         <FormInstruction>
-          <span>PNG или JPEG с размером до 15 мб..</span>
+          <span>Изображения JPG, JPEG, PNG, WEBP размером до 50 МБ.</span>
         </FormInstruction>
+        <div className={styles.uploadActions}>
+          <input
+            ref={fileRef}
+            className={styles.fileInput}
+            type="file"
+            accept={ACCEPTED_EXTENSIONS.join(",")}
+            multiple
+            onChange={handleChangeFiles}
+          />
+          <Button
+            variant="solid"
+            onClick={() => fileRef.current?.click()}
+            variantColor="green"
+            size="sm"
+            type="button"
+          >
+            Загрузить с компьютера
+          </Button>
+        </div>
         <div className={styles.addUrlContainer}>
           <Input
             name="add link from product photo"
@@ -236,17 +316,22 @@ export const ProductFormPhotos = (props: Props) => {
             {recommendedPhotos.map((photo) => (
               <li key={photo.id} className={styles.recommendedPhotoItem}>
                 <div className={styles.imageContainer}>
-                  <picture
+                  <button
+                    type="button"
                     onClick={() => handleOpenRecommendedListItemPhoto(photo.id)}
-                    className={styles.imagePicture}
                   >
-                    <img
-                      draggable={false}
-                      className={styles.image}
-                      src={photo.url}
-                      alt={photo.url}
-                    />
-                  </picture>
+                    <picture
+                      //onClick={() => handleOpenRecommendedListItemPhoto(photo.id)}
+                      className={styles.imagePicture}
+                    >
+                      <img
+                        draggable={false}
+                        className={styles.image}
+                        src={photo.url}
+                        alt={photo.url}
+                      />
+                    </picture>
+                  </button>
                 </div>
                 <div className={styles.photoInfo}>
                   {props.name ? (
@@ -326,14 +411,26 @@ export const ProductFormPhotos = (props: Props) => {
                     checked={selected.includes(photo.id)}
                   />
                 </div>
-                <picture
-                  onClick={() => handleOpenListItemPhoto(photo.id)}
-                  className={styles.imagePicture}
-                >
-                  <img draggable={false} className={styles.image} src={photo.url} alt={photo.url} />
-                </picture>
+                <button onClick={() => handleOpenListItemPhoto(photo.id)} type="button">
+                  <picture className={styles.imagePicture}>
+                    <img
+                      draggable={false}
+                      className={styles.image}
+                      src={
+                        photo.url.includes("uploads/products")
+                          ? `${props.backend_url}${photo.url}`
+                          : photo.url
+                      }
+                      alt={photo.url}
+                    />
+                  </picture>
+                </button>
               </div>
-              <div className={styles.photoInfo} onClick={() => handleOpenListItemPhoto(photo.id)}>
+              <button
+                type="button"
+                className={styles.photoInfo}
+                onClick={() => handleOpenListItemPhoto(photo.id)}
+              >
                 {props.name ? (
                   <p className={styles.cardName}>{props.name}</p>
                 ) : (
@@ -349,7 +446,7 @@ export const ProductFormPhotos = (props: Props) => {
                 ) : (
                   <div className={styles.skeletonPrice} />
                 )}
-              </div>
+              </button>
             </li>
           ))}
         </ul>

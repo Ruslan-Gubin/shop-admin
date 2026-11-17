@@ -26,8 +26,10 @@ import {
   deleteProductPriceAction,
   editProductPriceAction,
   type PhotoItem,
+  type PhotoItemForm,
   type ProductModel,
   type ProductPriceModel,
+  uploadPhotoAction,
 } from "../../action";
 import type { RemainsItem } from "../../components/ProductForm/components/Stocks/ProductFormStocks";
 import type { SpecificationValueItem } from "../../components/ProductForm/ProductForm";
@@ -218,7 +220,7 @@ export const updateProductSpecifications = async (
 };
 
 export const updateProductPhotos = async (
-  photoValues: PhotoItem[],
+  photoValues: PhotoItemForm[],
   initPhotos: PhotoItem[],
   parent_id: number,
 ): Promise<string> => {
@@ -246,8 +248,8 @@ export const updateProductPhotos = async (
   }
 
   for (let i = 0; i < photoValues.length; i++) {
-    const photo = photoValues[i];
-    if (!photo.parent_id && photo.url.length > 0 && parent_id) {
+    let photo = photoValues[i];
+    if (!photo.file && !photo.parent_id && photo.url.length > 0 && parent_id) {
       await createPhotoAction({
         url: photo.url,
         position: photo.position,
@@ -255,7 +257,27 @@ export const updateProductPhotos = async (
         parent_type: "product",
       }).then((response) => {
         if (response === "error") {
-          errorMessage = "Не удалось изменить позицию фото для товара";
+          errorMessage = "Не удалось добавить фото для товара";
+        }
+      });
+    } else if (
+      photo.file instanceof File &&
+      photo.file !== null &&
+      photo.url.length > 0 &&
+      parent_id
+    ) {
+      const formData = new FormData();
+      formData.append("file", photo.file);
+      formData.append("parent_id", String(parent_id));
+      formData.append("parent_type", "product");
+      formData.append("position", String(photo.position));
+
+      await uploadPhotoAction(formData).then((response) => {
+        if (response.status === "error") {
+          errorMessage = "Не удалось загрузить фото для товара";
+        } else if (response.data) {
+          photo = response.data;
+          photo.file = null;
         }
       });
     }

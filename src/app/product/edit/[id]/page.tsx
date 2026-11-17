@@ -1,8 +1,9 @@
 "use server";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import type { PriceTypeModel } from "@/app/price-types/action";
 import type { ProductSpecificationModel } from "@/app/specifications/action";
 import type { ProductStockModel, WarehouseModel } from "@/app/warehouses/action";
+import { CONFIG_APP } from "@/shared/config/config";
 import { getFillValues } from "@/shared/helpers/get-fill-values";
 import { ErrorAlert } from "@/shared/ui/error-alert/ErrorAlert";
 import { PageHeader } from "@/shared/ui/page-header/PageHeader";
@@ -12,6 +13,7 @@ import type { RemainsItem } from "../../components/ProductForm/components/Stocks
 import { ProductForm, type SpecificationValueItem } from "../../components/ProductForm/ProductForm";
 import type { ProductFormPayloadValues } from "../../create/action";
 import {
+  fetchProduct,
   updateProductAction,
   updateProductPhotos,
   updateProductPriceValues,
@@ -19,6 +21,7 @@ import {
   updateProductStocks,
 } from "./action";
 import styles from "./EditProduct.module.css";
+import { redirect } from "next/navigation";
 
 export default async function ProductEditPage(searchParams: { params: Promise<{ id: string }> }) {
   const params = await searchParams.params;
@@ -204,8 +207,6 @@ export default async function ProductEditPage(searchParams: { params: Promise<{ 
           },
         );
 
-        revalidatePath(`product/edit/${id}`);
-
         notification = {
           status: "success",
           message: "Товар удачно изменен",
@@ -218,12 +219,16 @@ export default async function ProductEditPage(searchParams: { params: Promise<{ 
       }
     });
 
+    revalidatePath(`/product/edit/${id}`);
+
     return {
       errors,
       notification,
       updateTypesPricesValues: null,
       updateValues: null,
       updateRemains: null,
+      updatePhotos: photos,
+      productId: Number(id),
     };
   };
 
@@ -263,6 +268,7 @@ export default async function ProductEditPage(searchParams: { params: Promise<{ 
       <div className={styles.root}>
         {product?.data && (
           <ProductForm
+            backend_url={CONFIG_APP.BACKEND_URL}
             initialRemains={initialRemains}
             initialProductSpecificationValues={initialProductSpecificationValues}
             specifications={specifications}
