@@ -1,24 +1,34 @@
 import { z } from "zod";
+import { isRfDefCode, normalizePhone } from "@/shared/helpers/phoneValidation";
 
 export const createUserSchema = z
   .object({
     name: z
       .string({ message: "Имя пользователя должно быть строкой" })
-      .nonempty({ message: "Введите имя пользователя" })
       .max(50, { message: "Максимум 50 символов" })
-      .min(3, { message: "Имя должно содержать минимум 3 символа" }),
+      .min(3, { message: "Имя должно содержать минимум 3 символа" })
+      .or(z.literal("")),
     email: z
       .string({ message: "Почта должна быть строкой" })
-      .nonempty({ message: "Введите почту пользователя" })
-      .email({ message: "Некорректный формат почты" }),
+      .email({ message: "Некорректный формат почты" })
+      .or(z.literal("")),
     phone: z
-      .string({ message: "Телефон должен быть строкой" })
-      .nonempty({ message: "Введите номер телефона" })
-      .min(8, { message: "Введите минимум 8 символов" })
-      .max(25, { message: "Некорректный формат номера телефона" })
-      .regex(/^(\+?\d{1,3})?[\s-]?\(?\d{3}\)?[\s-]?\d{3}[\s-]?\d{2}[\s-]?\d{2}|\d{10,15}$/, {
+      .string()
+      .min(11, { message: "Введите номер телефона" })
+      .transform((val) => normalizePhone(val))
+      .refine((val) => val !== null, {
         message: "Некорректный формат номера телефона",
-      }),
+      })
+      .refine(
+        (val) => {
+          if (!val) return false;
+          return isRfDefCode(val);
+        },
+        {
+          message: "Номер не принадлежит мобильному оператору РФ",
+        },
+      )
+      .transform((val) => val as string),
     password: z
       .string({ message: "Пароль должен быть строкой" })
       .min(6, { message: "Пароль должен быть не менее 6 символов" })

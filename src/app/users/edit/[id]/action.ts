@@ -7,6 +7,7 @@ import { getValidatePayload } from "@/shared/services/get-form-action-state";
 import { setErrorFromServer } from "@/shared/services/set-new-store-error-from-server";
 import type { UserModel } from "../../action";
 import { updateUserSchema } from "./schema";
+import { normalizePhone } from "@/shared/helpers/phoneValidation";
 
 export type UpdateUserPayload = {
   role: string;
@@ -41,12 +42,16 @@ export const updateUserAction = async (
       payload.phone = normalizePhoneNumber(payload.phone);
     }
 
-    const { repeatPassword, ...restPayload } = payload;
-
     return fetchService
       .patch<null>({
         url: `users/${id}`,
-        payload: restPayload,
+        payload: {
+          role: payload.role,
+          name: payload.name.trim(),
+          email: payload.email,
+          phone: normalizePhone(payload.phone),
+          password: payload.password,
+        },
       })
       .then(async (response) => {
         if (response.tokens) {

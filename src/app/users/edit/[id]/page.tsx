@@ -27,7 +27,6 @@ export default async function EditUserPage({ params }: { params: Promise<{ id: s
             phone: user.data.phone,
             email: user.data.email,
             role: user.data.role,
-            photo: user.data.photo,
           }}
         />
       )}

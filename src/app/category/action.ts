@@ -26,7 +26,7 @@ export interface CategoryModel {
 
 export const fetchCategories = async () => {
   return await fetchService.get<CategoryModel[]>({
-    url: "category/categories",
+    url: "category/categories-admin",
   });
 };
 

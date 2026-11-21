@@ -96,7 +96,7 @@ export const fetchProductFormData = async () => {
       tags: [`PriceFill`],
     },
     {
-      url: "category/categories",
+      url: "category/categories-admin",
       tags: [`Categories`],
     },
     {
@@ -145,7 +145,7 @@ export const fetchProductFormEditData = async (id: string) => {
       tags: [`PriceFill`],
     },
     {
-      url: "category/categories",
+      url: "category/categories-admin",
       tags: [`Categories`],
     },
     {

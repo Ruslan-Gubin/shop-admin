@@ -40,6 +40,7 @@ export default async function UserInfoPage(req: Props) {
   const orders = ordersData.data?.orders || [];
   const reviews = reviewsData.data?.reviews || [];
   const questions = questionsData.data?.questions || [];
+  console.log(user?.photo);
 
   const ordersWithTotal = orders.map((el) => ({
     ...el,

@@ -3,6 +3,7 @@ import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { fetchService } from "@/shared/fetch-api";
 import { deleteItemCookieAction, updateTokensInAction } from "@/shared/helpers/updateCookieAction";
+import type { PhotoItem } from "../product/action";
 
 export type UserRole = "user" | "admin" | "moderator" | "wholesaler";
 
@@ -13,7 +14,7 @@ export interface UserModel {
   id: number;
   name: string;
   phone: string;
-  photo: string;
+  photo: PhotoItem | null;
   role: UserRole;
   updated_at: string | null;
 }

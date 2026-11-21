@@ -261,7 +261,6 @@ export const ProductForm = (props: Props) => {
     () => photoValues.filter((el) => el.url).sort((a, b) => a.position - b.position),
     [photoValues],
   );
-  console.log(filterUrlPhoto.length);
 
   const previewPrice = useMemo(() => {
     for (const key in typePriceValues) {

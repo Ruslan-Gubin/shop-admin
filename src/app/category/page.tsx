@@ -24,13 +24,13 @@ export default async function CategoriesPage() {
       )}
 
       <div className={styles.root}>
-        {tableData && (
+        {Array.isArray(tableData.data) && (
           <CategoryList
             onDeleteItemAction={deleteCategoryAction}
             createCategoryAction={createCategoryAction}
             updateCategoryAction={updateCategoryAction}
             sortCategoryAction={sortCategoryAction}
-            categories={tableData.data || []}
+            categories={tableData.data}
           />
         )}
       </div>

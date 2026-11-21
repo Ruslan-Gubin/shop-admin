@@ -1,6 +1,7 @@
 "use server";
 import { cookies } from "next/headers";
 import { fetchService } from "@/shared/fetch-api";
+import { normalizePhone } from "@/shared/helpers/phoneValidation";
 import { addItemCookieAction, updateTokensInAction } from "@/shared/helpers/updateCookieAction";
 import { getValidatePayload } from "@/shared/services/get-form-action-state";
 import { setErrorFromServer } from "@/shared/services/set-new-store-error-from-server";
@@ -34,12 +35,16 @@ export const createUserAction = async (payload: {
   if (validate.isValid) {
     const cookieStore = await cookies();
 
-    const { repeatPassword, ...restPayload } = payload;
-
     return fetchService
       .post<UserModel>({
         url: "users/create",
-        payload: restPayload,
+        payload: {
+          role: payload.role,
+          name: payload.name.trim(),
+          email: payload.email,
+          phone: normalizePhone(payload.phone),
+          password: payload.password,
+        },
       })
       .then(async (response) => {
         if (response.tokens) {

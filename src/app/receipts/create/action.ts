@@ -24,7 +24,7 @@ export const fetchIncomeFormData = async () => {
       tags: ["Warehouses"],
       revalidate: 30,
     },
-    { url: "category/categories", tags: ["Categories"], revalidate: 30 },
+    { url: "category/categories-admin", tags: ["Categories"], revalidate: 30 },
     {
       url: "price-type/types",
       params: { limit: "100", page: "1" },

@@ -1,5 +1,5 @@
 "use server";
-import { revalidatePath, revalidateTag } from "next/cache";
+import { revalidatePath } from "next/cache";
 import type { PriceTypeModel } from "@/app/price-types/action";
 import type { ProductSpecificationModel } from "@/app/specifications/action";
 import type { ProductStockModel, WarehouseModel } from "@/app/warehouses/action";
@@ -13,7 +13,6 @@ import type { RemainsItem } from "../../components/ProductForm/components/Stocks
 import { ProductForm, type SpecificationValueItem } from "../../components/ProductForm/ProductForm";
 import type { ProductFormPayloadValues } from "../../create/action";
 import {
-  fetchProduct,
   updateProductAction,
   updateProductPhotos,
   updateProductPriceValues,
@@ -21,7 +20,6 @@ import {
   updateProductStocks,
 } from "./action";
 import styles from "./EditProduct.module.css";
-import { redirect } from "next/navigation";
 
 export default async function ProductEditPage(searchParams: { params: Promise<{ id: string }> }) {
   const params = await searchParams.params;

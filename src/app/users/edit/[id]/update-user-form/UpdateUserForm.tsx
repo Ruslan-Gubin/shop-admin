@@ -30,7 +30,6 @@ type Props = {
     email: string;
     phone: string;
     role: string;
-    photo: string;
   };
   variant: "create" | "edit";
 };

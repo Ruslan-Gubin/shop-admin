@@ -1,12 +1,11 @@
 import Link from "next/link";
 import type { UserModel } from "@/app/users/action";
+import { CONFIG_APP } from "@/shared/config/config";
+import { UserSvg } from "@/shared/svg/UserSvg";
 import { userRoleTranslations } from "@/shared/translate/user-translates";
 import { Button } from "@/shared/ui/button-main/Button";
 import { FormSection } from "@/widgets/form-section/FormSection";
 import styles from "./UserInfoBlock.module.css";
-
-const MOCK_PHOTO =
-  "https://avatars.mds.yandex.net/get-shedevrum/11477113/41d3c57ebc6b11eea5772e703d58be2f/orig";
 
 type Props = {
   user: UserModel;
@@ -26,13 +25,19 @@ export const UserInfoBlock = (props: Props) => {
       <div className={styles.content}>
         <div className={styles.topRow}>
           <div className={styles.photoContainer}>
-            <picture>
-              <img
-                className={styles.photo}
-                src={props.user.photo || MOCK_PHOTO}
-                alt="Фото пользователя"
-              />
-            </picture>
+            {props.user?.photo?.url ? (
+              <picture>
+                <img
+                  className={styles.photo}
+                  src={`${CONFIG_APP.BACKEND_URL}${props.user.photo.url}`}
+                  alt="Фото пользователя"
+                />
+              </picture>
+            ) : (
+              <div className={styles.placeholder} aria-hidden="true">
+                <UserSvg />
+              </div>
+            )}
           </div>
 
           <div className={styles.fields}>
