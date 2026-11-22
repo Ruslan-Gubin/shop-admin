@@ -1,6 +1,6 @@
 "use client";
 import { useRef, useState, useTransition } from "react";
-import type { CategorySuggestion, GenerateProductType } from "@/app/product/action";
+import { buildRecordPayload } from "@/app/product/generate-product/buildRecordPayload";
 import { generateProductData } from "@/app/product/generate-product/generateProductData";
 import type { ImportPdfItem } from "@/shared/helpers/parse-catalog";
 import { Button } from "@/shared/ui/button-main/Button";
@@ -9,7 +9,6 @@ import {
   addProductAction,
   type CheckItemStatus,
   checkBarcodeAction,
-  type SaveGeneratedRecordPayload,
   saveGeneratedRecordAction,
   suggestCategoryForImportAction,
   uploadAndParsePdfAction,
@@ -18,35 +17,6 @@ import { ImportTableActions } from "../ImportTableActions/ImportTableActions";
 import styles from "./ImportForm.module.css";
 
 const gridColumns = "minmax(200px, 1fr) 120px minmax(120px, 150px) 165px";
-
-const buildRecordPayload = (
-  answer: GenerateProductType,
-  item: ImportPdfItem,
-  categories: CategorySuggestion,
-): SaveGeneratedRecordPayload => ({
-  value: item.barcode,
-  price: item.price ? Number(Number(item.price).toFixed()) : null,
-  name: answer?.name || "",
-  description: answer?.description || "",
-  code: answer?.code || "",
-  product_type: answer?.product_type || "",
-  brand_name: answer?.brand_name || "",
-  country: answer?.country || "",
-  equipment: answer?.equipment || "",
-  weight: answer?.weight ?? null,
-  height: answer?.height ?? null,
-  length: answer?.length ?? null,
-  width: answer?.width ?? null,
-  seo_title: answer?.seo?.seo_title || "",
-  seo_description: answer?.seo?.seo_description || "",
-  slug: answer?.seo?.slug || "",
-  og_title: answer?.seo?.og_title || "",
-  og_description: answer?.seo?.og_description || "",
-  og_type: answer?.seo?.og_type || "",
-  keywords: answer?.seo?.keywords || "",
-  specifications: Array.isArray(answer?.specifications) ? answer.specifications : [],
-  categories,
-});
 
 export const ImportForm = () => {
   const fileRef = useRef<HTMLInputElement | null>(null);
@@ -129,24 +99,29 @@ export const ImportForm = () => {
 
           return suggestCategoryForImportAction(answer.name || "", answer.description || "").then(
             (categories) => {
-              return saveGeneratedRecordAction(buildRecordPayload(answer, item, categories)).then(
-                (saveResponse) => {
-                  if (saveResponse.status === "success") {
-                    setStatuses((prev) => ({
-                      ...prev,
-                      [id]: {
-                        status: "record",
-                        error_message: "",
-                        product_id: null,
-                      },
-                    }));
+              return saveGeneratedRecordAction(
+                buildRecordPayload({
+                  answer,
+                  barcode: item.barcode,
+                  price: item.price ? Number(Number(item.price).toFixed()) : null,
+                  categories,
+                }),
+              ).then((saveResponse) => {
+                if (saveResponse.status === "success") {
+                  setStatuses((prev) => ({
+                    ...prev,
+                    [id]: {
+                      status: "record",
+                      error_message: "",
+                      product_id: null,
+                    },
+                  }));
 
-                    notificationAdapter.add("Информация о товаре успешно сгенерирована", "success");
-                  } else {
-                    throw "Не удалось сохранить сгенерированные данные для данного товара";
-                  }
-                },
-              );
+                  notificationAdapter.add("Информация о товаре успешно сгенерирована", "success");
+                } else {
+                  throw "Не удалось сохранить сгенерированные данные для данного товара";
+                }
+              });
             },
           );
         })
@@ -239,7 +214,14 @@ export const ImportForm = () => {
 
             return suggestCategoryForImportAction(answer.name || "", answer.description || "")
               .then((categories) =>
-                saveGeneratedRecordAction(buildRecordPayload(answer, item, categories)),
+                saveGeneratedRecordAction(
+                  buildRecordPayload({
+                    answer,
+                    barcode: item.barcode,
+                    price: item.price ? Number(Number(item.price).toFixed()) : null,
+                    categories,
+                  }),
+                ),
               )
               .then((saveResponse) => {
                 const errorMessage =

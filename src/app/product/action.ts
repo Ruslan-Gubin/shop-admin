@@ -375,32 +375,6 @@ export const uploadPhotoAction = async (formData: FormData) => {
     });
 };
 
-export type GenerateProductType = {
-  brand_name?: string;
-  category_name?: string;
-  country?: string;
-  description?: string;
-  equipment?: string;
-  height?: number | null;
-  length?: number | null;
-  name?: string;
-  code?: string;
-  photos?: string[];
-  product_type?: string;
-  seo?: {
-    seo_title: string;
-    seo_description: string;
-    slug: string;
-    og_title: string;
-    og_description: string;
-    og_type: string;
-    keywords: string;
-  };
-  specifications?: { name: string; value: string }[];
-  weight?: number | null;
-  width?: number | null;
-};
-
 export type SeoModel = {
   seo_title: string;
   seo_description: string;

@@ -120,35 +120,6 @@
   white-space: nowrap;
 }
 
-.categoryTitle {
-  font-size: 14px;
-  line-height: 1.4;
-  font-weight: 600;
-  color: #191817;
-}
-
-.categoryButtons {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  column-gap: 12px;
-  row-gap: 8px;
-}
-
-.categoryError {
-  font-size: 13px;
-  line-height: 1.45;
-  color: #c53030;
-  background-color: #c530300f;
-  border: 1px solid #c5303026;
-  border-radius: 6px;
-  padding: 10px 12px;
-}
-
-.chainArrow {
-  color: #8a8a8a;
-}
-
 .footer {
   padding-inline: 24px;
   padding-block: 16px;

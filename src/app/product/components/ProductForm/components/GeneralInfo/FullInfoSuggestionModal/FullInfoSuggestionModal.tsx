@@ -1,10 +1,8 @@
 import { useMemo, useState } from "react";
 import type { CategoryModel } from "@/app/category/action";
-import type { CategorySuggestion, GenerateProductType } from "@/app/product/action";
+import type { CategorySuggestion, ProductSourceRecordModel } from "@/app/product/action";
 import type { ProductFormPayloadValues } from "@/app/product/create/action";
-import { promptCategoryFromProduct } from "@/app/product/prompt";
 import { getCategoryFullPath } from "@/shared/helpers/getCategoryFullPath";
-import { generateAnswer } from "@/shared/llm/generateAnswer";
 import { Button } from "@/shared/ui/button-main/Button";
 import { Checkbox } from "@/shared/ui/checkbox/Checkbox";
 import { Modal } from "@/shared/ui/modal/Modal";
@@ -14,13 +12,7 @@ import { ModalHeader } from "@/shared/ui/modal/modal-header/ModalHeader";
 import type { SpecificationValueItem } from "../../../../ProductForm/ProductForm";
 import styles from "./FullInfoSuggestionModal.module.css";
 
-export type FullInfoGroupKey =
-  | "general"
-  | "additional"
-  | "specifications"
-  | "category"
-  | "photos"
-  | "seo";
+export type FullInfoGroupKey = "general" | "additional" | "specifications" | "category" | "seo";
 
 export type FullInfoRowKey =
   | "name"
@@ -34,7 +26,6 @@ export type FullInfoRowKey =
   | "length"
   | "width"
   | `spec_${number}`
-  | "photos"
   | "seo_title"
   | "seo_description"
   | "slug"
@@ -60,11 +51,19 @@ const GROUP_TITLES: { key: FullInfoGroupKey; title: string }[] = [
   { key: "additional", title: "Дополнительно" },
   { key: "specifications", title: "Характеристики" },
   { key: "category", title: "Категория" },
-  { key: "photos", title: "Фото товара" },
   { key: "seo", title: "SEO" },
 ];
 
-const SEO_FIELDS: { key: FullInfoRowKey; label: string; hint: string }[] = [
+type SeoFieldKey =
+  | "seo_title"
+  | "seo_description"
+  | "slug"
+  | "og_title"
+  | "og_description"
+  | "og_type"
+  | "keywords";
+
+const SEO_FIELDS: { key: SeoFieldKey; label: string; hint: string }[] = [
   { key: "seo_title", label: "SEO заголовок", hint: "Заголовок в поисковой выдаче" },
   { key: "seo_description", label: "SEO описание", hint: "Краткое описание для поисковой выдачи" },
   { key: "slug", label: "Slug", hint: "Адресная часть URL товара" },
@@ -78,11 +77,9 @@ const toStr = (value: string | number | null | undefined) =>
   value === null || value === undefined ? "" : String(value);
 
 const buildRows = (
-  product: GenerateProductType,
-  clearName: string,
+  product: ProductSourceRecordModel,
   currentValues: ProductFormPayloadValues,
   specificationValues: SpecificationValueItem[],
-  currentPhotoUrls: string[],
 ): FullInfoRow[] => {
   const rows: FullInfoRow[] = [];
 
@@ -111,7 +108,7 @@ const buildRows = (
     });
   };
 
-  push("name", "general", "Название", currentValues.name, product.name || clearName);
+  push("name", "general", "Название", currentValues.name, product.name || "");
   push("description", "general", "Описание", currentValues.description, toStr(product.description));
   push("brand_name", "general", "Бренд", currentValues.brand_name, toStr(product.brand_name));
 
@@ -148,37 +145,33 @@ const buildRows = (
     });
   }
 
-  const photos = product.photos ?? [];
-  const photosCount = photos.length;
-  const addedCount = photos.filter((url) => currentPhotoUrls.includes(url)).length;
-  const remainingCount = photosCount - addedCount;
-  push(
-    "photos",
-    "photos",
-    "Фото товара",
-    addedCount > 0 ? `Добавлено: ${addedCount}` : "",
-    remainingCount > 0 ? `${remainingCount} из ${photosCount}` : "",
-    remainingCount > 0
-      ? addedCount > 0
-        ? `Уже добавлено: ${addedCount}. Будут добавлены недостающие изображения (без дублей)`
-        : "Будут добавлены найденные изображения"
-      : "Все найденные изображения уже добавлены",
-    remainingCount === 0,
-    photosCount === 0,
-  );
-
-  if (product.seo) {
-    for (const field of SEO_FIELDS) {
-      const recValue = toStr(product.seo[field.key as keyof typeof product.seo]);
-      const curValue = toStr(currentValues[field.key as keyof ProductFormPayloadValues]);
-      push(field.key, "seo", field.label, curValue, recValue, field.hint);
-    }
+  for (const field of SEO_FIELDS) {
+    const recValue = toStr(product[field.key]);
+    const curValue = toStr(currentValues[field.key as keyof ProductFormPayloadValues]);
+    push(field.key, "seo", field.label, curValue, recValue, field.hint);
   }
 
   return rows;
 };
 
-const getInitialSelected = (rows: FullInfoRow[]): Record<string, boolean> => {
+const hasCategorySuggestion = (suggestion: CategorySuggestion | null) =>
+  Boolean(suggestion?.category_id || suggestion?.create_categories?.length);
+
+const isCategoryAlreadyApplied = (
+  suggestion: CategorySuggestion | null,
+  currentCategoryId: number | null,
+) =>
+  Boolean(
+    suggestion?.category_id &&
+    suggestion.category_id === currentCategoryId &&
+    !suggestion.create_categories?.length,
+  );
+
+const getInitialSelected = (
+  rows: FullInfoRow[],
+  categorySuggestion: CategorySuggestion | null,
+  currentCategoryId: number | null,
+): Record<string, boolean> => {
   const result = Object.fromEntries(rows.map((row) => [row.key, false])) as Record<string, boolean>;
 
   for (const row of rows) {
@@ -187,18 +180,20 @@ const getInitialSelected = (rows: FullInfoRow[]): Record<string, boolean> => {
     }
   }
 
+  result.category =
+    hasCategorySuggestion(categorySuggestion) &&
+    !isCategoryAlreadyApplied(categorySuggestion, currentCategoryId);
+
   return result;
 };
 
 type Props = {
   isOpen: boolean;
-  product: GenerateProductType | null;
-  clearName: string;
+  product: ProductSourceRecordModel | null;
   currentValues: ProductFormPayloadValues;
   currentCategoryName: string;
   categories: CategoryModel[];
   specificationValues: SpecificationValueItem[];
-  currentPhotoUrls: string[];
   onClose: () => void;
   onApply: (rows: FullInfoRow[]) => void;
   onApplyCategory: (suggestion: CategorySuggestion) => void;
@@ -207,40 +202,40 @@ type Props = {
 export const FullInfoSuggestionModal = (props: Props) => {
   const rows = useMemo(
     () =>
-      props.product
-        ? buildRows(
-            props.product,
-            props.clearName,
-            props.currentValues,
-            props.specificationValues,
-            props.currentPhotoUrls,
-          )
-        : [],
-    [
-      props.product,
-      props.clearName,
-      props.currentValues,
-      props.specificationValues,
-      props.currentPhotoUrls,
-    ],
+      props.product ? buildRows(props.product, props.currentValues, props.specificationValues) : [],
+    [props.product, props.currentValues, props.specificationValues],
   );
 
-  const [selected, setSelected] = useState<Record<string, boolean>>(() => getInitialSelected(rows));
-  const [categorySuggestion, setCategorySuggestion] = useState<CategorySuggestion | null>(null);
-  const [suggesting, setSuggesting] = useState(false);
-  const [categoryError, setCategoryError] = useState("");
+  const categorySuggestion = props.product?.categories ?? null;
+  const categoryAlreadyApplied = isCategoryAlreadyApplied(
+    categorySuggestion,
+    props.currentValues.category_id,
+  );
+
+  const [selected, setSelected] = useState<Record<string, boolean>>(() =>
+    getInitialSelected(rows, categorySuggestion, props.currentValues.category_id),
+  );
 
   const [prevSnapshot, setPrevSnapshot] = useState({
     isOpen: props.isOpen,
     product: props.product,
+    categorySuggestion,
+    currentCategoryId: props.currentValues.category_id,
   });
 
-  if (prevSnapshot.isOpen !== props.isOpen || prevSnapshot.product !== props.product) {
-    setPrevSnapshot({ isOpen: props.isOpen, product: props.product });
-    setSelected(getInitialSelected(rows));
-    setCategorySuggestion(null);
-    setSuggesting(false);
-    setCategoryError("");
+  if (
+    prevSnapshot.isOpen !== props.isOpen ||
+    prevSnapshot.product !== props.product ||
+    prevSnapshot.categorySuggestion !== categorySuggestion ||
+    prevSnapshot.currentCategoryId !== props.currentValues.category_id
+  ) {
+    setPrevSnapshot({
+      isOpen: props.isOpen,
+      product: props.product,
+      categorySuggestion,
+      currentCategoryId: props.currentValues.category_id,
+    });
+    setSelected(getInitialSelected(rows, categorySuggestion, props.currentValues.category_id));
   }
 
   const selectedCount = useMemo(() => {
@@ -250,83 +245,39 @@ export const FullInfoSuggestionModal = (props: Props) => {
         count++;
       }
     }
+    if (selected.category && hasCategorySuggestion(categorySuggestion) && !categoryAlreadyApplied) {
+      count++;
+    }
     return count;
-  }, [selected, rows]);
+  }, [selected, rows, categorySuggestion, categoryAlreadyApplied]);
 
   const handleToggle = (key: string) => {
     setSelected((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
+  const applyCategoryIfSelected = () => {
+    if (
+      selected.category &&
+      categorySuggestion &&
+      hasCategorySuggestion(categorySuggestion) &&
+      !categoryAlreadyApplied
+    ) {
+      props.onApplyCategory(categorySuggestion);
+    }
+  };
+
   const handleApplySelected = () => {
     const applyRows = rows.filter((row) => selected[row.key] && !row.disabled);
     props.onApply(applyRows);
+    applyCategoryIfSelected();
     props.onClose();
   };
 
   const handleApplyAll = () => {
     const applyRows = rows.filter((row) => row.suggested.length > 0);
     props.onApply(applyRows);
+    applyCategoryIfSelected();
     props.onClose();
-  };
-
-  const getNameForRequest = () => {
-    const nameRow = rows.find((row) => row.key === "name");
-    if (nameRow && selected["name"]) return nameRow.suggested;
-    return props.currentValues.name || props.product?.name || props.clearName || "";
-  };
-
-  const getDescriptionForRequest = () => {
-    const descRow = rows.find((row) => row.key === "description");
-    if (descRow && selected["description"]) return descRow.suggested;
-    return props.currentValues.description || props.product?.description || "";
-  };
-
-  const handleSuggestCategory = () => {
-    const name = getNameForRequest().trim();
-    const description = getDescriptionForRequest().trim();
-
-    if (name.length < 3 || description.length < 3) {
-      setCategoryError(
-        "Укажите название и описание товара (минимум 3 символа), чтобы определить категорию",
-      );
-      return;
-    }
-
-    setSuggesting(true);
-    setCategoryError("");
-
-    promptCategoryFromProduct({
-      name,
-      description,
-      categories: props.categories,
-    })
-      .then((prompt) => generateAnswer<CategorySuggestion>(prompt))
-      .then((response) => {
-        const suggestion = response.answer;
-
-        if (suggestion.category_id || suggestion.create_categories?.length > 0) {
-          setCategorySuggestion(suggestion);
-        } else {
-          setCategoryError("Не удалось определить категорию");
-        }
-      })
-      .catch((error) => {
-        setCategoryError(typeof error === "string" ? error : "Не удалось определить категорию");
-      })
-      .finally(() => {
-        setSuggesting(false);
-      });
-  };
-
-  const handleResetCategory = () => {
-    setCategorySuggestion(null);
-    setCategoryError("");
-  };
-
-  const handleApplySuggestion = () => {
-    if (categorySuggestion) {
-      props.onApplyCategory(categorySuggestion);
-    }
   };
 
   const renderRow = (row: FullInfoRow) => {
@@ -367,111 +318,51 @@ export const FullInfoSuggestionModal = (props: Props) => {
   };
 
   const renderCategoryBlock = () => {
-    const hasExisting = Boolean(categorySuggestion?.category_id);
-    const hasChain = Boolean(categorySuggestion && categorySuggestion.create_categories.length > 0);
-    const isEmptyResult = categorySuggestion !== null && !hasExisting && !hasChain;
-
-    const recommendedName = categorySuggestion?.category_id
+    const createCategories = categorySuggestion?.create_categories ?? [];
+    const parentId = createCategories[0]?.parent_id;
+    const parentPath =
+      typeof parentId === "number" ? getCategoryFullPath(props.categories, parentId) : "";
+    const hasChain = createCategories.length > 0;
+    const categoryPath = categorySuggestion?.category_id
       ? getCategoryFullPath(props.categories, categorySuggestion.category_id) ||
         `Категория #${categorySuggestion.category_id}`
-      : "";
-
-    const parentPath =
-      hasChain && typeof categorySuggestion?.create_categories[0]?.parent_id === "number"
-        ? getCategoryFullPath(props.categories, categorySuggestion.create_categories[0].parent_id)
-        : "";
+      : [parentPath, ...createCategories.map((category) => category.name)]
+          .filter(Boolean)
+          .join(" / ");
 
     return (
-      <div className={styles.fieldRow}>
+      <div className={`${styles.fieldRow} ${selected.category ? styles.fieldRowSelected : ""}`}>
         <div className={styles.fieldHead}>
-          <span className={styles.categoryTitle}>Категория</span>
-          {props.currentCategoryName && (
-            <span className={styles.appliedBadge}>Текущая: {props.currentCategoryName}</span>
+          <Checkbox
+            checked={Boolean(selected.category)}
+            disabled={!hasCategorySuggestion(categorySuggestion) || categoryAlreadyApplied}
+            onChange={() => handleToggle("category")}
+            labelText="Категория"
+          />
+          {categoryAlreadyApplied && <span className={styles.appliedBadge}>Уже применено</span>}
+          {!hasCategorySuggestion(categorySuggestion) && (
+            <span className={styles.emptyBadge}>Не предложено</span>
           )}
         </div>
 
-        {!categorySuggestion && (
-          <>
-            {props.product?.category_name && (
-              <p className={styles.fieldHint}>Предложено: {props.product.category_name}</p>
-            )}
-            <div className={styles.categoryButtons}>
-              <Button
-                variant="solid"
-                variantColor="blue"
-                size="sm"
-                onClick={handleSuggestCategory}
-                disabled={suggesting}
-              >
-                <div className="buttonContentIcon">
-                  <div>{suggesting ? <div className="spinner" /> : null}</div>
-                  <p>{suggesting ? "Определение…" : "Определить категорию"}</p>
-                </div>
-              </Button>
-            </div>
-          </>
+        {props.currentCategoryName && (
+          <div className={styles.currentBlock}>
+            <span className={styles.currentLabel}>Текущее</span>
+            <p className={styles.currentValue}>{props.currentCategoryName}</p>
+          </div>
         )}
 
-        {categoryError && <p className={styles.categoryError}>{categoryError}</p>}
-
-        {hasExisting && (
+        {categoryPath && (
           <div className={styles.suggestedBlock}>
-            <span className={styles.suggestedLabel}>Рекомендуемая категория</span>
-            <p className={styles.suggestedValue}>{recommendedName}</p>
-          </div>
-        )}
-
-        {hasChain && (
-          <div className={styles.suggestedBlock}>
-            <span className={styles.suggestedLabel}>Будет создано</span>
-            <p className={styles.suggestedValue}>
-              {parentPath && (
-                <>
-                  {parentPath}
-                  <span className={styles.chainArrow}> / </span>
-                </>
-              )}
-              {(categorySuggestion?.create_categories ?? [])
-                .map((category) => category.name)
-                .join(" / ")}
-            </p>
-            <p className={styles.fieldHint}>
-              Недостающие категории будут созданы в каталоге автоматически.
-            </p>
-          </div>
-        )}
-
-        {isEmptyResult && (
-          <div className={styles.categoryError}>
-            Не удалось определить категорию. Попробуйте уточнить название или описание товара.
-          </div>
-        )}
-
-        {(hasExisting || hasChain || isEmptyResult) && (
-          <div className={styles.categoryButtons}>
-            {hasExisting && (
-              <Button
-                variant="solid"
-                variantColor="green"
-                size="sm"
-                onClick={handleApplySuggestion}
-              >
-                Выбрать
-              </Button>
-            )}
+            <span className={styles.suggestedLabel}>
+              {hasChain ? "Будет создано" : "Предложенное"}
+            </span>
+            <p className={styles.suggestedValue}>{categoryPath}</p>
             {hasChain && (
-              <Button
-                variant="solid"
-                variantColor="green"
-                size="sm"
-                onClick={handleApplySuggestion}
-              >
-                Создать и выбрать
-              </Button>
+              <p className={styles.fieldHint}>
+                Недостающие категории будут созданы в каталоге автоматически.
+              </p>
             )}
-            <Button variant="ghost" size="sm" onClick={handleResetCategory}>
-              Изменить
-            </Button>
           </div>
         )}
       </div>

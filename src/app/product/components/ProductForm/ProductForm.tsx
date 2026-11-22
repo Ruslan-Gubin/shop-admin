@@ -6,17 +6,23 @@ import { EditSvg } from "@/app/category/components/category-item/svg/EditSvg";
 import type { PriceTypeModel } from "@/app/price-types/action";
 import {
   applyCategorySuggestionAction,
-  getRecordAction,
   type CategorySuggestion,
-  type GenerateProductType,
+  getRecordAction,
+  type ProductSourceRecordModel,
 } from "@/app/product/action";
 import type { ProductFormPayloadValues } from "@/app/product/create/action";
+import { buildRecordPayload } from "@/app/product/generate-product/buildRecordPayload";
+import {
+  saveGeneratedRecordAction,
+  suggestCategoryForImportAction,
+} from "@/app/product/import-from-pdf/action";
 import type { SpecificationModel } from "@/app/specifications/action";
 import { getCategoryFullPath } from "@/shared/helpers/getCategoryFullPath";
 import { Button } from "@/shared/ui/button-main/Button";
 import { notificationAdapter } from "@/stores/notification/adapter";
 import type { PhotoItem, PhotoItemForm } from "../../action";
 import { generateProductData } from "../../generate-product/generateProductData";
+import { checkBarcodeSchema } from "../../generate-product/schema";
 import { ProductFormAdditionally } from "./components/Additionally/ProductFormAdditionally";
 import {
   type FullInfoRow,
@@ -101,9 +107,8 @@ export const ProductForm = (props: Props) => {
   const [remains, setRemains] = useState<RemainsItem[]>([]);
   const [photoValues, setPhotoValues] = useState<PhotoItemForm[]>(props.photos);
   const [generatingFullInfo, setGeneratingFullInfo] = useState(false);
-  const [fullInfoProduct, setFullInfoProduct] = useState<GenerateProductType | null>(null);
+  const [fullInfoProduct, setFullInfoProduct] = useState<ProductSourceRecordModel | null>(null);
   const [isFullInfoModalOpen, setIsFullInfoModalOpen] = useState(false);
-  const [fullInfoClearName, setFullInfoClearName] = useState("");
 
   useLayoutEffect(() => {
     setTypePriceValues(props.initialPriceTypesValues);
@@ -153,30 +158,62 @@ export const ProductForm = (props: Props) => {
   };
 
   const handleGenerateFullInfo = () => {
-    // setGeneratingFullInfo(true);
+    setGeneratingFullInfo(true);
 
-    getRecordAction(values.code).then((response) => {
-      if (response.status === "success" && response.data !== null) {
-        const record = response.data;
-        console.log("record:", record);
-      } else {
-        console.log("need generate");
-        generateProductData(values.name, values.code)
-          .then((response) => {
-            if (Object.hasOwn(response, "answer")) {
-              setFullInfoClearName(response?.answer?.name || "");
-              setFullInfoProduct(response.answer);
-              setIsFullInfoModalOpen(true);
-            } else {
-              throw "Не удалось сгенерировать информацию";
+    getRecordAction(values.code)
+      .then((response) => {
+        if (response.status === "success" && response.data !== null) {
+          setFullInfoProduct(response.data);
+          setIsFullInfoModalOpen(true);
+        } else {
+          const parsedCode = checkBarcodeSchema.safeParse(values.code);
+          const isValidCode = parsedCode.success && parsedCode.data.length > 0;
+
+          return generateProductData(values.name, values.code).then((response) => {
+            const answer = response?.answer;
+            const isGeneratedProduct = typeof answer === "object" && answer !== null;
+
+            if (!isGeneratedProduct) {
+              throw "Не удалось сгенерировать описание для товара";
             }
-          })
-          .catch((error) => {
-            notificationAdapter.add(error, "error");
-          })
-          .finally(() => setGeneratingFullInfo(false));
-      }
-    });
+
+            return suggestCategoryForImportAction(answer.name || "", answer.description || "").then(
+              (categories) => {
+                const recordPayload = buildRecordPayload({
+                  answer,
+                  barcode: values.code,
+                  price: values.purchase_price ? Number(values.purchase_price) : null,
+                  categories,
+                });
+
+                if (!isValidCode) {
+                  setFullInfoProduct({
+                    ...recordPayload,
+                    id: 0,
+                    createdAt: "",
+                    updatedAt: null,
+                  });
+                  setIsFullInfoModalOpen(true);
+                } else {
+                  return saveGeneratedRecordAction(recordPayload).then((saveResponse) => {
+                    if (saveResponse.status !== "success" || !saveResponse.data) {
+                      throw "Не удалось сохранить сгенерированные данные для данного товара";
+                    }
+
+                    setFullInfoProduct(saveResponse.data);
+                    setIsFullInfoModalOpen(true);
+                  });
+                }
+              },
+            );
+          });
+        }
+      })
+      .catch((error) => {
+        const errorMessage = Error.isError(error) ? error.message : String(error);
+        notificationAdapter.add(errorMessage, "error");
+      })
+      .finally(() => setGeneratingFullInfo(false));
   };
 
   const handleCloseFullInfoModal = () => {
@@ -225,28 +262,6 @@ export const ProductForm = (props: Props) => {
     }
   };
 
-  const applyPhotosRow = () => {
-    const urls = fullInfoProduct?.photos ?? [];
-    if (urls.length === 0) return;
-
-    setPhotoValues((prev) => {
-      const existingUrls = new Set(prev.map((photo) => photo.url));
-      const additions = urls
-        .filter((url) => !existingUrls.has(url))
-        .map((url, index) => ({
-          created_at: "",
-          id: Date.now() + index,
-          parent_id: 0,
-          parent_type: "product",
-          position: prev.length + index + 1,
-          updated_at: "",
-          url,
-        }));
-
-      return additions.length > 0 ? [...prev, ...additions] : prev;
-    });
-  };
-
   const handleApplyFullInfo = (rows: FullInfoRow[]) => {
     for (const row of rows) {
       if (!row.suggested) continue;
@@ -255,8 +270,6 @@ export const ProductForm = (props: Props) => {
         handleChangeValues(row.key, row.suggested);
       } else if (row.group === "specifications") {
         applySpecificationRow(row);
-      } else if (row.group === "photos") {
-        applyPhotosRow();
       }
     }
   };
@@ -286,12 +299,10 @@ export const ProductForm = (props: Props) => {
       <FullInfoSuggestionModal
         isOpen={isFullInfoModalOpen}
         product={fullInfoProduct}
-        clearName={fullInfoClearName}
         currentValues={values}
         currentCategoryName={currentCategoryName}
         categories={props.categories}
         specificationValues={specificationValues}
-        currentPhotoUrls={filterUrlPhoto.map((photo) => photo.url)}
         onClose={handleCloseFullInfoModal}
         onApply={handleApplyFullInfo}
         onApplyCategory={handleApplyCategory}
