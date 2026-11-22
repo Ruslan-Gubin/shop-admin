@@ -400,24 +400,6 @@ export type GenerateProductType = {
   width?: number | null;
 };
 
-//TODO REMOVE
-export const generateProductAction = async (name: string, barcode: string) => {
-  const cookieStore = await cookies();
-
-  return await fetchService
-    .post<{
-      clear_name: string;
-      product: GenerateProductType;
-      error_message: string;
-    }>({ url: "product-source-record", payload: { name, barcode } })
-    .then((response) => {
-      if (response.tokens) {
-        updateTokensInAction(cookieStore, response.tokens);
-      }
-      return response;
-    });
-};
-
 export type SeoModel = {
   seo_title: string;
   seo_description: string;
@@ -440,7 +422,7 @@ export const applyCategorySuggestionAction = async (
 
   return fetchService
     .post<number>({
-      url: "product-source-record/apply-category-suggestion",
+      url: "category/apply-suggestion",
       payload,
     })
     .then((response) => {

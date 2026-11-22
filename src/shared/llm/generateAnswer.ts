@@ -7,7 +7,7 @@ export const generateAnswer = async <T>(prompt: string): Promise<{ answer: T }> 
   return localGenerate(prompt);
 };
 
-export const generateAnswerOld = async <T>(
+export const generateAnswer2 = async <T>(
   prompt: string,
   initModelId?: number,
   initApiKey?: string,
@@ -32,8 +32,7 @@ export const generateAnswerOld = async <T>(
       Authorization: `Bearer ${apiKeyUnoRouter}`,
     },
     body: JSON.stringify({
-      // model: currentModel,
-      model: "deepseek-v4-flash:free", //gemini-3.6-flash:free
+      model: currentModel,
       messages: [
         {
           role: "user",
@@ -51,7 +50,6 @@ export const generateAnswerOld = async <T>(
       return response.json();
     })
     .then((response) => {
-      console.log("response:", response);
       if (Object.hasOwn(response, "error") && typeof response.error.message === "string") {
         throw response.error.message;
       }
@@ -70,14 +68,11 @@ export const generateAnswerOld = async <T>(
 
       modelSaveStatistics(currentModel, "success-model-statistics");
       console.log(`Ответ unoRouter модели: ${currentModel}`);
-      console.log(`Ответ:`, json);
 
       return json;
     })
-    .catch((error) => {
-      console.log("catch error:", error, ",model:", currentModel);
-
+    .catch(() => {
       modelSaveStatistics(currentModel, "error-model-statistics");
-      // return generateAnswer(prompt, currentModelId + 1, apiKeyUnoRouter);
+      return generateAnswer2(prompt, currentModelId + 1, apiKeyUnoRouter);
     });
 };

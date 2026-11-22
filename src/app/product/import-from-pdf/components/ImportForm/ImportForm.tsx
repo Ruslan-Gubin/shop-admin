@@ -1,6 +1,6 @@
 "use client";
 import { useRef, useState, useTransition } from "react";
-// import { generateProductAction } from "@/app/product/action"; // старая генерация на бекенде (оставлено до проверки)
+import type { CategorySuggestion, GenerateProductType } from "@/app/product/action";
 import { generateProductData } from "@/app/product/generate-product/generateProductData";
 import type { ImportPdfItem } from "@/shared/helpers/parse-catalog";
 import { Button } from "@/shared/ui/button-main/Button";
@@ -9,13 +9,44 @@ import {
   addProductAction,
   type CheckItemStatus,
   checkBarcodeAction,
+  type SaveGeneratedRecordPayload,
   saveGeneratedRecordAction,
+  suggestCategoryForImportAction,
   uploadAndParsePdfAction,
 } from "../../action";
 import { ImportTableActions } from "../ImportTableActions/ImportTableActions";
 import styles from "./ImportForm.module.css";
 
 const gridColumns = "minmax(200px, 1fr) 120px minmax(120px, 150px) 165px";
+
+const buildRecordPayload = (
+  answer: GenerateProductType,
+  item: ImportPdfItem,
+  categories: CategorySuggestion,
+): SaveGeneratedRecordPayload => ({
+  value: item.barcode,
+  price: item.price ? Number(Number(item.price).toFixed()) : null,
+  name: answer?.name || "",
+  description: answer?.description || "",
+  code: answer?.code || "",
+  product_type: answer?.product_type || "",
+  brand_name: answer?.brand_name || "",
+  country: answer?.country || "",
+  equipment: answer?.equipment || "",
+  weight: answer?.weight ?? null,
+  height: answer?.height ?? null,
+  length: answer?.length ?? null,
+  width: answer?.width ?? null,
+  seo_title: answer?.seo?.seo_title || "",
+  seo_description: answer?.seo?.seo_description || "",
+  slug: answer?.seo?.slug || "",
+  og_title: answer?.seo?.og_title || "",
+  og_description: answer?.seo?.og_description || "",
+  og_type: answer?.seo?.og_type || "",
+  keywords: answer?.seo?.keywords || "",
+  specifications: Array.isArray(answer?.specifications) ? answer.specifications : [],
+  categories,
+});
 
 export const ImportForm = () => {
   const fileRef = useRef<HTMLInputElement | null>(null);
@@ -77,117 +108,66 @@ export const ImportForm = () => {
     setProcessMap({ [id]: 1 });
     const item = pdfItems.find((el) => el.id === id);
 
-    if (!item) {
+    const item_error_message = !item
+      ? "Не удалось получить данные о товаре из файла"
+      : !item.barcode
+        ? "Отсутствует штрих-код"
+        : "";
+
+    if (!item?.barcode || item_error_message.length > 0) {
       setProcessMap({});
-      return notificationAdapter.add("Не удалось получить данные о товаре из файла", "error");
-    }
+      notificationAdapter.add(item_error_message, "error");
+    } else {
+      generateProductData(item?.name || "", item?.barcode || "")
+        .then((response) => {
+          const answer = response?.answer;
+          const isGeneratedProduct = typeof answer === "object" && answer !== null;
 
-    if (!item.barcode) {
-      setProcessMap({});
-      return notificationAdapter.add("Отсутствует штрих-код", "error");
-    }
+          if (!isGeneratedProduct) {
+            throw "Не удалось сгенерировать описание для товара";
+          }
 
-    generateProductData(item.name || "", item.barcode)
-      .then((response) => {
-        const answer = response?.answer;
-        const isGeneratedProduct = typeof answer === "object" && answer !== null;
+          return suggestCategoryForImportAction(answer.name || "", answer.description || "").then(
+            (categories) => {
+              return saveGeneratedRecordAction(buildRecordPayload(answer, item, categories)).then(
+                (saveResponse) => {
+                  if (saveResponse.status === "success") {
+                    setStatuses((prev) => ({
+                      ...prev,
+                      [id]: {
+                        status: "record",
+                        error_message: "",
+                        product_id: null,
+                      },
+                    }));
 
-        if (!isGeneratedProduct) {
-          const message = "Не удалось сгенерировать описание для данного товара";
+                    notificationAdapter.add("Информация о товаре успешно сгенерирована", "success");
+                  } else {
+                    throw "Не удалось сохранить сгенерированные данные для данного товара";
+                  }
+                },
+              );
+            },
+          );
+        })
+        .catch((error) => {
+          const error_message = Error.isError(error) ? error.message : error;
 
           setStatuses((prev) => ({
             ...prev,
             [id]: {
               status: "error",
-              error_message: message,
+              error_message,
               product_id: null,
             },
           }));
 
-          return notificationAdapter.add(message, "error");
-        }
-
-        return saveGeneratedRecordAction({
-          barcode: item.barcode,
-          clear_name: answer.name || "",
-          product: answer,
-        }).then((saveResponse) => {
-          if (saveResponse.status === "success") {
-            setStatuses((prev) => ({
-              ...prev,
-              [id]: {
-                status: "record",
-                error_message: "",
-                product_id: null,
-              },
-            }));
-
-            notificationAdapter.add("Информация о товаре успешно сгенерирована", "success");
-          } else {
-            const message = "Не удалось сохранить сгенерированные данные для данного товара";
-
-            setStatuses((prev) => ({
-              ...prev,
-              [id]: {
-                status: "error",
-                error_message: message,
-                product_id: null,
-              },
-            }));
-
-            notificationAdapter.add(message, "error");
-          }
+          notificationAdapter.add(error_message, "error");
+        })
+        .finally(() => {
+          setProcessMap({});
         });
-      })
-      .catch(() => {
-        const message = "Не удалось сгенерировать описание для данного товара";
-
-        setStatuses((prev) => ({
-          ...prev,
-          [id]: {
-            status: "error",
-            error_message: message,
-            product_id: null,
-          },
-        }));
-
-        notificationAdapter.add(message, "error");
-      })
-      .finally(() => {
-        setProcessMap({});
-      });
-
-    /* Старая логика генерации на бекенде (оставлена до проверки) */
-    // generateProductAction(item.name || "", item.barcode)
-    //   .then((response) => {
-    //     let message = response.message;
-    //     let status = response.status;
-    //
-    //     if (response.status === "success" && response.data) {
-    //       setStatuses((prev) => ({
-    //         ...prev,
-    //         [id]: {
-    //           status: response.data?.clear_name && response.data?.product ? "record" : "error",
-    //           error_message:
-    //             response.data?.clear_name && response.data?.product
-    //               ? ""
-    //               : response?.data?.error_message
-    //                 ? response.data.error_message
-    //                 : "Нет полного описания",
-    //           product_id: null,
-    //         },
-    //       }));
-    //
-    //       if (response?.data?.error_message && typeof response?.data?.error_message === "string") {
-    //         message = response?.data?.error_message;
-    //         status = "error";
-    //       }
-    //     }
-    //     notificationAdapter.add(message, status);
-    //   })
-    //   .finally(() => {
-    //     setProcessMap({});
-    //   });
+    }
   };
 
   const handleAdd = (id: number) => {
@@ -239,71 +219,61 @@ export const ImportForm = () => {
       if (item.barcode && status?.status === "empty") {
         setProcessMap({ [item.id]: 1 });
 
+        const errorMessage = "Не удалось сгенерировать описание для данного товара";
+
         await generateProductData(item.name || "", item.barcode)
           .then((response) => {
             const answer = response?.answer;
             const isGeneratedProduct = typeof answer === "object" && answer !== null;
 
             if (!isGeneratedProduct) {
-              const message = "Не удалось сгенерировать описание для данного товара";
-
               setStatuses((prev) => ({
                 ...prev,
                 [item.id]: {
                   status: "error",
-                  error_message: message,
+                  error_message: errorMessage,
                   product_id: null,
                 },
               }));
 
-              return notificationAdapter.add(message, "error");
+              return notificationAdapter.add(errorMessage, "error");
             }
 
-            return saveGeneratedRecordAction({
-              barcode: item.barcode,
-              clear_name: answer.name || "",
-              product: answer,
-            }).then((saveResponse) => {
-              if (saveResponse.status === "success") {
-                setStatuses((prev) => ({
-                  ...prev,
-                  [item.id]: {
-                    status: "record",
-                    error_message: "",
-                    product_id: null,
-                  },
-                }));
-
-                notificationAdapter.add("Информация о товаре успешно сгенерирована", "success");
-              } else {
-                const message = "Не удалось сохранить сгенерированные данные для данного товара";
+            return suggestCategoryForImportAction(answer.name || "", answer.description || "")
+              .then((categories) =>
+                saveGeneratedRecordAction(buildRecordPayload(answer, item, categories)),
+              )
+              .then((saveResponse) => {
+                const errorMessage =
+                  "Не удалось сохранить сгенерированные данные для данного товара";
+                const successMessage = "Информация о товаре успешно сгенерирована";
 
                 setStatuses((prev) => ({
                   ...prev,
                   [item.id]: {
-                    status: "error",
-                    error_message: message,
+                    status: saveResponse.status === "success" ? "record" : "error",
+                    error_message: saveResponse.status === "success" ? errorMessage : "",
                     product_id: null,
                   },
                 }));
 
-                notificationAdapter.add(message, "error");
-              }
-            });
+                notificationAdapter.add(
+                  saveResponse.status === "success" ? successMessage : errorMessage,
+                  saveResponse.status,
+                );
+              });
           })
           .catch(() => {
-            const message = "Не удалось сгенерировать описание для данного товара";
-
             setStatuses((prev) => ({
               ...prev,
               [item.id]: {
                 status: "error",
-                error_message: message,
+                error_message: errorMessage,
                 product_id: null,
               },
             }));
 
-            notificationAdapter.add(message, "error");
+            notificationAdapter.add(errorMessage, "error");
           })
           .finally(() => {
             setProcessMap({});
@@ -312,52 +282,6 @@ export const ImportForm = () => {
     }
 
     setGenerateLoading(false);
-
-    /* Старая логика массовой генерации на бекенде (оставлена до проверки) */
-    // setGenerateLoading(true);
-    //
-    // for (let i = 0; i < pdfItems.length; i++) {
-    //   const item = pdfItems[i];
-    //   const status = statuses[i];
-    //
-    //   if (item.barcode && status.status === "empty") {
-    //     setProcessMap({ [item.id]: 1 });
-    //     await generateProductAction(item.name || "", item.barcode)
-    //       .then((response) => {
-    //         let message = response.message;
-    //         let status = response.status;
-    //
-    //         if (response.status === "success" && response.data) {
-    //           setStatuses((prev) => ({
-    //             ...prev,
-    //             [item.id]: {
-    //               status: response.data?.clear_name && response.data?.product ? "record" : "error",
-    //               error_message:
-    //                 response.data?.clear_name && response.data?.product
-    //                   ? ""
-    //                   : "Нет полного описания",
-    //               product_id: null,
-    //             },
-    //           }));
-    //
-    //           if (!response?.data?.product) {
-    //             message = "Не удалось сгенерировать описание для данного товара";
-    //             status = "error";
-    //           }
-    //         }
-    //         notificationAdapter.add(message, status);
-    //       })
-    //       .catch((error) => {
-    //         notificationAdapter.add(error, "error");
-    //       })
-    //       .finally(() => {
-    //         setProcessMap({});
-    //       });
-    //   }
-    //   if (generateLoading) {
-    //     setGenerateLoading(false);
-    //   }
-    // }
   };
 
   const handleAddAll = async () => {

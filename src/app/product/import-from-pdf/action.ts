@@ -1,10 +1,13 @@
 "use server";
 import { cookies } from "next/headers";
 import PDFParser, { type Output } from "pdf2json";
+import { fetchCategories } from "@/app/category/action";
+import { promptCategoryFromProduct } from "@/app/product/prompt";
 import { fetchService } from "@/shared/fetch-api";
 import { type ImportPdfItem, parseCatalog } from "@/shared/helpers/parse-catalog";
 import { updateTokensInAction } from "@/shared/helpers/updateCookieAction";
-import type { ProductModel } from "../action";
+import { generateAnswer } from "@/shared/llm/generateAnswer";
+import type { CategorySuggestion, ProductModel } from "../action";
 
 const pdfParser = new PDFParser();
 
@@ -31,7 +34,9 @@ export const checkBarcodeAction = async (barcode_list: { name: string; barcode: 
   const cookieStore = await cookies();
 
   return await fetchService
-    .post<Record<string, { status: CheckItemStatus; error_message: string; product_id: number | null }>>({
+    .post<
+      Record<string, { status: CheckItemStatus; error_message: string; product_id: number | null }>
+    >({
       url: "product-source-record/check-import-items",
       payload: barcode_list,
     })
@@ -59,10 +64,53 @@ export const addProductAction = async (barcode: string, price: number) => {
     });
 };
 
+export const suggestCategoryForImportAction = async (
+  name: string,
+  description: string,
+): Promise<CategorySuggestion> => {
+  return fetchCategories().then((response) => {
+    return promptCategoryFromProduct({
+      name,
+      description,
+      categories: response?.data || [],
+    })
+      .then((prompt) => generateAnswer<CategorySuggestion>(prompt))
+      .then((response) => {
+        return {
+          category_id: response.answer?.category_id || null,
+          create_categories:
+            Array.isArray(response.answer?.create_categories) &&
+            response.answer?.create_categories.length > 0
+              ? response.answer.create_categories
+              : [],
+        };
+      });
+  });
+};
+
 export type SaveGeneratedRecordPayload = {
-  barcode: string;
-  clear_name: string;
-  product: object;
+  value: string;
+  name: string;
+  description: string;
+  code: string;
+  product_type: string;
+  brand_name: string;
+  country: string;
+  equipment: string;
+  weight: number | null;
+  height: number | null;
+  length: number | null;
+  width: number | null;
+  seo_title: string;
+  seo_description: string;
+  slug: string;
+  og_title: string;
+  og_description: string;
+  og_type: string;
+  keywords: string;
+  specifications: { name: string; value: string }[];
+  categories: CategorySuggestion;
+  price: number | null;
 };
 
 export const saveGeneratedRecordAction = async (payload: SaveGeneratedRecordPayload) => {

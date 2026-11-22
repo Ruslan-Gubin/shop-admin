@@ -150,6 +150,6 @@ src/app/product/generate/
 | Запись в БД | `findRecord` / `saveRecord` | 1003-1011 / 1013-1027 |
 | Создание товара | `createProductFromRecord` (+ `resolveCategory`) | 35-159 (LLM: 102) |
 | Импорт | `checkImportItems` | 311-367 |
-| Фото | `pickImages` (DDG images, `vqd`) | 545+ |
+| Фото | ~~`pickImages`~~ → `searchDuckDuckGoImages` в `src/app/product/generate-product/action.ts` (бэкенд-эндпоинт удалён) | — |
 
 Эталонные промпты клиента (уже перенесены): `src/app/product/prompt.ts` (`promptSeoFromProduct`, `promptCategoryFromProduct`), контракт — `src/shared/llm/generateAnswer.ts`.

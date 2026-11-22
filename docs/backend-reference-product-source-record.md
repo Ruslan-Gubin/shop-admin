@@ -1,7 +1,9 @@
 # Эталон бэкенда: `product-source-record` (дословная копия)
 
 > Источник: `shop-back`, коммит `43d7f35` (06.10.2026).
-> Файл сгенерирован скриптом из исходников — **не редактировать вручную**.
+> Файл сгенерирован скриптом из исходников; блоки `pick-images` / `scoreTitle` удалены вручную:
+> эндпоинт упразднён в `shop-back` коммитом `bba5a78` (10.10.2026), подбор фото вынесен
+> в server action `src/app/product/generate-product/action.ts` (`searchDuckDuckGoImages`).
 > Назначение: не ходить в `shop-back` при переносе логики на клиент
 > (план переноса: `migrate-search-to-client.md`).
 
@@ -18,9 +20,8 @@
 ## 1. Контроллер
 
 ```ts
-import { Body, Controller, Get, Post, Query, UseGuards } from "@nestjs/common";
+import { Body, Controller, Post, UseGuards } from "@nestjs/common";
 import { ProductSourceRecordService } from "./product-source-record.service";
-import { PickImagesDto } from "./dto/pick-images.dto";
 import { SearchProductSourceRecordDto } from "./dto/product-source-record.dto";
 import { CheckImportItemDto } from "./dto/check-import-items.dto";
 import { CreateProductFromRecordDto } from "./dto/create-product-from-record.dto";
@@ -38,19 +39,6 @@ export class ProductSourceRecordController {
       const result = await this.productSourceRecordService.search(dto.name, dto.barcode);
 
       return responseData(result, "success", [], "Информация о товаре успешно найдена");
-    } catch (error) {
-      return responseData(null, "error", [], error);
-    }
-  }
-
-  @Get("pick-images")
-  @Roles("admin", "moderator")
-  @UseGuards(RolesGuard)
-  async pickImages(@Query() dto: PickImagesDto) {
-    try {
-      const images = await this.productSourceRecordService.pickImages(dto.query);
-
-      return responseData(images, "success", [], "Изображения подобраны");
     } catch (error) {
       return responseData(null, "error", [], error);
     }
@@ -132,18 +120,6 @@ export class CreateProductFromRecordDto {
   @IsNumber({}, { message: 'Цена должна быть числом' })
   @Min(0, { message: 'Цена не может быть меньше 0' })
   price: number;
-}
-```
-
-### `dto/pick-images.dto.ts`
-
-```ts
-import { IsString, IsNotEmpty } from 'class-validator';
-
-export class PickImagesDto {
-  @IsString()
-  @IsNotEmpty()
-  query: string;
 }
 ```
 
@@ -241,8 +217,6 @@ export class ProductSourceRecord {
 | `search` | 368-456 | **ОРКЕСТРАТОР** — переносится на клиент |
 | `fetchWithPlaywright` | 458-523 | рендер страницы + очистка текста (заменяется fetch) |
 | `asyncPool` | 525-539 | пул промисов, concurrency=2 |
-| `pickImages` | 541-591 | DDG-картинки по запросу (`vqd`) |
-| `scoreTitle` | 593-644 | скоринг заголовков картинок |
 | `getProductInfo` | 646-710 | DDG-поиск URL → asyncPool → валидация |
 | `validateParseProductInfo` | 712-780 | LLM: текст страницы → `{data, error, photos}` |
 | `findAndFormattedProductName` | 782-812 | 4 источника + LLM-имя |
@@ -803,111 +777,6 @@ ${categoriesForPrompt}
       }
     }
     await Promise.all(executing);
-  }
-
-  async pickImages(query: string): Promise<string[]> {
-    const headers = {
-      "user-agent":
-        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0 Safari/537.36",
-      "accept-language": "en-US,en;q=0.9",
-      referer: "https://duckduckgo.com/",
-    };
-
-    const tokenPage = await fetch(
-      `https://duckduckgo.com/?q=${encodeURIComponent(query)}&iax=images&ia=images`,
-      { headers },
-    );
-    const tokenHtml = await tokenPage.text();
-
-    const vqd = tokenHtml.match(/vqd="([^"]+)"/)?.[1];
-    if (!vqd) return [];
-
-    const apiUrl = `https://duckduckgo.com/i.js?l=us-en&o=json&q=${encodeURIComponent(
-      query,
-    )}&vqd=${vqd}&p=1`;
-
-    const apiResponse = await fetch(apiUrl, { headers });
-    if (!apiResponse.ok) return [];
-
-    const data: {
-      results?: {
-        image?: string;
-        title?: string;
-        width?: number;
-        height?: number;
-        score?: number;
-        small?: boolean;
-      }[];
-    } = await apiResponse.json();
-
-    for (const result of data.results || []) {
-      result.score = this.scoreTitle(result.title || "", query);
-      result.small = (result.width || 0) < 200 || (result.height || 0) < 200;
-    }
-
-    return (data.results || [])
-      .sort((a, b) => {
-        if (!a.image && !b.image) return 0;
-        if (!a.image) return 1;
-        if (!b.image) return -1;
-        return Number(a.small) - Number(b.small) || b.score! - a.score!;
-      })
-      .slice(0, 50)
-      .map((result) => result.image)
-      .filter((url): url is string => !!url);
-  }
-
-  private scoreTitle(title: string, name: string): number {
-    const tokenize = (text: string) =>
-      text
-        .toLowerCase()
-        .replace(/[^a-zа-яё0-9.]+/gi, " ")
-        .split(/\s+/)
-        .filter(Boolean);
-
-    const stemToken = (token: string): string =>
-      token.replace(
-        /(ая|яя|ое|ее|ый|ий|ой|ого|его|ому|ему|ам|ям|ах|ях|ов|ев|ом|ем|а|я|ы|и|у|ю|о|е|ь)$/gi,
-        "",
-      );
-
-    const stem = (tokens: string[]): string[] =>
-      tokens.map((t) => (t.length >= 3 ? stemToken(t) : t));
-
-    const nameTokens = tokenize(name);
-    const nameStemmed = stem(nameTokens);
-    const titleTokens = tokenize(title);
-    const titleStemmed = stem(titleTokens);
-
-    if (nameTokens.length === 0) return 0;
-
-    const nameNumbers = new Set(nameTokens.filter((t) => /\d/.test(t)));
-    let score = 0;
-
-    for (let i = 0; i < nameTokens.length; i++) {
-      const token = nameTokens[i];
-      const stemmed = nameStemmed[i];
-      const isNumeric = /\d/.test(token);
-
-      if (isNumeric) {
-        if (titleTokens.includes(token)) score += 1;
-        continue;
-      }
-
-      if (titleStemmed.includes(stemmed)) {
-        score += 2;
-      } else if (titleStemmed.some((t) => t.includes(stemmed) || stemmed.includes(t))) {
-        score += 1;
-      }
-    }
-
-    for (const titleToken of titleTokens) {
-      if (/\d/.test(titleToken) && !nameNumbers.has(titleToken)) {
-        score -= 1;
-      }
-    }
-
-    return score;
   }
 
   async getProductInfo(name: string, barcode?: string) {

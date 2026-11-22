@@ -15,19 +15,19 @@
 - Существующие actions для штрихкода (`src/app/product/import-from-pdf/action.ts`):
   - `generateProductAction(name, barcode)` → `POST product-source-record`, ответ `{ clear_name, product: GenerateProductType, error_message }`.
   - `GenerateProductType` — полный JSON товара: `name, code, description, product_type, equipment, brand_name, category_name, country, weight, height, length, width, specifications: [{name, value}], seo: {...}, photos: []`.
-  - `getParsePhotoAction(name)` → `GET product-source-record/pick-images?query=...`.
+  - Подбор фото: `searchDuckDuckGoImages(name)` — server action в `src/app/product/generate-product/action.ts` (бэкенд-эндпоинт `pick-images` удалён).
 
 ### Бэкенд (`shop-back/src/product-source-record`)
 - `POST /product-source-record/generate-seo` — реализован (`generateSeo(dto)`).
 - `POST /product-source-record` — `search()`: по штрихкоду ищет/создаёт запись, собирает название из интернета, `getProductOptions` возвращает полный product JSON.
-- `GET pick-images` — подбор фото по запросу.
+- Подбор фото выполняется на фронте через `searchDuckDuckGoImages`; бэкенд-эндпоинт `GET pick-images` удалён (`bba5a78`).
 - `resolveCategory(productName, recommendedPath)` — LLM выбирает существующую категорию или создаёт цепочку на лету (используется только внутри `createProductFromRecord`). Содержит переиспользуемую логику: построение промпта со списком категорий, парсинг JSON, создание цепочки через `categoryService.validateCategoryChain` + `create`.
 
 ## 2. Подтверждённые UX-решения
 
 1. **Отдельные кнопки «Сгенерировать» в каждой секции** (как SEO) + модалка с дифом «Текущее vs Предложенное», чекбоксами (включены только пустые поля), бейджами «Уже применено»/«Не предложено».
 2. **Категория**: модалка с двумя действиями — «Выбрать существующую» (category_id) и «Создать недостающие и выбрать» (цепочка создаётся на бэкенде на лету).
-3. **Штрихкод**: переиспользовать существующий пайплайн `search` + `pick-images`, заполнять все блоки.
+3. **Штрихкод**: переиспользовать пайплайн `search` для полей товара, фото подбирать через `searchDuckDuckGoImages` на фронте.
 4. **Фото включаются** в «заполнить по штрихкоду».
 
 ## 3. Бэкенд: новые эндпоинты

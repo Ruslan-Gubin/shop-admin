@@ -288,7 +288,7 @@ export const ProductFormPhotos = (props: Props) => {
             size="sm"
             type="button"
           >
-            Загрузить с компьютера
+            Загрузить с устройства
           </Button>
         </div>
         <div className={styles.addUrlContainer}>
