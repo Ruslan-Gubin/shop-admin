@@ -7,7 +7,7 @@ import { fetchService } from "@/shared/fetch-api";
 import { type ImportPdfItem, parseCatalog } from "@/shared/helpers/parse-catalog";
 import { updateTokensInAction } from "@/shared/helpers/updateCookieAction";
 import { generateAnswer } from "@/shared/llm/generateAnswer";
-import type { CategorySuggestion, ProductModel } from "../action";
+import type { CategorySuggestion, ProductModel, ProductSourceRecordModel } from "../action";
 
 const pdfParser = new PDFParser();
 
@@ -48,13 +48,13 @@ export const checkBarcodeAction = async (barcode_list: { name: string; barcode: 
     });
 };
 
-export const addProductAction = async (barcode: string, price: number) => {
+export const addProductAction = async (barcode: string) => {
   const cookieStore = await cookies();
 
   return await fetchService
     .post<ProductModel>({
       url: "product-source-record/create-product",
-      payload: { barcode, price },
+      payload: { barcode },
     })
     .then((response) => {
       if (response.tokens) {
@@ -88,36 +88,18 @@ export const suggestCategoryForImportAction = async (
   });
 };
 
-export type SaveGeneratedRecordPayload = {
-  value: string;
-  name: string;
-  description: string;
-  code: string;
-  product_type: string;
-  brand_name: string;
-  country: string;
-  equipment: string;
-  weight: number | null;
-  height: number | null;
-  length: number | null;
-  width: number | null;
-  seo_title: string;
-  seo_description: string;
-  slug: string;
-  og_title: string;
-  og_description: string;
-  og_type: string;
-  keywords: string;
-  specifications: { name: string; value: string }[];
+export type SaveGeneratedRecordPayload = Omit<
+  ProductSourceRecordModel,
+  "id" | "categories" | "createdAt" | "updatedAt"
+> & {
   categories: CategorySuggestion;
-  price: number | null;
 };
 
 export const saveGeneratedRecordAction = async (payload: SaveGeneratedRecordPayload) => {
   const cookieStore = await cookies();
 
   return await fetchService
-    .post<{ id: number }>({
+    .post<ProductSourceRecordModel>({
       url: "product-source-record/save-record",
       payload,
     })

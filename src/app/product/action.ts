@@ -13,6 +13,7 @@ import type {
   ProductSpecificationModel,
 } from "../specifications/action";
 import type { FetchWarehousesResponse, ProductStockModel } from "../warehouses/action";
+import { checkBarcodeSchema } from "./generate-product/schema";
 import { createProductPriceSchema } from "./schema";
 
 export interface PhotoItem {
@@ -436,4 +437,61 @@ export const applyCategorySuggestionAction = async (
 
       return response;
     });
+};
+
+export type ProductSourceRecordSpecification = {
+  name: string;
+  value: string;
+};
+
+export type ProductSourceRecordModel = {
+  id: number;
+  value: string;
+  name: string;
+  code: string;
+  brand_name: string;
+  description: string;
+  country: string;
+  product_type: string;
+  equipment: string;
+  weight: number | null;
+  height: number | null;
+  length: number | null;
+  width: number | null;
+  seo_title: string;
+  seo_description: string;
+  slug: string;
+  og_title: string;
+  og_description: string;
+  og_type: string;
+  keywords: string;
+  price: number | null;
+  specifications: {
+    name: string;
+    value: string;
+  }[];
+  categories: CategorySuggestion | null;
+  createdAt: string;
+  updatedAt: string | null;
+};
+
+export const getRecordAction = async (code: string) => {
+  const cookieStore = await cookies();
+  const parsed = checkBarcodeSchema.safeParse(code);
+
+  if (parsed.success) {
+    return fetchService
+      .get<ProductSourceRecordModel>({
+        url: `product-source-record/${parsed.data}`,
+      })
+      .then((response) => {
+        if (response.tokens) {
+          updateTokensInAction(cookieStore, response.tokens);
+        }
+
+        return { status: response.status, data: response.data };
+      });
+  } else {
+    return { status: "error", data: null };
+  }
 };

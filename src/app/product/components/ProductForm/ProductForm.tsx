@@ -6,6 +6,7 @@ import { EditSvg } from "@/app/category/components/category-item/svg/EditSvg";
 import type { PriceTypeModel } from "@/app/price-types/action";
 import {
   applyCategorySuggestionAction,
+  getRecordAction,
   type CategorySuggestion,
   type GenerateProductType,
 } from "@/app/product/action";
@@ -152,22 +153,30 @@ export const ProductForm = (props: Props) => {
   };
 
   const handleGenerateFullInfo = () => {
-    setGeneratingFullInfo(true);
+    // setGeneratingFullInfo(true);
 
-    generateProductData(values.name, values.code)
-      .then((response) => {
-        if (Object.hasOwn(response, "answer")) {
-          setFullInfoClearName(response?.answer?.name || "");
-          setFullInfoProduct(response.answer);
-          setIsFullInfoModalOpen(true);
-        }
-      })
-      .catch((error) => {
-        notificationAdapter.add(error, "error");
-      })
-      .finally(() => {
-        setGeneratingFullInfo(false);
-      });
+    getRecordAction(values.code).then((response) => {
+      if (response.status === "success" && response.data !== null) {
+        const record = response.data;
+        console.log("record:", record);
+      } else {
+        console.log("need generate");
+        generateProductData(values.name, values.code)
+          .then((response) => {
+            if (Object.hasOwn(response, "answer")) {
+              setFullInfoClearName(response?.answer?.name || "");
+              setFullInfoProduct(response.answer);
+              setIsFullInfoModalOpen(true);
+            } else {
+              throw "Не удалось сгенерировать информацию";
+            }
+          })
+          .catch((error) => {
+            notificationAdapter.add(error, "error");
+          })
+          .finally(() => setGeneratingFullInfo(false));
+      }
+    });
   };
 
   const handleCloseFullInfoModal = () => {

@@ -183,9 +183,7 @@ export const ImportForm = () => {
       return notificationAdapter.add("Отсутствует штрих-код", "error");
     }
 
-    const currentPrice = !Number.isNaN(Number(item.price)) ? Math.ceil(Number(item.price)) : 0;
-
-    addProductAction(item.barcode, currentPrice)
+    addProductAction(item.barcode)
       .then((response) => {
         const message = response.message;
         const status = response.status;
@@ -294,9 +292,7 @@ export const ImportForm = () => {
       if (item.barcode && status?.status === "record") {
         setProcessMap({ [item.id]: 1 });
 
-        const currentPrice = !Number.isNaN(Number(item.price)) ? Math.ceil(Number(item.price)) : 0;
-
-        await addProductAction(item.barcode, currentPrice)
+        await addProductAction(item.barcode)
           .then((response) => {
             const message = response.message;
             const resStatus = response.status;
