@@ -11,15 +11,19 @@ import { ModalDelete } from "@/widgets/modals/modal-delete/ModalDelete";
 import { TableControls } from "@/widgets/table-controls/TableControls";
 import type { UserModel } from "../../action";
 
+export interface UserModelTable extends UserModel {
+  photo_src: string;
+}
+
 type Props = {
-  users: UserModel[];
+  users: UserModelTable[];
   onDeleteItemAction: (id: number) => Promise<{ status: "error" | "success"; message: string }>;
   redirectPageAfterDeleteAction: () => void;
   name: string;
   isLoadMoreDisabled: boolean;
   patch: string;
   searchParams: { [key: string]: string | string[] | undefined };
-  fetchTableElementAction: (id: string) => Promise<ResponseData<UserModel>>;
+  fetchTableElementAction: (id: string) => Promise<ResponseData<UserModelTable>>;
 };
 
 export const UsersTableWrapper = (props: Props) => {
@@ -66,20 +70,24 @@ export const UsersTableWrapper = (props: Props) => {
     }
   };
 
-  const handleInfoRouter = (item: UserModel) => {
+  const handleInfoRouter = (item: UserModelTable) => {
     if (item.id) {
       router.push(`/users/info/${item.id}`);
     }
   };
 
-  const handleEditRouter = (item: UserModel) => {
+  const handleEditRouter = (item: UserModelTable) => {
     if (item.id) {
       router.push(`/users/edit/${item.id}`);
     }
   };
 
-  const tableOptions: RenderTableOptions<UserModel>[] = [
+  const tableOptions: RenderTableOptions<UserModelTable>[] = [
     { key: "id" },
+    {
+      key: "photo_src",
+      type: "avatar",
+    },
     { key: "name" },
     { key: "phone" },
     { key: "email" },
@@ -87,7 +95,7 @@ export const UsersTableWrapper = (props: Props) => {
     { key: "created_at", type: "date" },
   ];
 
-  const headerRowLabels = ["ID", "Имя", "Телефон", "Почта", "Роль", "Дата регистрации"];
+  const headerRowLabels = ["ID", "Аватар", "Имя", "Телефон", "Почта", "Роль", "Дата регистрации"];
 
   return (
     <>
@@ -113,7 +121,7 @@ export const UsersTableWrapper = (props: Props) => {
             data={props.users}
             headerRowLabels={headerRowLabels}
             stickyActionColumn
-            gridTemplateColumns="65px minmax(120px, 192px) minmax(120px, 192px) 192px minmax(100px, 160px) minmax(160px, 1fr) 32px"
+            gridTemplateColumns="65px 80px minmax(120px, 192px) minmax(120px, 192px) 192px minmax(100px, 160px) minmax(160px, 1fr) 32px"
             tableOptions={tableOptions}
             actions={[
               { label: "Подробнее", action: handleInfoRouter },
@@ -126,10 +134,10 @@ export const UsersTableWrapper = (props: Props) => {
         {isMounted && isMobile && props.users && props.users.length > 0 && (
           <MainMobileTable
             titleKey="name"
-            data={props.users}
+            data={props.users as UserModelTable[]}
             tableOptions={tableOptions}
             headerRowLabels={headerRowLabels}
-            headerRowWidth={["38px", "100px", "100px", "80px", "100px", "120px"]}
+            headerRowWidth={["38px", "28px", "100px", "100px", "80px", "100px", "120px"]}
             searchParams={props.searchParams}
             isLoadMoreDisabled={props.isLoadMoreDisabled}
             patch={props.patch}

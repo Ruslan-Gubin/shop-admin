@@ -1,5 +1,6 @@
 "use server";
 import { redirect } from "next/navigation";
+import { CONFIG_APP } from "@/shared/config/config";
 import { getIsLoadMoreDisabled } from "@/shared/helpers/getIsLoadMoreDisabled";
 import { getUpdateQueryPageString } from "@/shared/helpers/getUpdateQueryPageString";
 import { ErrorAlert } from "@/shared/ui/error-alert/ErrorAlert";
@@ -30,6 +31,23 @@ export default async function UsersPage(req: {
     limit,
   );
 
+  const formattedPhotoSrc = (src: string | undefined) => {
+    let result = "/assets/no_image.jpg";
+
+    if (typeof src === "string") {
+      result = src.includes("uploads/") ? `${CONFIG_APP.BACKEND_URL}${src}` : src;
+    }
+
+    return result;
+  };
+
+  const users = Array.isArray(tableData?.data?.users)
+    ? tableData?.data?.users.map((user) => ({
+        ...user,
+        photo_src: formattedPhotoSrc(user?.photo?.url),
+      }))
+    : [];
+
   return (
     <section className="page-wrapper">
       {tableData?.tokens && <UpdateToken tokens={tableData.tokens} />}
@@ -39,7 +57,7 @@ export default async function UsersPage(req: {
       <PageHeader title="Справочник пользователей." />
       <section className="table-container">
         <UsersTableWrapper
-          users={tableData?.data?.users || []}
+          users={users}
           onDeleteItemAction={deleteUserAction}
           redirectPageAfterDeleteAction={redirectPageAfterDelete}
           name={searchParams.name || ""}

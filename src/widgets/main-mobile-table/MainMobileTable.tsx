@@ -20,6 +20,7 @@ interface Props<T> {
   searchParams: { [key: string]: string | string[] | undefined };
   fetchTableElementAction?: (id: string) => Promise<ResponseData<T>>;
   actions?: { label: string; action: (item: T) => void }[];
+  backend_url?: string;
 }
 
 const shortDateFormat = new Intl.DateTimeFormat("ru-RU", {

@@ -4,6 +4,7 @@ import { cookies } from "next/headers";
 import { fetchService } from "@/shared/fetch-api";
 import { deleteItemCookieAction, updateTokensInAction } from "@/shared/helpers/updateCookieAction";
 import type { PhotoItem } from "../product/action";
+import type { UserModelTable } from "./components/UsersTableWrapper/UsersTableWrapper";
 
 export type UserRole = "user" | "admin" | "moderator" | "wholesaler";
 
@@ -38,7 +39,7 @@ export const fetchUser = async (id: string) => {
   const cookieStore = await cookies();
 
   return await fetchService
-    .get<UserModel>({
+    .get<UserModelTable>({
       url: `users/${id}`,
       tags: [`Users_${id}`],
     })
