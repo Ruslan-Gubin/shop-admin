@@ -1,6 +1,6 @@
 "use server";
 import { redirect } from "next/navigation";
-import { CONFIG_APP } from "@/shared/config/config";
+import { formattedPhotoSrc } from "@/shared/helpers/formattedPhotoSrc";
 import { getIsLoadMoreDisabled } from "@/shared/helpers/getIsLoadMoreDisabled";
 import { getUpdateQueryPageString } from "@/shared/helpers/getUpdateQueryPageString";
 import { ErrorAlert } from "@/shared/ui/error-alert/ErrorAlert";
@@ -8,7 +8,10 @@ import { PageHeader } from "@/shared/ui/page-header/PageHeader";
 import { Pagination } from "@/shared/ui/pagination/Pagination";
 import { UpdateToken } from "@/views/UpdateToken/UpdateToken";
 import { deleteUserAction, fetchUser, fetchUsers } from "./action";
-import { UsersTableWrapper } from "./components/UsersTableWrapper/UsersTableWrapper";
+import {
+  type UserModelTable,
+  UsersTableWrapper,
+} from "./components/UsersTableWrapper/UsersTableWrapper";
 
 export default async function UsersPage(req: {
   searchParams: Promise<{ page: string; name?: string }>;
@@ -31,17 +34,7 @@ export default async function UsersPage(req: {
     limit,
   );
 
-  const formattedPhotoSrc = (src: string | undefined) => {
-    let result = "/assets/no_image.jpg";
-
-    if (typeof src === "string") {
-      result = src.includes("uploads/") ? `${CONFIG_APP.BACKEND_URL}${src}` : src;
-    }
-
-    return result;
-  };
-
-  const users = Array.isArray(tableData?.data?.users)
+  const users: UserModelTable[] = Array.isArray(tableData?.data?.users)
     ? tableData?.data?.users.map((user) => ({
         ...user,
         photo_src: formattedPhotoSrc(user?.photo?.url),

@@ -10,11 +10,15 @@ import { ModalDelete } from "@/widgets/modals/modal-delete/ModalDelete";
 import { TableControls } from "@/widgets/table-controls/TableControls";
 import type { ProductModel } from "../../action";
 
+export interface ProductModelTable extends ProductModel {
+  photo_src: string;
+}
+
 type Props = {
-  products: ProductModel[];
+  products: ProductModelTable[];
   onDeleteItemAction: (id: number) => Promise<{ status: "error" | "success"; message: string }>;
   redirectPageAfterDeleteAction: () => void;
-  fetchTableElementAction: (id: string) => Promise<ResponseData<ProductModel>>;
+  fetchTableElementAction: (id: string) => Promise<ResponseData<ProductModelTable>>;
   name: string;
   isLoadMoreDisabled: boolean;
   patch: string;
@@ -35,7 +39,7 @@ export const ProductsTableWrapper = (props: Props) => {
     isDelete: false,
   });
 
-  const handleOpenDeleteModal = (item: ProductModel) =>
+  const handleOpenDeleteModal = (item: ProductModelTable) =>
     setOptionFormModal({
       id: item.id,
       isOpen: true,
@@ -65,20 +69,24 @@ export const ProductsTableWrapper = (props: Props) => {
     }
   };
 
-  const handleEditRouter = (item: ProductModel) => {
+  const handleEditRouter = (item: ProductModelTable) => {
     if (item.id) {
       router.push(`/product/edit/${item.id}`);
     }
   };
 
-  const handleInfoRouter = (item: ProductModel) => {
+  const handleInfoRouter = (item: ProductModelTable) => {
     if (item.id) {
       router.push(`/product/info/${item.id}`);
     }
   };
 
-  const tableOptions: RenderTableOptions<ProductModel>[] = [
+  const tableOptions: RenderTableOptions<ProductModelTable>[] = [
     { key: "id" },
+    {
+      key: "photo_src",
+      type: "avatar",
+    },
     { key: "name" },
     { key: "description" },
     { key: "product_type" },
@@ -88,6 +96,7 @@ export const ProductsTableWrapper = (props: Props) => {
 
   const headerRowLabels = [
     "ID",
+    "Фото",
     "Название",
     "Описание",
     "Вид товара",
@@ -120,7 +129,7 @@ export const ProductsTableWrapper = (props: Props) => {
             headerRowLabels={headerRowLabels}
             stickyActionColumn={true}
             stickyFirstColumn
-            gridTemplateColumns="65px minmax(150px, 1fr) minmax(150px, 240px) minmax(110px, 150px) minmax(130px, 150px) 160px 32px"
+            gridTemplateColumns="65px 80px minmax(150px, 1fr) minmax(150px, 240px) minmax(110px, 150px) minmax(130px, 150px) 160px 32px"
             tableOptions={tableOptions}
             actions={[
               { label: "Подробнее", action: handleInfoRouter },
@@ -136,7 +145,7 @@ export const ProductsTableWrapper = (props: Props) => {
             data={props.products}
             tableOptions={tableOptions}
             headerRowLabels={headerRowLabels}
-            headerRowWidth={["38px", "140px", "100px", "80px", "100px", "120px"]}
+            headerRowWidth={["38px", "28px", "140px", "100px", "80px", "100px", "120px"]}
             searchParams={props.searchParams}
             isLoadMoreDisabled={props.isLoadMoreDisabled}
             patch={props.patch}

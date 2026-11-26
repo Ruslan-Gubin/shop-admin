@@ -106,7 +106,6 @@ export const MainTable = <T extends { id: number }>(props: Props<T>) => {
                         : cell.typeConfig.booleanLabels[1]}
                     </Badge>
                   )}
-
                 {cell.type === "avatar" && typeof item[cell.key] === "string" && (
                   <picture>
                     <img className={styles.avatar} src={item[cell.key] as string} alt="Avatar" />

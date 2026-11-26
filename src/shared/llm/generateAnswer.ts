@@ -3,11 +3,11 @@ import { localGenerate } from "./localGenerate";
 import { modelSaveStatistics } from "./modelStatistics";
 import { unoRouterModels } from "./unoRouterModels";
 
-export const generateAnswer = async <T>(prompt: string): Promise<{ answer: T }> => {
-  return localGenerate(prompt);
-};
+// export const generateAnswer = async <T>(prompt: string): Promise<{ answer: T }> => {
+//   return localGenerate(prompt);
+// };
 
-export const generateAnswer2 = async <T>(
+export const generateAnswer = async <T>(
   prompt: string,
   initModelId?: number,
   initApiKey?: string,
@@ -73,6 +73,6 @@ export const generateAnswer2 = async <T>(
     })
     .catch(() => {
       modelSaveStatistics(currentModel, "error-model-statistics");
-      return generateAnswer2(prompt, currentModelId + 1, apiKeyUnoRouter);
+      return generateAnswer(prompt, currentModelId + 1, apiKeyUnoRouter);
     });
 };

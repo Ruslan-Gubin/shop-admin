@@ -15,6 +15,7 @@ import type {
 import type { FetchWarehousesResponse, ProductStockModel } from "../warehouses/action";
 import { checkBarcodeSchema } from "./generate-product/schema";
 import { createProductPriceSchema } from "./schema";
+import { ProductModelTable } from "./components/ProductsTableWrapper/ProductsTableWrapper";
 
 export interface PhotoItem {
   created_at: string;
@@ -191,7 +192,7 @@ export const fetchProduct = async (id: string) => {
   const cookieStore = await cookies();
 
   return await fetchService
-    .get<ProductModel>({
+    .get<ProductModelTable>({
       url: `product/${id}`,
       tags: [`Products_${id}`],
     })

@@ -1,5 +1,6 @@
 "use server";
 import { redirect } from "next/navigation";
+import { formattedPhotoSrc } from "@/shared/helpers/formattedPhotoSrc";
 import { getIsLoadMoreDisabled } from "@/shared/helpers/getIsLoadMoreDisabled";
 import { getUpdateQueryPageString } from "@/shared/helpers/getUpdateQueryPageString";
 import { ErrorAlert } from "@/shared/ui/error-alert/ErrorAlert";
@@ -7,7 +8,10 @@ import { PageHeader } from "@/shared/ui/page-header/PageHeader";
 import { Pagination } from "@/shared/ui/pagination/Pagination";
 import { UpdateToken } from "@/views/UpdateToken/UpdateToken";
 import { deleteProductAction, fetchProduct, fetchProducts } from "./action";
-import { ProductsTableWrapper } from "./components/ProductsTableWrapper/ProductsTableWrapper";
+import {
+  type ProductModelTable,
+  ProductsTableWrapper,
+} from "./components/ProductsTableWrapper/ProductsTableWrapper";
 
 export default async function ProductsPage(req: {
   searchParams: Promise<{ page: string; name?: string }>;
@@ -39,6 +43,14 @@ export default async function ProductsPage(req: {
     limit,
   );
 
+  const products: ProductModelTable[] = Array.isArray(tableData?.data?.products)
+    ? tableData?.data?.products.map((product) => ({
+        ...product,
+        photo_src: formattedPhotoSrc(product?.photos[0]?.url),
+      }))
+    : [];
+  console.log();
+
   return (
     <section className="page-wrapper">
       {tableData?.tokens && <UpdateToken tokens={tableData.tokens} />}
@@ -48,7 +60,7 @@ export default async function ProductsPage(req: {
       )}
       <section className="table-container">
         <ProductsTableWrapper
-          products={tableData?.data?.products || []}
+          products={products}
           onDeleteItemAction={deleteProductAction}
           redirectPageAfterDeleteAction={redirectPageAfterDelete}
           name={searchParams.name || ""}
